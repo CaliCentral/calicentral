@@ -1,0 +1,78 @@
+name: Feature request
+description: Suggest an improvement or new capability for Cali Central.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain the problem first, then describe the proposed solution.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What problem would this feature solve?
+      placeholder: Athletes currently cannot view how their ranking changed over time.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe how the feature should work.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Product area
+      options:
+        - Videos
+        - News
+        - Athlete profiles
+        - Rankings and statistics
+        - Worldwide competitions
+        - Cali Central competitions
+        - Accounts
+        - Submissions
+        - Affiliate system
+        - Advertising
+        - Merch
+        - Admin tools
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Suggested priority
+      options:
+        - Future idea
+        - Low
+        - Medium
+        - High
+        - Blocking another feature
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Completion requirements
+      description: List what must be true for this feature to be considered complete.
+      placeholder: |
+        - Athlete can see current rank
+        - Athlete can see previous rank
+        - Ranking history includes dates
+        - Mobile layout works correctly
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add mockups, examples, or related issue numbers.
