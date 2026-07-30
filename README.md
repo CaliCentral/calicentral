@@ -8,15 +8,15 @@ Central-owned competitions.
 
 ## Current status
 
-Cali Central is in early development. The repository currently contains a
-minimal Next.js App Router application and initial product, architecture,
-security, legal, and content-model documentation.
+Cali Central is in early development. Milestone 1 provides a branded,
+responsive public homepage and application shell powered by typed local sample
+data. It includes editorial, video, competition, athlete, and rankings
+previews.
 
-The current application is still based on the default Next.js starter. Product
-features, external services, authentication, data models, deployment
+External services, authentication, production data models, deployment
 configuration, and production infrastructure have not been implemented yet.
-Any content added during the public-foundation milestone should be treated as
-sample data unless explicitly documented otherwise.
+Homepage names, events, rankings, and statistics are fictional prototype
+content unless explicitly documented otherwise.
 
 ## Technology stack
 
@@ -101,6 +101,11 @@ checked as part of the Next.js build.
 ├── .github/
 │   └── ISSUE_TEMPLATE/   # Bug and feature request templates
 ├── app/                  # Next.js App Router pages, layout, and global styles
+├── components/
+│   ├── home/             # Focused public homepage sections
+│   ├── layout/           # Shared header, navigation, and footer
+│   └── ui/               # Small reusable presentation primitives
+├── data/                 # Typed local prototype content
 ├── docs/
 │   ├── architecture/     # System structure and integration documentation
 │   ├── content-models/   # Planned CMS and application data models
@@ -109,6 +114,7 @@ checked as part of the Next.js build.
 │   ├── product/          # Product requirements, phases, and checklists
 │   └── security/         # Repository-safe security practices
 ├── public/               # Static public assets
+├── types/                # Shared public content types
 ├── AGENTS.md             # Repository instructions for coding agents
 ├── next.config.ts        # Next.js configuration
 ├── package.json          # Dependencies and npm scripts
