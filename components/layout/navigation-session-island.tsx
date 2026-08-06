@@ -13,6 +13,7 @@ type NavigationSessionIslandProps = {
 type NavigationPresentationProps = {
   readonly items: readonly NavigationItem[];
   readonly isAuthenticated: boolean;
+  readonly isSessionLoading: boolean;
   readonly canUseEditorialDesk: boolean;
   readonly onSignOut: () => Promise<void>;
 };
@@ -20,6 +21,7 @@ type NavigationPresentationProps = {
 function NavigationPresentation({
   items,
   isAuthenticated,
+  isSessionLoading,
   canUseEditorialDesk,
   onSignOut,
 }: NavigationPresentationProps) {
@@ -28,12 +30,14 @@ function NavigationPresentation({
       <DesktopNavigation
         items={items}
         isAuthenticated={isAuthenticated}
+        isSessionLoading={isSessionLoading}
         canUseEditorialDesk={canUseEditorialDesk}
         onSignOut={onSignOut}
       />
       <MobileNavigation
         items={items}
         isAuthenticated={isAuthenticated}
+        isSessionLoading={isSessionLoading}
         canUseEditorialDesk={canUseEditorialDesk}
         onSignOut={onSignOut}
       />
@@ -63,6 +67,7 @@ function SessionAwareNavigation({
     <NavigationPresentation
       items={items}
       isAuthenticated={isAuthenticated}
+      isSessionLoading={status === "loading"}
       canUseEditorialDesk={canUseEditorialDesk}
       onSignOut={performSignOut}
     />

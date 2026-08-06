@@ -18,7 +18,7 @@ export function VideoHero({ video }: VideoHeroProps) {
           className="inline-flex min-h-11 items-center gap-3 font-mono text-xs font-bold uppercase tracking-[0.14em] text-muted transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
           <span aria-hidden="true">←</span>
-          Video archive
+          Media discover
         </Link>
 
         <div className="mt-7 grid overflow-hidden border border-white/15 lg:grid-cols-[minmax(0,0.93fr)_minmax(25rem,1.07fr)]">

@@ -2,6 +2,17 @@ import {defineField, defineType} from "sanity"
 
 import {validateTimestampAgainstDuration} from "../validation"
 
+const mediaPlatformOptions = [
+  {title: "Cali Central", value: "Cali Central"},
+  {title: "Instagram", value: "Instagram"},
+  {title: "TikTok", value: "TikTok"},
+  {title: "YouTube", value: "YouTube"},
+  {title: "Facebook", value: "Facebook"},
+  {title: "X", value: "X"},
+  {title: "Threads", value: "Threads"},
+  {title: "Website", value: "Website"},
+]
+
 export const videoChapter = defineType({
   name: "videoChapter",
   title: "Video chapter",
@@ -142,5 +153,64 @@ export const editorialNote = defineType({
   ],
   preview: {
     select: {title: "heading", subtitle: "text"},
+  },
+})
+
+export const videoPlatformMetric = defineType({
+  name: "videoPlatformMetric",
+  title: "Platform-specific metric",
+  type: "object",
+  description:
+    "A metric reported by one named platform. Metrics are never combined across platforms.",
+  fields: [
+    defineField({
+      name: "platform",
+      title: "Platform",
+      type: "string",
+      options: {list: mediaPlatformOptions},
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "label",
+      title: "Metric",
+      type: "string",
+      options: {
+        list: [
+          {title: "Views", value: "Views"},
+          {title: "Plays", value: "Plays"},
+          {title: "Engagement", value: "Engagement"},
+        ],
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "value",
+      title: "Reported value",
+      type: "number",
+      validation: (Rule) => Rule.required().integer().min(0),
+    }),
+    defineField({
+      name: "observedAt",
+      title: "Observed at",
+      type: "datetime",
+      description: "When this platform-specific number was observed.",
+    }),
+    defineField({
+      name: "sourceUrl",
+      title: "Metric source URL",
+      type: "url",
+      validation: (Rule) =>
+        Rule.uri({allowRelative: false, scheme: ["http", "https"]}),
+    }),
+  ],
+  preview: {
+    select: {platform: "platform", label: "label", value: "value"},
+    prepare({platform, label, value}) {
+      return {
+        title: [platform, label].filter(Boolean).join(" / "),
+        subtitle:
+          typeof value === "number" ? value.toLocaleString("en-US") : "No value",
+      }
+    },
   },
 })

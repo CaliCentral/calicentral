@@ -15,7 +15,7 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --keep-vars",
     "cf-typegen": "wrangler types --config wrangler.typegen.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "test": "node --import tsx scripts/validate-operations.ts && wrangler types --config wrangler.typegen.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts --check",
+    "test": "node --import tsx scripts/validate-operations.ts && node --import tsx scripts/validate-media.ts && wrangler types --config wrangler.typegen.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts --check",
     "check": "npm run lint && npm run cf-typegen && npm run typecheck && npm test && npm run cf:build",
     "sanity:schema": "sanity schema extract --enforce-required-fields --path schema.json",
     "sanity:typegen": "sanity typegen generate",

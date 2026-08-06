@@ -101,7 +101,7 @@ export const structure: StructureResolver = (S) =>
         ),
       S.listItem()
         .title("Athletes")
-        .id("athletes-and-rankings")
+        .id("athletes-and-standings")
         .child(
           S.list()
             .title("Athletes")
@@ -115,13 +115,13 @@ export const structure: StructureResolver = (S) =>
                   ]),
                 ),
               S.listItem()
-                .title("Ranking categories")
+                .title("Standing categories")
                 .schemaType("rankingCategory")
                 .child(
                   orderedDocumentList(
                     S,
                     "rankingCategory",
-                    "Ranking categories",
+                    "Standing categories",
                     [
                       {field: "displayOrder", direction: "asc"},
                       {field: "title", direction: "asc"},

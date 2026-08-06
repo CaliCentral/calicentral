@@ -103,8 +103,34 @@ const SUBMISSION_CONTENT_PROJECTION = `{
     conflictDisclosure
   },
   athleteNominationDetails {
+    requestKind,
+    existingAthleteSlug,
     athleteName,
+    displayName,
+    country,
+    administrativeArea,
     city,
+    biography,
+    primaryCategory,
+    specialties,
+    yearsActive,
+    profileImageUrl,
+    coverImageUrl,
+    "socialLinks": socialLinks[]${SUPPORTING_LINK_PROJECTION},
+    "competitionHistory": competitionHistory[]{
+      "key": _key,
+      eventName,
+      organizer,
+      date,
+      country,
+      city,
+      divisionCategory,
+      placement,
+      score,
+      officialResultUrl,
+      eventUrl,
+      videoUrl
+    },
     discipline,
     nominationReason,
     "publicReferenceLinks": publicReferenceLinks[]${SUPPORTING_LINK_PROJECTION},
@@ -129,6 +155,10 @@ const SUBMISSION_CONTENT_PROJECTION = `{
     location,
     visualApproach,
     estimatedDuration,
+    sourcePlatform,
+    sourceAccount,
+    originalPostUrl,
+    mediaPermissionStatus,
     "publicReferenceLinks": publicReferenceLinks[]${SUPPORTING_LINK_PROJECTION}
   },
   correctionRequestDetails {
@@ -224,6 +254,16 @@ function createSupportingLinkDocuments(
   }));
 }
 
+function createAthleteCompetitionHistoryDocuments(
+  entries: readonly Record<string, unknown>[],
+) {
+  return entries.map((entry) => ({
+    _key: randomUUID(),
+    _type: "athleteCompetitionHistorySubmission",
+    ...compactRecord(entry),
+  }));
+}
+
 function compactRecord(values: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(values).filter(
@@ -259,6 +299,12 @@ function submissionContentPatch(input: SubmissionWriteInput) {
         athleteNominationDetails: compactRecord({
           _type: "athleteNominationDetails",
           ...input.athleteNominationDetails,
+          socialLinks: createSupportingLinkDocuments(
+            input.athleteNominationDetails.socialLinks ?? [],
+          ),
+          competitionHistory: createAthleteCompetitionHistoryDocuments(
+            input.athleteNominationDetails.competitionHistory ?? [],
+          ),
           publicReferenceLinks: createSupportingLinkDocuments(
             input.athleteNominationDetails.publicReferenceLinks ?? [],
           ),

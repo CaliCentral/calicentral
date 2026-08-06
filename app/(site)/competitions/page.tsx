@@ -10,16 +10,16 @@ import { createPublicMetadata } from "@/lib/site/metadata";
 export const metadata: Metadata = {
   ...createPublicMetadata({
     path: "/competitions",
-    title: "Competitions — Fictional event directory",
+    title: "Worldwide Calisthenics Competition Directory",
     description:
-      "Explore Cali Central's fictional competition calendar, event previews, completed sample results, and public schedule records.",
+      "Explore worldwide calisthenics competition listings, dates, disciplines, registration states, and source-backed results from Cali Central.",
     socialTitle: "Competitions — Cali Central",
   }),
   keywords: [
     "calisthenics competitions",
-    "fictional event calendar",
-    "California calisthenics",
-    "competition archive prototype",
+    "worldwide calisthenics events",
+    "calisthenics event calendar",
+    "competition results archive",
   ],
 };
 
@@ -39,8 +39,8 @@ export default async function CompetitionsPage() {
   const postponedCount = competitions.filter(
     (competition) => competition.status === "postponed",
   ).length;
-  const cityCount = new Set(
-    competitions.map((competition) => competition.city),
+  const countryCount = new Set(
+    competitions.map((competition) => competition.country).filter(Boolean),
   ).size;
   const disciplineCount = new Set(
     competitions.flatMap((competition) => competition.disciplines),
@@ -53,7 +53,7 @@ export default async function CompetitionsPage() {
     <>
       <CompetitionDirectoryHero
         eventCount={competitions.length}
-        cityCount={cityCount}
+        countryCount={countryCount}
         disciplineCount={disciplineCount}
         nextDateLabel={nextDateLabel}
       />
@@ -76,7 +76,7 @@ export default async function CompetitionsPage() {
                 id="calendar-summary-heading"
                 className="mt-4 text-balance font-display text-4xl font-black uppercase leading-[0.94] tracking-[-0.055em] text-ink sm:text-5xl"
               >
-                One field, three event states.
+                One field, clear event states.
               </h2>
             </div>
             <dl className="grid grid-cols-3 gap-px border border-white/15 bg-white/15">
@@ -117,17 +117,15 @@ export default async function CompetitionsPage() {
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
-              Search by event or place, narrow the sample field, and sort the
-              complete fictional calendar without leaving the page.
+              Filter the published directory by country, administrative area,
+              category, status, registration state, and date.
             </p>
           </div>
 
           <CompetitionDirectory competitions={competitions} />
 
           <p className="mt-8 max-w-3xl border-l-2 border-accent pl-4 text-xs leading-5 text-muted">
-            All names, organizers, athletes, venues, dates, schedules,
-            registration states, and results in this directory are fictional
-            prototype content. No registration or ticketing is available.
+            Prototype and sample records retain a visible “Sample / Not official” label. Registration, ticketing, and livestream availability is controlled by the reviewed external actions on each event record.
           </p>
         </Container>
       </section>

@@ -4,38 +4,65 @@ import { useMemo, useState } from "react";
 
 import { AthleteCard } from "@/components/athletes/athlete-card";
 import { ContentEmptyState } from "@/components/ui/content-empty-state";
-import type { Athlete } from "@/types/athlete";
+import {
+  athleteCategoryLabel,
+  athleteCompetitionCategories,
+  athleteSpecialtyLabel,
+} from "@/lib/athlete-taxonomy";
+import {
+  administrativeAreaLabel,
+  countryNameFor,
+} from "@/lib/geography";
+import type {
+  Athlete,
+  AthleteCompetitionCategory,
+} from "@/types/athlete";
 
 type AthleteDirectoryProps = {
   readonly athletes: readonly Athlete[];
 };
 
-type SortOption = "featured" | "name" | "ranking" | "region";
-type DisciplineFilter = Athlete["disciplines"][number] | "all";
+type SortOption = "featured" | "name" | "updated";
+type CategoryFilter = AthleteCompetitionCategory | "all";
+type VerificationFilter = "all" | "identity" | "profile" | "unverified";
 
 const controlClassName =
   "min-h-12 w-full border border-white/20 bg-canvas px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-muted/80 hover:border-white/40 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
   const [query, setQuery] = useState("");
-  const [discipline, setDiscipline] = useState<DisciplineFilter>("all");
-  const [region, setRegion] = useState("all");
+  const [country, setCountry] = useState("all");
+  const [administrativeArea, setAdministrativeArea] = useState("all");
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const [verification, setVerification] =
+    useState<VerificationFilter>("all");
   const [sort, setSort] = useState<SortOption>("featured");
 
-  const disciplines = useMemo(
+  const availableCountries = useMemo(
     () =>
-      Array.from(
-        new Set(athletes.flatMap((athlete) => athlete.disciplines)),
-      ).sort((first, second) => first.localeCompare(second)),
+      Array.from(new Set(athletes.map((athlete) => countryNameFor(athlete.country))))
+        .filter(Boolean)
+        .sort((first, second) => first.localeCompare(second)),
     [athletes],
   );
 
-  const regions = useMemo(
-    () =>
-      Array.from(new Set(athletes.map((athlete) => athlete.region))).sort(
+  const administrativeAreas = useMemo(
+    () => {
+      const records = country === "all"
+        ? athletes
+        : athletes.filter(
+            (athlete) => countryNameFor(athlete.country) === country,
+          );
+
+      return Array.from(
+        new Set(records.map((athlete) => athlete.administrativeArea)),
+      )
+        .filter(Boolean)
+        .sort(
         (first, second) => first.localeCompare(second),
-      ),
-    [athletes],
+        );
+    },
+    [athletes, country],
   );
 
   const filteredAthletes = useMemo(() => {
@@ -46,8 +73,11 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
         const searchableRecord = [
           athlete.name,
           athlete.city,
+          athlete.country,
+          athlete.administrativeArea,
           athlete.region,
-          ...athlete.disciplines,
+          athleteCategoryLabel(athlete.primaryCategory),
+          ...athlete.specialties.map(athleteSpecialtyLabel),
         ]
           .join(" ")
           .toLocaleLowerCase();
@@ -55,34 +85,40 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
         const matchesSearch =
           normalizedQuery.length === 0 ||
           searchableRecord.includes(normalizedQuery);
-        const matchesDiscipline =
-          discipline === "all" || athlete.disciplines.includes(discipline);
-        const matchesRegion = region === "all" || athlete.region === region;
+        const matchesCountry =
+          country === "all" || countryNameFor(athlete.country) === country;
+        const matchesAdministrativeArea =
+          administrativeArea === "all" ||
+          athlete.administrativeArea === administrativeArea;
+        const matchesCategory =
+          category === "all" || athlete.primaryCategory === category;
+        const matchesVerification =
+          verification === "all" ||
+          (verification === "identity" &&
+            athlete.verification.identityStatus ===
+              "profile-control-confirmed") ||
+          (verification === "profile" &&
+            athlete.verification.profileStatus === "approved") ||
+          (verification === "unverified" &&
+            athlete.verification.identityStatus === "unverified" &&
+            athlete.verification.profileStatus === "not-reviewed");
 
-        return matchesSearch && matchesDiscipline && matchesRegion;
+        return (
+          matchesSearch &&
+          matchesCountry &&
+          matchesAdministrativeArea &&
+          matchesCategory &&
+          matchesVerification
+        );
       })
       .sort((first, second) => {
         if (sort === "name") {
           return first.name.localeCompare(second.name);
         }
 
-        if (sort === "ranking") {
-          const categoryComparison = (
-            first.ranking?.categoryTitle ?? "\uffff"
-          ).localeCompare(second.ranking?.categoryTitle ?? "\uffff");
-          const firstRank = first.ranking?.rank ?? Number.POSITIVE_INFINITY;
-          const secondRank = second.ranking?.rank ?? Number.POSITIVE_INFINITY;
-
+        if (sort === "updated") {
           return (
-            categoryComparison ||
-            firstRank - secondRank ||
-            first.name.localeCompare(second.name)
-          );
-        }
-
-        if (sort === "region") {
-          return (
-            first.region.localeCompare(second.region) ||
+            (second.updatedAt ?? "").localeCompare(first.updatedAt ?? "") ||
             first.name.localeCompare(second.name)
           );
         }
@@ -92,18 +128,30 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
           first.name.localeCompare(second.name)
         );
       });
-  }, [athletes, discipline, query, region, sort]);
+  }, [
+    administrativeArea,
+    athletes,
+    category,
+    country,
+    query,
+    sort,
+    verification,
+  ]);
 
   const hasActiveFilters =
     query.length > 0 ||
-    discipline !== "all" ||
-    region !== "all" ||
+    country !== "all" ||
+    administrativeArea !== "all" ||
+    category !== "all" ||
+    verification !== "all" ||
     sort !== "featured";
 
   function clearFilters() {
     setQuery("");
-    setDiscipline("all");
-    setRegion("all");
+    setCountry("all");
+    setAdministrativeArea("all");
+    setCategory("all");
+    setVerification("all");
     setSort("featured");
   }
 
@@ -124,10 +172,10 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
   return (
     <div>
       <div className="border border-white/15 bg-surface p-5 sm:p-6 lg:p-7">
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-[minmax(16rem,1.4fr)_repeat(3,minmax(10rem,0.7fr))]">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <label className="block min-w-0">
             <span className="mb-2 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink">
-              Search name, city, region, or discipline
+              Search name, city, country, or specialty
             </span>
             <input
               type="search"
@@ -140,17 +188,18 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
 
           <label className="block min-w-0">
             <span className="mb-2 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink">
-              Discipline
+              Country
             </span>
             <select
-              value={discipline}
-              onChange={(event) =>
-                setDiscipline(event.target.value as DisciplineFilter)
-              }
+              value={country}
+              onChange={(event) => {
+                setCountry(event.target.value);
+                setAdministrativeArea("all");
+              }}
               className={controlClassName}
             >
-              <option value="all">All disciplines</option>
-              {disciplines.map((option) => (
+              <option value="all">Worldwide</option>
+              {availableCountries.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -160,19 +209,59 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
 
           <label className="block min-w-0">
             <span className="mb-2 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink">
-              Region
+              {administrativeAreaLabel(
+                country === "all" ? undefined : country,
+              )}
             </span>
             <select
-              value={region}
-              onChange={(event) => setRegion(event.target.value)}
+              value={administrativeArea}
+              onChange={(event) => setAdministrativeArea(event.target.value)}
               className={controlClassName}
             >
-              <option value="all">All regions</option>
-              {regions.map((option) => (
+              <option value="all">All administrative areas</option>
+              {administrativeAreas.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label className="block min-w-0">
+            <span className="mb-2 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink">
+              Competition category
+            </span>
+            <select
+              value={category}
+              onChange={(event) =>
+                setCategory(event.target.value as CategoryFilter)
+              }
+              className={controlClassName}
+            >
+              <option value="all">All categories</option>
+              {athleteCompetitionCategories.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block min-w-0">
+            <span className="mb-2 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink">
+              Verification
+            </span>
+            <select
+              value={verification}
+              onChange={(event) =>
+                setVerification(event.target.value as VerificationFilter)
+              }
+              className={controlClassName}
+            >
+              <option value="all">All verification states</option>
+              <option value="identity">Profile control confirmed</option>
+              <option value="profile">Editorial profile approved</option>
+              <option value="unverified">Not verified or reviewed</option>
             </select>
           </label>
 
@@ -187,8 +276,7 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
             >
               <option value="featured">Featured</option>
               <option value="name">Name A–Z</option>
-              <option value="ranking">Ranking category / rank</option>
-              <option value="region">Region</option>
+              <option value="updated">Recently updated</option>
             </select>
           </label>
         </div>
@@ -229,8 +317,8 @@ export function AthleteDirectory({ athletes }: AthleteDirectoryProps) {
             No athlete files found
           </h3>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-muted sm:text-base">
-            Try a broader search or reset the discipline and region filters to
-            see the complete fictional directory.
+            Try a broader search or reset the location, category, and
+            verification filters to see the complete directory.
           </p>
           <button
             type="button"

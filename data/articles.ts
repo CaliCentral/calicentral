@@ -592,7 +592,7 @@ export const articles = [
     publicationDate: "2026-07-08",
     displayDate: "July 8, 2026",
     readTime: "8 min read",
-    location: "California / Worldwide",
+    location: "Worldwide analysis",
     featured: false,
     homepageFeatured: false,
     issueNumber: "006",

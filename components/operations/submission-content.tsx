@@ -209,6 +209,10 @@ function getTypeFields(
         { label: "Location", value: detail.location || "Not added" },
         { label: "Visual approach", value: detail.visualApproach || "Not added", wide: true },
         { label: "Estimated duration", value: detail.estimatedDuration || "Not added" },
+        { label: "Source platform", value: detail.sourcePlatform || "Not added" },
+        { label: "Source account", value: detail.sourceAccount || "Not added" },
+        { label: "Original post URL", value: detail.originalPostUrl || "Not added", wide: true },
+        { label: "Media relationship", value: detail.mediaPermissionStatus || "Unknown" },
       ];
     }
     case "correctionRequest": {

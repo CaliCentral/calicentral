@@ -1,9 +1,16 @@
-import {defineField, defineType} from "sanity"
+import {defineArrayMember, defineField, defineType} from "sanity"
 
 import {
+  competitionActionLinkTypeOptions,
   disciplineCodeOptions,
+  resultSourceTypeOptions,
+  resultVerificationStatusOptions,
   scheduleItemStatusOptions,
 } from "../constants"
+import {
+  validateAffiliateAction,
+  validateResultVerificationStatus,
+} from "../validation"
 
 export const competitionDivision = defineType({
   name: "competitionDivision",
@@ -236,6 +243,34 @@ export const competitionResult = defineType({
       validation: (Rule) => Rule.max(80),
     }),
     defineField({
+      name: "category",
+      title: "Result category",
+      type: "string",
+      description: "The category published by the result source.",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "division",
+      title: "Result division",
+      type: "string",
+      description: "The division published by the result source.",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "ruleset",
+      title: "Ruleset",
+      type: "string",
+      description: "Public ruleset label for strength or judged results.",
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: "bodyweightDisplay",
+      title: "Bodyweight display",
+      type: "string",
+      description: "Optional public bodyweight value exactly as sourced.",
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
       name: "scoreDisplay",
       title: "Score display",
       type: "string",
@@ -253,6 +288,76 @@ export const competitionResult = defineType({
       type: "string",
       validation: (Rule) => Rule.max(120),
     }),
+    defineField({
+      name: "verificationStatus",
+      title: "Verification status",
+      type: "string",
+      description:
+        "Only verified entries with public provenance can enter the verified-results archive.",
+      options: {list: resultVerificationStatusOptions, layout: "radio"},
+      initialValue: "unverified",
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          validateResultVerificationStatus(value, context),
+        ),
+    }),
+    defineField({
+      name: "sourceType",
+      title: "Public source type",
+      type: "string",
+      options: {list: resultSourceTypeOptions},
+    }),
+    defineField({
+      name: "sourceName",
+      title: "Public source name",
+      type: "string",
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: "sourceUrl",
+      title: "Public source URL",
+      type: "url",
+      validation: (Rule) => Rule.uri({scheme: ["http", "https"]}),
+    }),
+    defineField({
+      name: "videoUrl",
+      title: "Public evidence video URL",
+      type: "url",
+      validation: (Rule) => Rule.uri({scheme: ["http", "https"]}),
+    }),
+    defineField({
+      name: "verifiedAt",
+      title: "Verified at",
+      type: "datetime",
+    }),
+    defineField({
+      name: "verifiedBy",
+      title: "Verified by (private workflow)",
+      type: "reference",
+      to: [{type: "contributorProfile"}],
+      description: "Editorial workflow metadata. Never exposed by public queries.",
+    }),
+    defineField({
+      name: "privateVerificationNotes",
+      title: "Private verification notes",
+      type: "text",
+      rows: 4,
+      description: "Internal review notes. Never exposed by public queries.",
+      validation: (Rule) => Rule.max(2000),
+    }),
+    defineField({
+      name: "privateEvidenceUrls",
+      title: "Private evidence URLs",
+      type: "array",
+      description: "Internal evidence references. Never exposed by public queries.",
+      of: [
+        defineArrayMember({
+          type: "url",
+          validation: (Rule) => Rule.uri({scheme: ["http", "https"]}),
+        }),
+      ],
+      validation: (Rule) => Rule.unique().max(20),
+    }),
   ],
   preview: {
     select: {
@@ -267,6 +372,68 @@ export const competitionResult = defineType({
           athleteName || displayName || "Unnamed result"
         }`,
         subtitle: scoreDisplay,
+      }
+    },
+  },
+})
+
+export const competitionActionLink = defineType({
+  name: "competitionActionLink",
+  title: "Competition action link",
+  type: "object",
+  fields: [
+    defineField({
+      name: "label",
+      title: "Public label",
+      type: "string",
+      validation: (Rule) => Rule.required().max(80),
+    }),
+    defineField({
+      name: "url",
+      title: "Public URL",
+      type: "url",
+      validation: (Rule) =>
+        Rule.required().uri({scheme: ["http", "https"]}),
+    }),
+    defineField({
+      name: "linkType",
+      title: "Action type",
+      type: "string",
+      options: {list: competitionActionLinkTypeOptions},
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "affiliate",
+      title: "Affiliate link",
+      type: "boolean",
+      initialValue: false,
+      validation: (Rule) =>
+        Rule.required().custom((value, context) =>
+          validateAffiliateAction(value, context),
+        ),
+    }),
+    defineField({
+      name: "partnerName",
+      title: "Affiliate partner name",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "disclosure",
+      title: "Public affiliate disclosure",
+      type: "text",
+      rows: 2,
+      validation: (Rule) => Rule.max(300),
+    }),
+  ],
+  preview: {
+    select: {title: "label", subtitle: "linkType", affiliate: "affiliate"},
+    prepare({title, subtitle, affiliate}) {
+      return {
+        title: title || "Competition action",
+        subtitle: [subtitle, affiliate ? "Affiliate" : undefined]
+          .filter(Boolean)
+          .join(" · "),
       }
     },
   },

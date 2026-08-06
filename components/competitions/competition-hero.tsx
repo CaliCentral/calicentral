@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { CompetitionVisual } from "@/components/competitions/competition-visual";
 import { Container } from "@/components/ui/container";
+import { formatGlobalLocation } from "@/lib/geography";
 import {
   competitionDisciplineLabels,
   competitionScheduleStatusLabels,
@@ -39,6 +40,11 @@ export function CompetitionHero({ competition }: CompetitionHeroProps) {
                 <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-accent">
                   Event file / {competition.eventNumber}
                 </p>
+                {competition.contentStatus !== "published-record" ? (
+                  <span className="border border-accent/60 px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.13em] text-accent">
+                    Sample / Not official
+                  </span>
+                ) : null}
                 <span
                   className={`px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.13em] ${
                     competition.status === "upcoming"
@@ -103,7 +109,12 @@ export function CompetitionHero({ competition }: CompetitionHeroProps) {
                   Location
                 </dt>
                 <dd className="mt-2 text-sm font-bold uppercase leading-5 text-ink">
-                  {competition.city}, {competition.state}
+                  {formatGlobalLocation({
+                    city: competition.city,
+                    administrativeArea:
+                      competition.administrativeArea ?? competition.state,
+                    country: competition.country,
+                  }) || "Location not published"}
                 </dd>
               </div>
             </dl>

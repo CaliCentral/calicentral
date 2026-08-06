@@ -4,6 +4,7 @@ import { AthleteSpotlightSection } from "@/components/home/athlete-spotlight-sec
 import { CompetitionsSection } from "@/components/home/competitions-section";
 import { FeaturedStorySection } from "@/components/home/featured-story-section";
 import { HeroSection } from "@/components/home/hero-section";
+import { JoinCommunitySection } from "@/components/home/join-community-section";
 import { RankingsPreviewSection } from "@/components/home/rankings-preview-section";
 import { VideosSection } from "@/components/home/videos-section";
 import { getHomepageContent, getSiteSettings } from "@/lib/content";
@@ -44,6 +45,7 @@ export default async function Home() {
       <CompetitionsSection competitions={content.competitions} />
       <AthleteSpotlightSection athlete={content.athlete} />
       <RankingsPreviewSection category={content.rankingCategory} />
+      <JoinCommunitySection />
     </>
   );
 }

@@ -310,9 +310,11 @@ export const HOMEPAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       venueName,
@@ -356,9 +358,11 @@ export const HOMEPAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       venueName,
@@ -417,6 +421,12 @@ export const HOMEPAGE_QUERY = defineQuery(`
         frameCode,
         tags,
         availabilityLabel,
+        sourcePlatform,
+        sourceAccount,
+        originalPostUrl,
+        ownershipStatus,
+        discoverContext,
+        platformMetrics[]{platform, label, value, observedAt, sourceUrl},
         posterImage{
           asset->{
             _id,
@@ -459,6 +469,12 @@ export const HOMEPAGE_QUERY = defineQuery(`
         frameCode,
         tags,
         availabilityLabel,
+        sourcePlatform,
+        sourceAccount,
+        originalPostUrl,
+        ownershipStatus,
+        discoverContext,
+        platformMetrics[]{platform, label, value, observedAt, sourceUrl},
         posterImage{
           asset->{
             _id,
@@ -501,6 +517,12 @@ export const HOMEPAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,
@@ -523,6 +545,8 @@ export const HOMEPAGE_QUERY = defineQuery(`
       *[
         _type == "rankingCategory" &&
         _id == *[_id == "siteSettings"][0].featuredRankingCategory._ref &&
+        status == "published" &&
+        methodologyStatus == "approved" &&
         defined(slug.current)
       ][0]{
         "slug": slug.current,
@@ -531,10 +555,16 @@ export const HOMEPAGE_QUERY = defineQuery(`
         discipline,
         division,
         region,
+        scope,
         status,
+        methodologyStatus,
+        seasonLabel,
+        seasonStart,
+        seasonEnd,
         updatedAt,
         description,
         displayOrder,
+        methodologyNote,
         prototypeStatus,
         entries[0...12]{
           rank,
@@ -545,11 +575,21 @@ export const HOMEPAGE_QUERY = defineQuery(`
           movementDirection,
           movementAmount,
           movementLabel,
-          status
+          status,
+          sources[]{
+            "competitionSlug": competition->slug.current,
+            "competitionName": competition->name,
+            resultKey,
+            sourceName,
+            sourceUrl,
+            verificationStatus
+          }
         }
       },
       *[
         _type == "rankingCategory" &&
+        status == "published" &&
+        methodologyStatus == "approved" &&
         defined(slug.current)
       ] | order(displayOrder asc)[0]{
         "slug": slug.current,
@@ -558,10 +598,16 @@ export const HOMEPAGE_QUERY = defineQuery(`
         discipline,
         division,
         region,
+        scope,
         status,
+        methodologyStatus,
+        seasonLabel,
+        seasonStart,
+        seasonEnd,
         updatedAt,
         description,
         displayOrder,
+        methodologyNote,
         prototypeStatus,
         entries[0...12]{
           rank,
@@ -572,7 +618,15 @@ export const HOMEPAGE_QUERY = defineQuery(`
           movementDirection,
           movementAmount,
           movementLabel,
-          status
+          status,
+          sources[]{
+            "competitionSlug": competition->slug.current,
+            "competitionName": competition->name,
+            resultKey,
+            sourceName,
+            sourceUrl,
+            verificationStatus
+          }
         }
       }
     )
@@ -826,9 +880,11 @@ export const STORY_PAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       venueName,
@@ -886,6 +942,12 @@ export const STORY_PAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,
@@ -920,9 +982,20 @@ export const ATHLETES_QUERY = defineQuery(`
     city,
     state,
     country,
+    administrativeArea,
     region,
     primaryDiscipline,
+    primaryCategory,
     secondaryDisciplines,
+    specialties,
+    "updatedAt": _updatedAt,
+    verification,
+    socialLinks[]{
+      platform,
+      url,
+      handle,
+      confirmationStatus
+    },
     shortBio,
     quote,
     trainingBase,
@@ -977,9 +1050,20 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
     city,
     state,
     country,
+    administrativeArea,
     region,
     primaryDiscipline,
+    primaryCategory,
     secondaryDisciplines,
+    specialties,
+    "updatedAt": _updatedAt,
+    verification,
+    socialLinks[]{
+      platform,
+      url,
+      handle,
+      confirmationStatus
+    },
     shortBio,
     "portableProfile": fullProfile,
     quote,
@@ -995,7 +1079,39 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
     statistics,
     achievements,
     timeline,
+    competitionHistory[]{
+      "eventSlug": competition->slug.current,
+      "eventName": coalesce(eventName, competition->name),
+      date,
+      country,
+      administrativeArea,
+      city,
+      divisionCategory,
+      placement,
+      score,
+      verificationStatus,
+      sourceLabel,
+      sourceUrl,
+      videoUrl
+    },
     profileImage{
+      asset->{
+        _id,
+        "_ref": _id,
+        url,
+        metadata{
+          dimensions{width, height, aspectRatio},
+          lqip
+        }
+      },
+      crop{top, bottom, left, right},
+      hotspot{x, y, width, height},
+      alt,
+      caption,
+      credit,
+      decorative
+    },
+    coverImage{
       asset->{
         _id,
         "_ref": _id,
@@ -1032,20 +1148,6 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
         caption,
         credit,
         decorative
-      }
-    },
-    "ranking": *[
-      _type == "rankingCategory" &&
-      references(^._id)
-    ] | order(displayOrder asc)[0]{
-      "categorySlug": slug.current,
-      "categoryTitle": title,
-      "entry": entries[athlete._ref == ^.^._id][0]{
-        rank,
-        points,
-        movementDirection,
-        movementAmount,
-        movementLabel
       }
     },
     relatedStories[defined(@->slug.current)][0...3]->{
@@ -1129,9 +1231,11 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       venueName,
@@ -1189,6 +1293,12 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,
@@ -1213,6 +1323,8 @@ export const ATHLETE_PAGE_QUERY = defineQuery(`
 export const RANKING_CATEGORIES_QUERY = defineQuery(`
   *[
     _type == "rankingCategory" &&
+    status == "published" &&
+    methodologyStatus == "approved" &&
     defined(slug.current)
   ] | order(displayOrder asc, title asc)[0...40]{
     "slug": slug.current,
@@ -1221,7 +1333,12 @@ export const RANKING_CATEGORIES_QUERY = defineQuery(`
     discipline,
     division,
     region,
+    scope,
     status,
+    methodologyStatus,
+    seasonLabel,
+    seasonStart,
+    seasonEnd,
     updatedAt,
     description,
     displayOrder,
@@ -1236,7 +1353,15 @@ export const RANKING_CATEGORIES_QUERY = defineQuery(`
       movementDirection,
       movementAmount,
       movementLabel,
-      status
+      status,
+      sources[]{
+        "competitionSlug": competition->slug.current,
+        "competitionName": competition->name,
+        resultKey,
+        sourceName,
+        sourceUrl,
+        verificationStatus
+      }
     }
   }
 `);
@@ -1251,9 +1376,11 @@ export const COMPETITIONS_QUERY = defineQuery(`
     shortName,
     eventNumber,
     status,
+    "contentStatus": coalesce(contentStatus, prototypeStatus),
     startDate,
     endDate,
     city,
+    administrativeArea,
     state,
     country,
     region,
@@ -1264,11 +1391,42 @@ export const COMPETITIONS_QUERY = defineQuery(`
     primaryDiscipline,
     featured,
     registrationStatus,
+    registrationDeadline,
     scheduleStatus,
     resultsStatus,
     capacityLabel,
     organizerName,
+    organizerVerificationStatus,
+    actionLinks[]{
+      label,
+      url,
+      linkType,
+      affiliate,
+      partnerName,
+      disclosure
+    },
     competitionFormat,
+    results[]{
+      "key": _key,
+      placement,
+      "athleteSlug": athlete->slug.current,
+      "athleteName": coalesce(athlete->name, displayName),
+      "athleteRegion": athlete->region,
+      region,
+      category,
+      division,
+      ruleset,
+      bodyweightDisplay,
+      scoreDisplay,
+      resultLabel,
+      movementNote,
+      verificationStatus,
+      sourceType,
+      sourceName,
+      sourceUrl,
+      videoUrl,
+      verifiedAt
+    },
     visualVariant,
     heroImage{
       asset->{
@@ -1312,9 +1470,11 @@ export const COMPETITION_PAGE_QUERY = defineQuery(`
     shortName,
     eventNumber,
     status,
+    "contentStatus": coalesce(contentStatus, prototypeStatus),
     startDate,
     endDate,
     city,
+    administrativeArea,
     state,
     country,
     region,
@@ -1335,10 +1495,20 @@ export const COMPETITION_PAGE_QUERY = defineQuery(`
     },
     featured,
     registrationStatus,
+    registrationDeadline,
     scheduleStatus,
     resultsStatus,
     capacityLabel,
     organizerName,
+    organizerVerificationStatus,
+    actionLinks[]{
+      label,
+      url,
+      linkType,
+      affiliate,
+      partnerName,
+      disclosure
+    },
     competitionFormat,
     visualVariant,
     schedule[]{
@@ -1357,14 +1527,25 @@ export const COMPETITION_PAGE_QUERY = defineQuery(`
       status
     },
     results[]{
+      "key": _key,
       placement,
       "athleteSlug": athlete->slug.current,
       "athleteName": coalesce(athlete->name, displayName),
       "athleteRegion": athlete->region,
       region,
+      category,
+      division,
+      ruleset,
+      bodyweightDisplay,
       scoreDisplay,
       resultLabel,
-      movementNote
+      movementNote,
+      verificationStatus,
+      sourceType,
+      sourceName,
+      sourceUrl,
+      videoUrl,
+      verifiedAt
     },
     timeline,
     notices,
@@ -1484,9 +1665,11 @@ export const COMPETITION_PAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       region,
@@ -1545,6 +1728,12 @@ export const COMPETITION_PAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,
@@ -1601,6 +1790,12 @@ export const VIDEOS_PAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,
@@ -1649,6 +1844,12 @@ export const VIDEOS_PAGE_QUERY = defineQuery(`
         frameCode,
         tags,
         availabilityLabel,
+        sourcePlatform,
+        sourceAccount,
+        originalPostUrl,
+        ownershipStatus,
+        discoverContext,
+        platformMetrics[]{platform, label, value, observedAt, sourceUrl},
         posterImage{
           asset->{
             _id,
@@ -1691,6 +1892,12 @@ export const VIDEOS_PAGE_QUERY = defineQuery(`
         frameCode,
         tags,
         availabilityLabel,
+        sourcePlatform,
+        sourceAccount,
+        originalPostUrl,
+        ownershipStatus,
+        discoverContext,
+        platformMetrics[]{platform, label, value, observedAt, sourceUrl},
         posterImage{
           asset->{
             _id,
@@ -1749,6 +1956,12 @@ export const VIDEO_PAGE_QUERY = defineQuery(`
     credits,
     tags,
     availabilityLabel,
+    sourcePlatform,
+    sourceAccount,
+    originalPostUrl,
+    ownershipStatus,
+    discoverContext,
+    platformMetrics[]{platform, label, value, observedAt, sourceUrl},
     posterImage{
       asset->{
         _id,
@@ -1865,9 +2078,11 @@ export const VIDEO_PAGE_QUERY = defineQuery(`
       shortName,
       eventNumber,
       status,
+      "contentStatus": coalesce(contentStatus, prototypeStatus),
       startDate,
       endDate,
       city,
+      administrativeArea,
       state,
       country,
       region,
@@ -1922,6 +2137,12 @@ export const VIDEO_PAGE_QUERY = defineQuery(`
       frameCode,
       tags,
       availabilityLabel,
+      sourcePlatform,
+      sourceAccount,
+      originalPostUrl,
+      ownershipStatus,
+      discoverContext,
+      platformMetrics[]{platform, label, value, observedAt, sourceUrl},
       posterImage{
         asset->{
           _id,

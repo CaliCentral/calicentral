@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/container";
+import { MediaSource } from "@/components/videos/media-source";
 import type { MediaFeature } from "@/types/video";
 
 type VideoRecordProps = {
@@ -53,6 +54,36 @@ export function VideoRecord({ video }: VideoRecordProps) {
               </div>
             ))}
           </dl>
+        </Container>
+      </section>
+
+      <section
+        aria-labelledby="media-source-heading"
+        className="border-t border-white/10 bg-canvas py-12 sm:py-16"
+      >
+        <Container className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(19rem,0.58fr)] lg:items-start">
+          <div>
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.17em] text-accent">
+              Provenance / Public source record
+            </p>
+            <h2
+              id="media-source-heading"
+              className="mt-4 max-w-3xl text-balance font-display text-4xl font-black uppercase leading-[0.94] tracking-[-0.055em] text-ink sm:text-5xl"
+            >
+              Attribution stays attached.
+            </h2>
+            <p className="mt-5 max-w-2xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
+              External media remains credited to its original account and
+              platform. Metrics are recorded per source and are never combined
+              into a universal view count.
+            </p>
+            {video.discoverContext ? (
+              <p className="mt-5 max-w-2xl border-l-2 border-accent pl-4 text-sm leading-6 text-ink/85">
+                {video.discoverContext}
+              </p>
+            ) : null}
+          </div>
+          <MediaSource video={video} />
         </Container>
       </section>
 
@@ -231,4 +262,3 @@ function SectionIntro({
     </div>
   );
 }
-

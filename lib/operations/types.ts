@@ -1,3 +1,8 @@
+import type {
+  AthleteCompetitionCategory,
+  AthleteSpecialty,
+} from "@/types/athlete";
+
 export const CONTRIBUTOR_ROLES = ["contributor", "editor", "admin"] as const;
 export type ContributorRole = (typeof CONTRIBUTOR_ROLES)[number];
 
@@ -151,9 +156,40 @@ export type StoryPitchDetails = {
   readonly conflictDisclosure: string;
 };
 
-export type AthleteNominationDetails = {
-  readonly athleteName: string;
+export type AthleteNominationRequestKind = "create" | "claim";
+
+export type AthleteCompetitionHistoryEntry = {
+  readonly key: string;
+  readonly eventName: string;
+  readonly organizer: string;
+  readonly date: string;
+  readonly country: string;
   readonly city: string;
+  readonly divisionCategory: string;
+  readonly placement: string;
+  readonly score: string;
+  readonly officialResultUrl: string;
+  readonly eventUrl: string;
+  readonly videoUrl: string;
+};
+
+export type AthleteNominationDetails = {
+  readonly requestKind: AthleteNominationRequestKind;
+  readonly existingAthleteSlug: string;
+  readonly athleteName: string;
+  readonly displayName: string;
+  readonly country: string;
+  readonly administrativeArea: string;
+  readonly city: string;
+  readonly biography: string;
+  readonly primaryCategory: AthleteCompetitionCategory | "";
+  readonly specialties: readonly AthleteSpecialty[];
+  readonly yearsActive: string;
+  readonly profileImageUrl: string;
+  readonly coverImageUrl: string;
+  readonly socialLinks: readonly SupportingLink[];
+  readonly competitionHistory: readonly AthleteCompetitionHistoryEntry[];
+  /** @deprecated Retained for existing nomination records during migration. */
   readonly discipline: string;
   readonly nominationReason: string;
   readonly publicReferenceLinks: readonly SupportingLink[];
@@ -180,6 +216,10 @@ export type MediaPitchDetails = {
   readonly location: string;
   readonly visualApproach: string;
   readonly estimatedDuration: string;
+  readonly sourcePlatform: string;
+  readonly sourceAccount: string;
+  readonly originalPostUrl: string;
+  readonly mediaPermissionStatus: string;
   readonly publicReferenceLinks: readonly SupportingLink[];
 };
 

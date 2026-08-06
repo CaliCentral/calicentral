@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Cali Central",
     short_name: "Cali Central",
     description:
-      "An independent calisthenics media platform; prototype records are fictional where labeled.",
+      "An independent global calisthenics media platform; prototype records are fictional where labeled.",
     start_url: "/",
     scope: "/",
     display: "standalone",

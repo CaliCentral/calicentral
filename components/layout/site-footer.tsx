@@ -40,10 +40,10 @@ export function SiteFooter({
             <span className="size-1.5 rounded-full bg-accent" />
             Signal / Field / Frame
           </span>
-          <span>California base · Worldwide view</span>
+          <span>Independent desk · Worldwide view</span>
         </div>
 
-        <div className="grid gap-12 border-b border-ink/15 py-12 sm:py-16 md:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(2,minmax(10rem,0.5fr))]">
+        <div className="grid gap-12 border-b border-ink/15 py-12 sm:py-16 md:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(9rem,0.45fr))]">
           <div className="md:col-span-2 lg:col-span-1">
             <Link
               href="/"
@@ -57,8 +57,8 @@ export function SiteFooter({
               Independent reporting for a sport in motion.
             </p>
             <p className="mt-5 max-w-lg text-sm leading-7 text-muted sm:text-base">
-              Independent coverage of calisthenics culture, athletes, and
-              competition—from California to the global stage.
+              Independent coverage of calisthenics culture, athletes,
+              competition, and the movement shaping the sport worldwide.
             </p>
             <p className="mt-6 inline-flex border border-accent/40 bg-accent/10 px-3 py-2 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-accent">
               {prototypeNotice}

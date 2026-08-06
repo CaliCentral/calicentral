@@ -56,7 +56,7 @@ import type { StoryPreview } from "@/types/content";
 // Public routes select it only when Sanity project configuration is absent.
 
 const defaultDescription =
-  "Independent coverage of calisthenics culture, athletes, competitions, rankings, and videos—from California to the global stage.";
+  "Independent global calisthenics media covering athletes, competitions, stories, videos, and published results.";
 
 function containsSlug(slugs: readonly string[], slug: string): boolean {
   return slugs.includes(slug);

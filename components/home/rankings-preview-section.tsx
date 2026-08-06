@@ -16,17 +16,17 @@ export function RankingsPreviewSection({
 }: RankingsPreviewSectionProps) {
   return (
     <section
-      id="rankings"
-      aria-labelledby="rankings-heading"
+      id="standings"
+      aria-labelledby="standings-heading"
       className="bg-canvas py-16 text-ink sm:py-20 lg:py-24"
     >
       <Container>
         {rankingsPreview ? (
           <>
           <SectionHeading
-          headingId="rankings-heading"
-          eyebrow="Rankings preview"
-          title="A clearer view of the field"
+          headingId="standings-heading"
+          eyebrow="Latest competition standing"
+          title="Verified results, published position"
           description={rankingsPreview.description}
           index="05"
         />
@@ -35,7 +35,7 @@ export function RankingsPreviewSection({
           <div className="technical-grid flex flex-col gap-4 border-b border-white/15 bg-surface-2 px-5 py-6 sm:flex-row sm:items-end sm:justify-between sm:px-7">
             <div>
               <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent-strong">
-                Field board / Sample category
+                Published board / Verified result sources
               </p>
               <h3 className="mt-2 text-balance font-display text-xl font-black uppercase leading-tight tracking-[-0.025em] text-ink sm:text-2xl">
                 {rankingsPreview.title} — {rankingsPreview.region}
@@ -43,13 +43,13 @@ export function RankingsPreviewSection({
             </div>
             <p className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.14em] text-muted">
               <span aria-hidden="true" className="size-1.5 bg-accent" />
-              Prototype standings / Not official
+              {rankingsPreview.seasonLabel} / Approved methodology
             </p>
           </div>
 
           <table className="w-full table-fixed border-collapse text-left">
             <caption className="sr-only">
-              Fictional sample rankings for{" "}
+              Published competition standings for{" "}
               {rankingsPreview.title.toLowerCase()},{" "}
               {rankingsPreview.region.toLowerCase()}
             </caption>
@@ -129,22 +129,23 @@ export function RankingsPreviewSection({
 
           <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-3xl text-xs leading-5 text-muted">
-            Rankings are sample prototype content. Cali Central has not
-            verified these fictional athletes, placements, or point totals.
+            Every listed entry is gated by an approved methodology and at
+            least one publicly accessible verified result source.
           </p>
           <ButtonLink
-            href="/rankings"
+            href="/standings"
             variant="outline"
             className="w-full shrink-0 sm:w-auto"
           >
-            View full rankings
+            View standings and results
           </ButtonLink>
           </div>
           </>
         ) : (
           <ContentEmptyState
-            title="No ranking category is published"
-            description="The rankings desk is preparing the next public standings preview."
+            eyebrow="Competition standings / Awaiting publication"
+            title="No competition standing is published"
+            description="No board has passed the approved-methodology and verified-source publication gate."
           />
         )}
       </Container>

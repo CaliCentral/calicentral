@@ -1,3 +1,8 @@
+import {
+  athleteCompetitionCategoryValues,
+  athleteSpecialtyValues,
+} from "@/lib/athlete-taxonomy";
+import { countryNameFor } from "@/lib/geography";
 import type {
   AccessStatus,
   AdminContributorDetail,
@@ -62,6 +67,11 @@ function stringArray(value: unknown): string[] {
     : [];
 }
 
+function safeOptionalUrl(value: unknown): string {
+  const parsed = safeHttpUrlSchema.safeParse(value);
+  return parsed.success ? parsed.data : "";
+}
+
 function enumValue<const T extends readonly string[], F>(
   value: unknown,
   values: T,
@@ -86,7 +96,6 @@ export function normalizeSupportingLinks(value: unknown): SupportingLink[] {
     if (!isRecord(item)) {
       return [];
     }
-
     const parsedUrl = safeHttpUrlSchema.safeParse(item.url);
 
     if (!parsedUrl.success) {
@@ -253,9 +262,60 @@ function normalizeAthleteNominationDetails(
   value: unknown,
 ): AthleteNominationDetails {
   const source = isRecord(value) ? value : {};
+  const competitionHistory = Array.isArray(source.competitionHistory)
+    ? source.competitionHistory.flatMap((item, index) => {
+        if (!isRecord(item)) {
+          return [];
+        }
+
+        return [
+          {
+            key:
+              optionalString(item.key) ??
+              optionalString(item._key) ??
+              `${index}`,
+            eventName: stringValue(item.eventName),
+            organizer: stringValue(item.organizer),
+            date: stringValue(item.date),
+            country: countryNameFor(stringValue(item.country)),
+            city: stringValue(item.city),
+            divisionCategory: stringValue(item.divisionCategory),
+            placement: stringValue(item.placement),
+            score: stringValue(item.score),
+            officialResultUrl: safeOptionalUrl(item.officialResultUrl),
+            eventUrl: safeOptionalUrl(item.eventUrl),
+            videoUrl: safeOptionalUrl(item.videoUrl),
+          },
+        ];
+      })
+    : [];
+
   return {
+    requestKind: enumValue(
+      source.requestKind,
+      ["create", "claim"] as const,
+      "create",
+    ),
+    existingAthleteSlug: stringValue(source.existingAthleteSlug),
     athleteName: stringValue(source.athleteName),
+    displayName: stringValue(source.displayName),
+    country: countryNameFor(stringValue(source.country)),
+    administrativeArea: stringValue(source.administrativeArea),
     city: stringValue(source.city),
+    biography: stringValue(source.biography),
+    primaryCategory: enumValue(
+      source.primaryCategory,
+      athleteCompetitionCategoryValues,
+      "",
+    ),
+    specialties: stringArray(source.specialties).filter((specialty) =>
+      athleteSpecialtyValues.includes(specialty as never),
+    ) as AthleteNominationDetails["specialties"],
+    yearsActive: stringValue(source.yearsActive),
+    profileImageUrl: safeOptionalUrl(source.profileImageUrl),
+    coverImageUrl: safeOptionalUrl(source.coverImageUrl),
+    socialLinks: normalizeSupportingLinks(source.socialLinks),
+    competitionHistory,
     discipline: stringValue(source.discipline),
     nominationReason: stringValue(source.nominationReason),
     publicReferenceLinks: normalizeSupportingLinks(source.publicReferenceLinks),
@@ -290,6 +350,10 @@ function normalizeMediaPitchDetails(value: unknown): MediaPitchDetails {
     location: stringValue(source.location),
     visualApproach: stringValue(source.visualApproach),
     estimatedDuration: stringValue(source.estimatedDuration),
+    sourcePlatform: stringValue(source.sourcePlatform),
+    sourceAccount: stringValue(source.sourceAccount),
+    originalPostUrl: stringValue(source.originalPostUrl),
+    mediaPermissionStatus: stringValue(source.mediaPermissionStatus),
     publicReferenceLinks: normalizeSupportingLinks(source.publicReferenceLinks),
   };
 }

@@ -1,7 +1,25 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+
+import { athletes } from "@/data/athletes";
+import {
+  athleteCompetitionCategoryValues,
+  athleteSpecialtyValues,
+} from "@/lib/athlete-taxonomy";
+import {
+  countries,
+  unitedStatesAdministrativeAreas,
+} from "@/lib/geography";
+import {
+  ACCOUNT_CAPABILITIES,
+  JOIN_INTENTS,
+  isAccountCapability,
+  joinIntentReturnPath,
+  resolveJoinIntent,
+} from "@/lib/account/capabilities";
 
 import {
   operationalDocumentIdSchema,
+  athleteNominationDetailsSchema,
   contributorProfileUpdateSchema,
   safeHttpUrlSchema,
   storyPitchSchema,
@@ -14,6 +32,7 @@ import {
   resolveTrustedAuthRedirect,
   safeAuthReturnPath,
 } from "@/lib/auth/redirects";
+import { PORTAL_ROLES } from "@/lib/auth/types";
 import {
   canTransitionSubmission,
   isContributorEditableStatus,
@@ -40,6 +59,19 @@ import {
   hasReachedActiveSubmissionLimit,
   MAX_ACTIVE_SUBMISSIONS_PER_CONTRIBUTOR,
 } from "@/lib/operations/limits";
+import {
+  MAX_PUBLIC_SEARCH_QUERY_LENGTH,
+  PUBLIC_SEARCH_FILTERS,
+  normalizePublicSearchQuery,
+  resolvePublicSearchFilter,
+} from "@/lib/search/contracts";
+import {
+  getVerifiedCompetitionResults,
+  isPublishableCompetitionStanding,
+  isVerifiedCompetitionResult,
+} from "@/lib/standings/publication";
+import type { Competition, CompetitionResult } from "@/types/competition";
+import type { RankingCategory } from "@/types/ranking";
 
 let assertionCount = 0;
 
@@ -87,6 +119,265 @@ assert(
   JSON.stringify(typegenWranglerConfig.assets) ===
     JSON.stringify(deploymentWranglerConfig.assets),
   "Wrangler deployment and type-generation asset bindings drifted.",
+);
+
+assert(
+  new Set(ACCOUNT_CAPABILITIES).size === ACCOUNT_CAPABILITIES.length &&
+    JOIN_INTENTS.length === ACCOUNT_CAPABILITIES.length &&
+    JOIN_INTENTS.every((intent) =>
+      isAccountCapability(intent.capability),
+    ),
+  "Join intents and the reusable account-capability contract drifted.",
+);
+assert(
+  ACCOUNT_CAPABILITIES.every(
+    (capability) =>
+      !(PORTAL_ROLES.slice(1) as readonly string[]).includes(capability),
+  ),
+  "A self-selected account capability overlapped a privileged portal role.",
+);
+assert(
+  resolveJoinIntent("organizer").capability === "organizer" &&
+    resolveJoinIntent("admin").capability === "member" &&
+    !isAccountCapability("admin"),
+  "Join-intent validation accepted a privileged or unsupported value.",
+);
+assert(
+  safeAuthReturnPath(joinIntentReturnPath("athlete")) ===
+    "/account/onboarding?intent=athlete",
+  "A valid Join callback did not remain on the trusted account route.",
+);
+
+assert(
+  normalizePublicSearchQuery("  athlete   profile ") === "athlete profile" &&
+    normalizePublicSearchQuery("x".repeat(200)).length ===
+      MAX_PUBLIC_SEARCH_QUERY_LENGTH,
+  "Public search query normalization is not bounded and deterministic.",
+);
+assert(
+  resolvePublicSearchFilter("athletes") === "athletes" &&
+    resolvePublicSearchFilter("submissions") === "all" &&
+    !PUBLIC_SEARCH_FILTERS.includes("submissions" as never),
+  "Public search accepted a private or unsupported record category.",
+);
+
+for (const routeFile of [
+  "../app/(site)/join/page.tsx",
+  "../app/(site)/search/page.tsx",
+  "../app/(site)/verification/page.tsx",
+  "../app/(site)/corrections/page.tsx",
+  "../app/(site)/editorial-standards/page.tsx",
+  "../app/(site)/standings/page.tsx",
+  "../app/(site)/standings/methodology/page.tsx",
+  "../app/(site)/competitions/calendar/page.tsx",
+  "../app/(account)/account/onboarding/page.tsx",
+]) {
+  assert(
+    existsSync(new URL(routeFile, import.meta.url)),
+    `Required global account or trust route is missing: ${routeFile}`,
+  );
+}
+
+const sourcedResult: CompetitionResult = {
+  key: "result-1",
+  placement: 1,
+  athleteName: "Verified Athlete",
+  region: "France",
+  category: "Weighted strength",
+  division: "Open",
+  scoreDisplay: "80 kg",
+  resultLabel: "First place",
+  movementNote: "",
+  verificationStatus: "verified",
+  sourceType: "official-event-results",
+  sourceName: "Official event results",
+  sourceUrl: "https://example.com/results",
+};
+const completedVerifiedCompetition = {
+  status: "completed",
+  resultsStatus: "verified-results",
+} as unknown as Competition;
+
+assert(
+  isVerifiedCompetitionResult(completedVerifiedCompetition, sourcedResult),
+  "A completed, source-backed verified competition result failed its publication gate.",
+);
+assert(
+  !isVerifiedCompetitionResult(
+    { status: "completed", resultsStatus: "sample-results" } as unknown as Competition,
+    sourcedResult,
+  ),
+  "A sample result entered the verified-results gate.",
+);
+assert(
+  getVerifiedCompetitionResults([
+    {
+      slug: "sample-event",
+      name: "Sample event",
+      startDate: "2026-01-01",
+      country: "United States",
+      status: "completed",
+      resultsStatus: "sample-results",
+      results: [sourcedResult],
+    } as unknown as Competition,
+  ]).length === 0,
+  "The verified-results archive included a sample competition result.",
+);
+
+const publishableStanding = {
+  slug: "open-2026",
+  title: "Open 2026",
+  subtitle: "",
+  discipline: "Weighted strength",
+  division: "Open",
+  region: "Worldwide",
+  scope: "competition",
+  status: "published",
+  methodologyStatus: "approved",
+  seasonLabel: "2026",
+  updatedLabel: "August 2026",
+  description: "Source-backed competition standing.",
+  disclaimer: "Published methodology applies.",
+  entries: [
+    {
+      rank: 1,
+      athleteSlug: "verified-athlete",
+      athleteName: "Verified Athlete",
+      region: "France",
+      points: 100,
+      movement: { direction: "new", amount: 0, label: "New" },
+      statusLabel: "Published standing",
+      sources: [
+        {
+          competitionSlug: "verified-event",
+          competitionName: "Verified event",
+          resultKey: "result-1",
+          sourceName: "Official event results",
+          sourceUrl: "https://example.com/results",
+          verificationStatus: "verified",
+        },
+      ],
+    },
+  ],
+} satisfies RankingCategory;
+
+assert(
+  isPublishableCompetitionStanding(publishableStanding) &&
+    !isPublishableCompetitionStanding({
+      ...publishableStanding,
+      methodologyStatus: "draft",
+    }) &&
+    !isPublishableCompetitionStanding({
+      ...publishableStanding,
+      entries: [{ ...publishableStanding.entries[0], sources: [] }],
+    }),
+  "The standings gate accepted a draft or unsourced board, or rejected a valid sourced board.",
+);
+
+const publicSearchSource = readFileSync(
+  new URL("../lib/content/search.ts", import.meta.url),
+  "utf8",
+);
+assert(
+  publicSearchSource.includes("publishedOnly: true") &&
+    publicSearchSource.includes("stega: false") &&
+    !publicSearchSource.includes("getContributor") &&
+    !publicSearchSource.includes("getSubmission"),
+  "Public search is not visibly isolated from drafts or operational records.",
+);
+
+const globalBrandSource = [
+  "../data/homepage.ts",
+  "../components/home/hero-section.tsx",
+  "../components/layout/mobile-navigation.tsx",
+  "../components/layout/site-footer.tsx",
+  "../lib/content/fallback.ts",
+]
+  .map((path) => readFileSync(new URL(path, import.meta.url), "utf8"))
+  .join("\n");
+assert(
+  !/California base|California to worldwide|California to the global stage|CA 36\.7783/i.test(
+    globalBrandSource,
+  ),
+  "Global brand surfaces still position California as the platform boundary.",
+);
+
+assert(
+  countries.length >= 249 &&
+    new Set(countries.map((country) => country.code)).size === countries.length &&
+    new Set(countries.map((country) => country.name)).size === countries.length,
+  "Reusable worldwide country data is incomplete or duplicated.",
+);
+assert(
+  unitedStatesAdministrativeAreas.length === 51 &&
+    unitedStatesAdministrativeAreas.some((area) => area.code === "DC") &&
+    new Set(unitedStatesAdministrativeAreas.map((area) => area.code)).size ===
+      unitedStatesAdministrativeAreas.length,
+  "United States geography must contain all 50 states and District of Columbia.",
+);
+assert(
+  new Set(athleteCompetitionCategoryValues).size ===
+      athleteCompetitionCategoryValues.length &&
+    new Set(athleteSpecialtyValues).size === athleteSpecialtyValues.length,
+  "Athlete category or specialty values are duplicated.",
+);
+assert(
+  athletes.every(
+    (athlete) =>
+      athlete.country &&
+      athlete.administrativeArea &&
+      athlete.primaryCategory &&
+      athlete.rankingEligible === false &&
+      athlete.verification.identityStatus === "unverified" &&
+      athlete.verification.profileStatus === "not-reviewed",
+  ),
+  "Fallback athlete records contain missing geography or unsupported ranking/verification claims.",
+);
+
+const athleteClaim = athleteNominationDetailsSchema.safeParse({
+  requestKind: "claim",
+  existingAthleteSlug: "sample-athlete",
+  athleteName: "Sample Athlete",
+  displayName: "",
+  country: "Japan",
+  administrativeArea: "Tokyo",
+  city: "",
+  biography: "",
+  primaryCategory: "skills-static",
+  specialties: ["hand-balancing"],
+  yearsActive: "",
+  profileImageUrl: "",
+  coverImageUrl: "",
+  socialLinks: [{url: "https://example.com/sample-athlete", label: ""}],
+  competitionHistory: [
+    {
+      eventName: "Public sample event",
+      organizer: "Sample organizer",
+      date: "2026-01-15",
+      country: "Japan",
+      city: "Tokyo",
+      divisionCategory: "Skills / Static",
+      placement: "",
+      score: "",
+      officialResultUrl: "https://example.com/results",
+      eventUrl: "",
+      videoUrl: "",
+    },
+  ],
+  discipline: "",
+  nominationReason:
+    "The submitter requests moderated review of this existing public profile.",
+  publicReferenceLinks: [],
+  relationshipToAthlete: "Self",
+  permissionStatus: "confirmed",
+});
+assert(
+  athleteClaim.success &&
+    !athleteNominationDetailsSchema.safeParse({
+      ...athleteClaim.data,
+      existingAthleteSlug: "",
+    }).success,
+  "Athlete claim validation did not preserve structured profile data or require a target profile.",
 );
 
 for (const link of [

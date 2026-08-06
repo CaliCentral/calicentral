@@ -110,7 +110,7 @@ The desk is grouped into:
 - Site — the single `siteSettings` document
 - Editorial — stories and authors
 - Editorial Operations — submissions, contributors, and audit events
-- Athletes — athlete profiles and ranking categories
+- Athletes — athlete profiles and competition standing categories
 - Competitions — competition records
 - Media — videos and series
 
@@ -147,7 +147,7 @@ Workers static-assets cache does not provide tag revalidation. A CMS publish
 does not replace that reviewed rebuild/deploy.
 
 Presentation resolves the homepage and story, athlete, competition, video, and
-ranking routes. External hosts must use the configured site URL and matching
+standing routes. External hosts must use the configured site URL and matching
 CORS origin; this repository does not add those account-level settings.
 
 ## Images and Portable Text
@@ -203,8 +203,8 @@ npx sanity exec scripts/seed-sanity.ts -- --write
 ```
 
 The tool uses stable IDs for Site Settings, authors, stories, athletes,
-competitions, video series, videos, and ranking categories. It validates
-references, array keys, dates, durations, chapter timestamps, and ranking
+competitions, video series, videos, and standing categories. It validates
+references, array keys, dates, durations, chapter timestamps, and standing
 uniqueness before any request. The write path uses create-or-replace only for
 those owned stable IDs; it issues no deletes, creates no fake image assets,
 creates no playback/embed URLs, and does not touch unrelated document IDs.

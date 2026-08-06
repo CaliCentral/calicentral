@@ -1,50 +1,80 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { CompetitionCard } from "@/components/competitions/competition-card";
 import { ContentEmptyState } from "@/components/ui/content-empty-state";
+import { formatGlobalLocation } from "@/lib/geography";
 import {
   competitionDisciplineLabels,
   competitionStatusLabels,
+  registrationStatusLabels,
 } from "@/lib/presentation/competition-labels";
 import type {
   Competition,
   CompetitionDiscipline,
   CompetitionStatus,
+  RegistrationStatus,
 } from "@/types/competition";
 
 type SortOption = "date-asc" | "date-desc" | "name";
 
 type CompetitionDirectoryProps = {
   readonly competitions: readonly Competition[];
+  readonly view?: "cards" | "timeline";
 };
 
-const selectClassName =
+const fieldClassName =
   "min-h-12 w-full border border-white/18 bg-canvas px-3 py-2 text-sm font-semibold text-ink outline-none transition-colors focus:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function CompetitionDirectory({
   competitions,
+  view = "cards",
 }: CompetitionDirectoryProps) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<CompetitionStatus | "all">("all");
+  const [registration, setRegistration] = useState<
+    RegistrationStatus | "all"
+  >("all");
   const [discipline, setDiscipline] = useState<
     CompetitionDiscipline | "all"
   >("all");
-  const [city, setCity] = useState("all");
+  const [country, setCountry] = useState("all");
+  const [administrativeArea, setAdministrativeArea] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [sort, setSort] = useState<SortOption>("date-asc");
 
   const statuses = useMemo(
     () => [...new Set(competitions.map((item) => item.status))].sort(),
     [competitions],
   );
+  const registrationStatuses = useMemo(
+    () =>
+      [...new Set(competitions.map((item) => item.registrationStatus))].sort(),
+    [competitions],
+  );
   const disciplines = useMemo(
     () => [...new Set(competitions.flatMap((item) => item.disciplines))].sort(),
     [competitions],
   );
-  const cities = useMemo(
-    () => [...new Set(competitions.map((item) => item.city))].sort(),
+  const countries = useMemo(
+    () =>
+      [...new Set(competitions.map((item) => item.country).filter(Boolean))].sort(),
     [competitions],
+  );
+  const administrativeAreas = useMemo(
+    () =>
+      [
+        ...new Set(
+          competitions
+            .filter((item) => country === "all" || item.country === country)
+            .map((item) => item.administrativeArea ?? item.state)
+            .filter(Boolean),
+        ),
+      ].sort(),
+    [competitions, country],
   );
 
   const results = useMemo(() => {
@@ -52,25 +82,35 @@ export function CompetitionDirectory({
 
     return competitions
       .filter((competition) => {
+        const area = competition.administrativeArea ?? competition.state;
         const searchField = [
           competition.name,
           competition.city,
-          competition.state,
+          area,
+          competition.country,
+          competition.region,
           competition.competitionFormat,
           competition.venueName,
+          competition.organizerName,
           ...competition.disciplines.map(
             (item) => competitionDisciplineLabels[item],
           ),
         ]
+          .filter(Boolean)
           .join(" ")
           .toLocaleLowerCase();
 
         return (
           (!normalizedQuery || searchField.includes(normalizedQuery)) &&
           (status === "all" || competition.status === status) &&
+          (registration === "all" ||
+            competition.registrationStatus === registration) &&
           (discipline === "all" ||
             competition.disciplines.includes(discipline)) &&
-          (city === "all" || competition.city === city)
+          (country === "all" || competition.country === country) &&
+          (administrativeArea === "all" || area === administrativeArea) &&
+          (!dateFrom || competition.startDate >= dateFrom) &&
+          (!dateTo || competition.startDate <= dateTo)
         );
       })
       .sort((a, b) => {
@@ -78,24 +118,42 @@ export function CompetitionDirectory({
           return a.name.localeCompare(b.name);
         }
 
-        const dateDifference =
-          new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+        const dateDifference = a.startDate.localeCompare(b.startDate);
         return sort === "date-asc" ? dateDifference : -dateDifference;
       });
-  }, [city, competitions, discipline, query, sort, status]);
+  }, [
+    administrativeArea,
+    competitions,
+    country,
+    dateFrom,
+    dateTo,
+    discipline,
+    query,
+    registration,
+    sort,
+    status,
+  ]);
 
   const hasActiveFilters =
     query !== "" ||
     status !== "all" ||
+    registration !== "all" ||
     discipline !== "all" ||
-    city !== "all" ||
+    country !== "all" ||
+    administrativeArea !== "all" ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
     sort !== "date-asc";
 
   function resetFilters() {
     setQuery("");
     setStatus("all");
+    setRegistration("all");
     setDiscipline("all");
-    setCity("all");
+    setCountry("all");
+    setAdministrativeArea("all");
+    setDateFrom("");
+    setDateTo("");
     setSort("date-asc");
   }
 
@@ -104,7 +162,7 @@ export function CompetitionDirectory({
       <ContentEmptyState
         eyebrow="Competition directory / Awaiting publication"
         title="No competition records are published"
-        description="The public competition field is being prepared. Published event records will appear here."
+        description="Published event records will appear here after editorial review."
       />
     );
   }
@@ -112,29 +170,42 @@ export function CompetitionDirectory({
   return (
     <div>
       <div className="border border-white/15 bg-surface p-5 sm:p-6">
-        <div className="grid gap-4 lg:grid-cols-[minmax(15rem,1.45fr)_repeat(4,minmax(8.5rem,0.7fr))]">
-          <label>
-            <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
-              Search the field
-            </span>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <label className="sm:col-span-2">
+            <FilterLabel>Search the field</FilterLabel>
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Event, city, format…"
-              className={selectClassName}
+              placeholder="Event, country, city, organizer…"
+              className={fieldClassName}
             />
           </label>
+          <SelectField
+            label="Country"
+            value={country}
+            onChange={(value) => {
+              setCountry(value);
+              setAdministrativeArea("all");
+            }}
+            options={countries}
+            allLabel="All countries"
+          />
+          <SelectField
+            label="State, province, or region"
+            value={administrativeArea}
+            onChange={setAdministrativeArea}
+            options={administrativeAreas}
+            allLabel="All areas"
+          />
           <label>
-            <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
-              Status
-            </span>
+            <FilterLabel>Event status</FilterLabel>
             <select
               value={status}
               onChange={(event) =>
                 setStatus(event.target.value as CompetitionStatus | "all")
               }
-              className={selectClassName}
+              className={fieldClassName}
             >
               <option value="all">All statuses</option>
               {statuses.map((item) => (
@@ -145,9 +216,26 @@ export function CompetitionDirectory({
             </select>
           </label>
           <label>
-            <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
-              Discipline
-            </span>
+            <FilterLabel>Registration</FilterLabel>
+            <select
+              value={registration}
+              onChange={(event) =>
+                setRegistration(
+                  event.target.value as RegistrationStatus | "all",
+                )
+              }
+              className={fieldClassName}
+            >
+              <option value="all">All registration states</option>
+              {registrationStatuses.map((item) => (
+                <option key={item} value={item}>
+                  {registrationStatusLabels[item]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <FilterLabel>Category</FilterLabel>
             <select
               value={discipline}
               onChange={(event) =>
@@ -155,9 +243,9 @@ export function CompetitionDirectory({
                   event.target.value as CompetitionDiscipline | "all",
                 )
               }
-              className={selectClassName}
+              className={fieldClassName}
             >
-              <option value="all">All disciplines</option>
+              <option value="all">All categories</option>
               {disciplines.map((item) => (
                 <option key={item} value={item}>
                   {competitionDisciplineLabels[item]}
@@ -166,35 +254,36 @@ export function CompetitionDirectory({
             </select>
           </label>
           <label>
-            <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
-              City
-            </span>
-            <select
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              className={selectClassName}
-            >
-              <option value="all">All cities</option>
-              {cities.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
-              Sort
-            </span>
+            <FilterLabel>Sort</FilterLabel>
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as SortOption)}
-              className={selectClassName}
+              className={fieldClassName}
             >
               <option value="date-asc">Date / Earliest</option>
               <option value="date-desc">Date / Latest</option>
               <option value="name">Name / A–Z</option>
             </select>
+          </label>
+          <label>
+            <FilterLabel>Date from</FilterLabel>
+            <input
+              type="date"
+              value={dateFrom}
+              max={dateTo || undefined}
+              onChange={(event) => setDateFrom(event.target.value)}
+              className={fieldClassName}
+            />
+          </label>
+          <label>
+            <FilterLabel>Date to</FilterLabel>
+            <input
+              type="date"
+              value={dateTo}
+              min={dateFrom || undefined}
+              onChange={(event) => setDateTo(event.target.value)}
+              className={fieldClassName}
+            />
           </label>
         </div>
 
@@ -204,8 +293,7 @@ export function CompetitionDirectory({
             aria-atomic="true"
             className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-ink"
           >
-            {String(results.length).padStart(2, "0")}{" "}
-            {results.length === 1 ? "event record" : "event records"}
+            {String(results.length).padStart(2, "0")} {results.length === 1 ? "event record" : "event records"}
           </p>
           {hasActiveFilters ? (
             <button
@@ -215,44 +303,133 @@ export function CompetitionDirectory({
             >
               Clear filters
             </button>
-          ) : (
-            <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.13em] text-muted">
-              Complete prototype field
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
 
       {results.length > 0 ? (
-        <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {results.map((competition) => (
-            <CompetitionCard
-              key={competition.slug}
-              competition={competition}
-            />
-          ))}
-        </div>
+        view === "timeline" ? (
+          <CompetitionTimeline competitions={results} />
+        ) : (
+          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {results.map((competition) => (
+              <CompetitionCard key={competition.slug} competition={competition} />
+            ))}
+          </div>
+        )
       ) : (
-        <div className="mt-7 border border-dashed border-white/25 bg-surface px-5 py-14 text-center sm:px-8">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent">
-            No matching field records
-          </p>
-          <h2 className="mt-4 font-display text-3xl font-black uppercase tracking-[-0.045em] text-ink">
-            Reset the lens and try again.
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-muted">
-            No fictional competition currently matches this combination of
-            search and filters.
-          </p>
+        <div className="mt-7">
+          <ContentEmptyState
+            eyebrow="Competition directory / No matches"
+            title="No event records match these filters"
+            description="Clear or change the filters to inspect another part of the published directory."
+          />
           <button
             type="button"
             onClick={resetFilters}
-            className="mt-6 min-h-12 border border-accent px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent hover:text-canvas focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            className="mx-auto mt-5 flex min-h-11 items-center border border-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.12em] text-accent hover:bg-accent hover:text-canvas focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
             Clear all filters
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+function CompetitionTimeline({
+  competitions,
+}: {
+  readonly competitions: readonly Competition[];
+}) {
+  return (
+    <ol className="mt-7 border-y border-white/15">
+      {competitions.map((competition) => (
+        <li
+          key={competition.slug}
+          className="grid gap-4 border-t border-white/12 py-6 first:border-t-0 md:grid-cols-[8rem_minmax(0,1fr)_minmax(12rem,0.55fr)_auto] md:items-center md:gap-7"
+        >
+          <time
+            dateTime={competition.startDate}
+            className="font-mono text-sm font-black uppercase tracking-[0.08em] text-accent"
+          >
+            {competition.monthCode} {competition.day} / {competition.year}
+          </time>
+          <div>
+            <Link
+              href={`/competitions/${competition.slug}`}
+              className="text-xl font-black uppercase text-ink underline decoration-white/25 underline-offset-4 transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              {competition.name}
+            </Link>
+            <p className="mt-2 text-sm text-muted">
+              {formatGlobalLocation({
+                city: competition.city,
+                administrativeArea:
+                  competition.administrativeArea ?? competition.state,
+                country: competition.country,
+              }) || "Location not published"}
+            </p>
+          </div>
+          <p className="font-mono text-xs font-bold uppercase leading-5 tracking-[0.11em] text-muted">
+            {competitionStatusLabels[competition.status]}
+            <br />
+            {registrationStatusLabels[competition.registrationStatus]}
+            {competition.contentStatus !== "published-record" ? (
+              <>
+                <br />
+                <span className="text-accent">Sample / Not official</span>
+              </>
+            ) : null}
+          </p>
+          <Link
+            href={`/competitions/${competition.slug}`}
+            className="inline-flex min-h-11 items-center font-mono text-xs font-bold uppercase tracking-[0.12em] text-ink underline decoration-white/25 underline-offset-4 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          >
+            Event record →
+          </Link>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function FilterLabel({ children }: { readonly children: React.ReactNode }) {
+  return (
+    <span className="mb-2 block font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
+      {children}
+    </span>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  allLabel,
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly onChange: (value: string) => void;
+  readonly options: readonly string[];
+  readonly allLabel: string;
+}) {
+  return (
+    <label>
+      <FilterLabel>{label}</FilterLabel>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={fieldClassName}
+      >
+        <option value="all">{allLabel}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

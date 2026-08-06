@@ -16,8 +16,8 @@ import { safeAuthReturnPath } from "@/lib/auth/redirects";
 import { isSanityMutationConfigured } from "@/sanity/lib/write-client";
 
 export const metadata: Metadata = {
-  title: "Contributor sign in",
-  description: "Secure access to the Cali Central contributor portal.",
+  title: "Account sign in",
+  description: "Secure access to a Cali Central account.",
 };
 
 type SignInPageProps = {
@@ -34,9 +34,9 @@ function safeCallbackPath(value: string | string[] | undefined) {
 
 const safeErrorMessages: Record<string, string> = {
   AccessDenied:
-    "This identity does not currently have access to the contributor portal.",
+    "This identity does not currently have access to the requested account area.",
   Configuration:
-    "Contributor authentication is temporarily unavailable in this environment.",
+    "Account authentication is temporarily unavailable in this environment.",
   OAuthCallback:
     "The provider could not complete sign-in. Please try again.",
   OAuthAccountNotLinked:
@@ -73,15 +73,15 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
               <BrandMark className="h-9 w-auto" />
             </Link>
             <p className="mt-12 font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent">
-              Contributor portal / Secure access
+              Cali Central account / Secure access
             </p>
             <h1 className="mt-4 text-balance text-4xl font-black uppercase leading-[0.94] tracking-[-0.045em] text-ink sm:text-5xl">
-              Bring the next story into view.
+              Take your place in the field.
             </h1>
             <p className="mt-5 max-w-md text-sm leading-7 text-muted">
-              Submit ideas, manage drafts, and follow editorial review from one
-              private workspace. Sign-in is reserved for configured contributor
-              identities.
+              Use one private account to manage your profile, choose how you
+              want to take part, submit information when eligible, and follow
+              editorial review.
             </p>
           </div>
           <p className="mt-12 border-t border-white/10 pt-5 text-xs leading-5 text-white/50">
@@ -92,7 +92,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
         <section className="p-6 sm:p-9 lg:p-12" aria-labelledby="access-heading">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent">
-            Identity verification
+            Secure identity
           </p>
           <h2
             id="access-heading"
@@ -101,8 +101,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             Sign in to continue
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Use a provider configured by the Cali Central editorial team. We do
-            not offer passwords or an impersonation login.
+            Use an available provider for the same Cali Central account across
+            member, athlete, organizer, or contributor activity. We do not
+            offer passwords or an impersonation login.
           </p>
 
           {errorMessage ? (
@@ -120,8 +121,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 Provider configuration required
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Contributor authentication has not been enabled for this
-                environment. Public Cali Central pages remain available.
+                Account authentication has not been enabled for this
+                environment. Public Cali Central pages and the Join guide remain
+                available.
               </p>
               {authConfiguration.googlePartiallyConfigured ||
               authConfiguration.githubPartiallyConfigured ? (
@@ -152,7 +154,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
           {isAuthConfigured && !isSanityMutationConfigured() ? (
             <p className="mt-5 border-l-2 border-amber-300 pl-4 text-xs leading-5 text-amber-100/80">
-              Sign-in is available, but contributor provisioning and portal
+              Sign-in is available, but account provisioning and portal
               changes require a configured Sanity write token.
             </p>
           ) : null}

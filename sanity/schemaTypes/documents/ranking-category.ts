@@ -3,16 +3,19 @@ import {defineArrayMember, defineField, defineType} from "sanity"
 import {
   prototypeStatusOptions,
   rankingStatusOptions,
+  standingMethodologyStatusOptions,
+  standingScopeOptions,
 } from "../constants"
 import {
   validateSlugLength,
+  validateStandingPublicationStatus,
   validateUniqueNumbers,
   validateUniqueReferences,
 } from "../validation"
 
 export const rankingCategory = defineType({
   name: "rankingCategory",
-  title: "Ranking category",
+  title: "Standing category",
   type: "document",
   groups: [
     {name: "category", title: "Category", default: true},
@@ -58,19 +61,69 @@ export const rankingCategory = defineType({
     }),
     defineField({
       name: "region",
-      title: "Region",
+      title: "Geographic scope label",
       type: "string",
       group: "category",
-      validation: (Rule) => Rule.required().max(100),
+      description: "Use “Worldwide” unless the board has a narrower documented scope.",
+      validation: (Rule) => Rule.max(100),
+    }),
+    defineField({
+      name: "scope",
+      title: "Standing scope",
+      type: "string",
+      group: "category",
+      options: {list: standingScopeOptions, layout: "radio"},
+      initialValue: "competition",
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: "status",
-      title: "Ranking status",
+      title: "Publication status",
       type: "string",
       group: "category",
       options: {list: rankingStatusOptions, layout: "radio"},
-      initialValue: "prototype",
+      initialValue: "draft",
+      validation: (Rule) =>
+        Rule.required().custom((value, context) =>
+          validateStandingPublicationStatus(value, context),
+        ),
+    }),
+    defineField({
+      name: "methodologyStatus",
+      title: "Methodology status",
+      type: "string",
+      group: "standings",
+      options: {list: standingMethodologyStatusOptions, layout: "radio"},
+      initialValue: "draft",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "seasonLabel",
+      title: "Season label",
+      type: "string",
+      group: "category",
+      description: "For example, “2027 season”. Required before publication.",
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: "seasonStart",
+      title: "Season start",
+      type: "date",
+      group: "category",
+    }),
+    defineField({
+      name: "seasonEnd",
+      title: "Season end",
+      type: "date",
+      group: "category",
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const start = context.document?.seasonStart
+
+          return !value || typeof start !== "string" || value >= start
+            ? true
+            : "Season end cannot be before season start."
+        }),
     }),
     defineField({
       name: "updatedAt",
@@ -101,9 +154,7 @@ export const rankingCategory = defineType({
       group: "standings",
       of: [defineArrayMember({type: "rankingEntry"})],
       validation: (Rule) =>
-        Rule.required()
-          .min(1)
-          .max(500)
+        Rule.max(500)
           .custom((value) => {
             const uniqueRanks = validateUniqueNumbers(value, "rank", "Ranks")
 
@@ -119,7 +170,7 @@ export const rankingCategory = defineType({
       rows: 4,
       group: "standings",
       description:
-        "Explain the methodology and clearly disclose prototype or unofficial standings.",
+        "Explain eligibility, sources, season boundaries, ties, corrections, disputes, and any scoring rules.",
       validation: (Rule) => Rule.required().max(1000),
     }),
     defineField({
@@ -164,7 +215,7 @@ export const rankingCategory = defineType({
     },
     prepare({title, discipline, division, region, status, updatedAt}) {
       return {
-        title: title || "Untitled ranking category",
+        title: title || "Untitled standing category",
         subtitle: [
           discipline,
           division,

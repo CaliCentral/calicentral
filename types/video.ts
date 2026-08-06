@@ -5,7 +5,12 @@ export type VideoCategory =
   | "Competition"
   | "Culture"
   | "Athlete Profile"
-  | "Training";
+  | "Training"
+  | "Interview"
+  | "Competition Highlight"
+  | "Documentary"
+  | "Short Clip"
+  | "Cali Central Original";
 
 export type VideoFormat =
   | "Visual Study"
@@ -20,6 +25,36 @@ export type VideoStatus =
   | "preview"
   | "archive-sample"
   | "published-prototype";
+
+export type VideoSourcePlatform =
+  | "Cali Central"
+  | "Instagram"
+  | "TikTok"
+  | "YouTube"
+  | "Facebook"
+  | "X"
+  | "Threads"
+  | "Website";
+
+export type VideoOwnershipStatus =
+  | "cali-central-original"
+  | "third-party-attributed"
+  | "source-unavailable";
+
+export type VideoSourceAttribution = {
+  readonly platform: VideoSourcePlatform;
+  readonly account?: string;
+  readonly originalPostUrl?: string;
+  readonly ownershipStatus: VideoOwnershipStatus;
+};
+
+export type VideoPlatformMetric = {
+  readonly platform: VideoSourcePlatform;
+  readonly label: "Views" | "Plays" | "Engagement";
+  readonly value: number;
+  readonly observedAt?: string;
+  readonly sourceUrl?: string;
+};
 
 export type VideoVisualVariant =
   | "handstand"
@@ -100,6 +135,9 @@ export type MediaFeature = {
   readonly relatedVideoSlugs: readonly string[];
   readonly tags: readonly string[];
   readonly availabilityLabel: string;
+  readonly source?: VideoSourceAttribution;
+  readonly platformMetrics?: readonly VideoPlatformMetric[];
+  readonly discoverContext?: string;
   readonly image?: EditorialImage;
   readonly seo?: SeoData;
 };

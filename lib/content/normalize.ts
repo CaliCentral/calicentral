@@ -9,13 +9,20 @@ import type {
 import type {
   Athlete,
   AthleteAchievement,
+  AthleteCompetitionCategory,
+  AthleteCompetitionRecord,
   AthleteDiscipline,
   AthleteRankMovement,
+  AthleteSocialLink,
+  AthleteSocialPlatform,
+  AthleteSpecialty,
   AthleteStatistic,
   AthleteTimelineEntry,
 } from "@/types/athlete";
 import type {
   Competition,
+  CompetitionActionLink,
+  CompetitionContentStatus,
   CompetitionDiscipline,
   CompetitionDivision,
   CompetitionNotice,
@@ -43,8 +50,12 @@ import type {
   VideoCredit,
   VideoEditorialNote,
   VideoFormat,
+  VideoOwnershipStatus,
+  VideoPlatformMetric,
   VideoSeries,
   VideoSeriesSlug,
+  VideoSourceAttribution,
+  VideoSourcePlatform,
   VideoStatus,
   VideoTranscriptBlock,
   VideoVisualVariant,
@@ -58,6 +69,14 @@ import type {
   VideoPageData,
   VideosPageData,
 } from "@/lib/content/types";
+import {
+  athleteCompetitionCategories,
+  athleteSpecialties,
+  categoryFromLegacyDiscipline,
+  specialtiesFromLegacyDisciplines,
+} from "@/lib/athlete-taxonomy";
+import { countryNameFor } from "@/lib/geography";
+import { isPublishableCompetitionStanding } from "@/lib/standings/publication";
 import { normalizeSanityImage } from "@/sanity/lib/image";
 
 type JsonRecord = Record<string, unknown>;
@@ -68,7 +87,7 @@ const navigation = [
   { label: "Athletes", href: "/athletes" },
   { label: "Competitions", href: "/competitions" },
   { label: "Videos", href: "/videos" },
-  { label: "Rankings", href: "/rankings" },
+  { label: "Standings", href: "/standings" },
 ] as const;
 
 const footerGroups = [
@@ -79,23 +98,32 @@ const footerGroups = [
   {
     title: "Field",
     links: [
+      { label: "Search", href: "/search" },
       { label: "Athlete spotlight", href: "/#athlete-spotlight" },
       { label: "Back to top", href: "#top" },
     ],
   },
+  {
+    title: "Trust",
+    links: [
+      { label: "Verification", href: "/verification" },
+      { label: "Corrections", href: "/corrections" },
+      { label: "Editorial standards", href: "/editorial-standards" },
+    ],
+  },
 ] as const;
 
-const cmsDefaultDescription = "Independent calisthenics media.";
+const cmsDefaultDescription = "Independent global calisthenics media.";
 
 const cmsEmptyHero: HeroContent = {
-  eyebrow: "Cali Central / Publication desk",
+  eyebrow: "Independent calisthenics media / Worldwide",
   title: {
-    lead: "A new issue",
-    emphasis: "is in",
-    tail: "motion.",
+    lead: "Where the world of",
+    emphasis: "CALISTHENICS",
+    tail: "comes into focus.",
   },
   description:
-    "The public homepage is being prepared. Published stories and field records will appear as the next issue takes shape.",
+    "Original stories, competition coverage, athlete profiles, published results, and the movement shaping calisthenics worldwide.",
   primaryAction: { label: "Browse stories", href: "/stories" },
   secondaryAction: {
     label: "Browse athletes",
@@ -137,6 +165,26 @@ function optionalString(value: unknown): string | undefined {
 function optionalStructuralString(value: unknown): string | undefined {
   const normalized = structuralString(value);
   return normalized || undefined;
+}
+
+function safeHttpUrl(value: unknown): string | undefined {
+  const candidate = structuralString(value);
+
+  if (!candidate) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(candidate);
+
+    return (url.protocol === "https:" || url.protocol === "http:") &&
+      !url.username &&
+      !url.password
+      ? url.toString()
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function number(value: unknown, fallback = 0): number {
@@ -485,7 +533,7 @@ function normalizeStory(value: unknown): Article | null {
     publicationDate,
     displayDate: formatDate(publicationDate),
     readTime: `${Math.max(1, number(story.readTimeMinutes, 5))} min read`,
-    location: structuralString(story.location, "California"),
+    location: structuralString(story.location, "Location not published"),
     featured: boolean(story.featured),
     homepageFeatured: boolean(story.homepageFeatured),
     issueNumber: string(story.issueNumber, "TBD"),
@@ -542,6 +590,23 @@ const athleteDisciplines = [
   "Hand balancing",
 ] as const satisfies readonly AthleteDiscipline[];
 
+const athleteCategoryValues = athleteCompetitionCategories.map(
+  ({ value }) => value,
+) as readonly AthleteCompetitionCategory[];
+const athleteSpecialtyValues = athleteSpecialties.map(
+  ({ value }) => value,
+) as readonly AthleteSpecialty[];
+const athleteSocialPlatforms = [
+  "instagram",
+  "tiktok",
+  "youtube",
+  "facebook",
+  "x",
+  "threads",
+  "website",
+  "sponsor-merch",
+] as const satisfies readonly AthleteSocialPlatform[];
+
 function normalizeMovement(value: unknown): AthleteRankMovement {
   const movement = record(value);
   const direction = oneOf(
@@ -587,6 +652,47 @@ function normalizeAthlete(value: unknown): Athlete | null {
       oneOf<AthleteDiscipline>(item, athleteDisciplines, primaryDiscipline),
     )
     .filter((item) => item !== primaryDiscipline);
+  const legacyDisciplines = [primaryDiscipline, ...secondaryDisciplines];
+  const primaryCategory = oneOf<AthleteCompetitionCategory>(
+    athlete.primaryCategory,
+    athleteCategoryValues,
+    categoryFromLegacyDiscipline(primaryDiscipline),
+  );
+  const normalizedSpecialties = array(athlete.specialties)
+    .map((item) => structuralString(item))
+    .filter((item): item is AthleteSpecialty =>
+      athleteSpecialtyValues.includes(item as AthleteSpecialty),
+    );
+  const specialties =
+    normalizedSpecialties.length > 0
+      ? [...new Set(normalizedSpecialties)]
+      : specialtiesFromLegacyDisciplines(legacyDisciplines);
+  const socialLinks = array(athlete.socialLinks).flatMap((item) => {
+    const link = record(item);
+    const platformValue = structuralString(link.platform);
+    const url = safeHttpUrl(link.url);
+
+    if (
+      !url ||
+      !athleteSocialPlatforms.includes(platformValue as AthleteSocialPlatform)
+    ) {
+      return [];
+    }
+
+    const normalized: AthleteSocialLink = {
+      platform: platformValue as AthleteSocialPlatform,
+      url,
+      handle: optionalString(link.handle),
+      confirmationStatus: oneOf(
+        link.confirmationStatus,
+        ["unconfirmed", "confirmed"] as const,
+        "unconfirmed",
+      ),
+    };
+
+    return [normalized];
+  });
+  const verification = record(athlete.verification);
   const rankingRecord = record(athlete.ranking);
   const rankingEntry = record(rankingRecord.entry);
   const ranking =
@@ -655,6 +761,45 @@ function normalizeAthlete(value: unknown): Athlete | null {
 
     return [normalized];
   });
+  const competitionHistory = array(athlete.competitionHistory).flatMap(
+    (item) => {
+      const result = record(item);
+      const eventName = string(result.eventName);
+      const date = structuralString(result.date);
+
+      if (!eventName || !date) {
+        return [];
+      }
+
+      const normalized: AthleteCompetitionRecord = {
+        eventName,
+        eventSlug: optionalStructuralString(result.eventSlug),
+        date,
+        country: countryNameFor(structuralString(result.country)),
+        administrativeArea: structuralString(result.administrativeArea),
+        city: structuralString(result.city),
+        divisionCategory: string(result.divisionCategory),
+        placement: string(result.placement),
+        score: string(result.score),
+        verificationStatus: oneOf(
+          result.verificationStatus,
+          [
+            "unverified",
+            "source-reviewed",
+            "verified",
+            "disputed",
+            "sample",
+          ] as const,
+          "unverified",
+        ),
+        sourceLabel: string(result.sourceLabel),
+        sourceUrl: safeHttpUrl(result.sourceUrl),
+        videoUrl: safeHttpUrl(result.videoUrl),
+      };
+
+      return [normalized];
+    },
+  );
   const relatedStorySlugs = array(athlete.relatedStories)
     .map((item) => structuralString(record(item).slug))
     .filter(Boolean);
@@ -677,12 +822,18 @@ function normalizeAthlete(value: unknown): Athlete | null {
     profileNumber: string(athlete.profileNumber, "TBD"),
     status: string(athlete.profileStatus, "Prototype profile"),
     city: structuralString(athlete.city),
-    state: structuralString(athlete.state, "California"),
-    country: structuralString(athlete.country, "United States"),
-    region: structuralString(athlete.region, "California"),
-    disciplines: [primaryDiscipline, ...secondaryDisciplines],
+    state: structuralString(athlete.state),
+    country: countryNameFor(structuralString(athlete.country)),
+    administrativeArea: structuralString(
+      athlete.administrativeArea,
+      structuralString(athlete.state),
+    ),
+    region: structuralString(athlete.region),
+    disciplines: legacyDisciplines,
     primaryDiscipline,
     secondaryDiscipline: secondaryDisciplines[0],
+    primaryCategory,
+    specialties,
     profileLabel: string(
       athlete.profileLabel,
       string(athlete.prototypeStatus, "Fictional athlete profile"),
@@ -690,15 +841,30 @@ function normalizeAthlete(value: unknown): Athlete | null {
     shortBio: string(athlete.shortBio),
     fullBio: portableParagraphs(athlete.portableProfile),
     quote: string(athlete.quote),
-    trainingBase: string(athlete.trainingBase, "Fictional training base"),
-    yearsActive: string(athlete.yearsActive, "Prototype record"),
-    style: string(athlete.styleLabel, "Movement study"),
+    trainingBase: string(athlete.trainingBase),
+    yearsActive: string(athlete.yearsActive),
+    style: string(athlete.styleLabel),
     featured: boolean(athlete.featured),
+    updatedAt: optionalStructuralString(athlete.updatedAt),
+    verification: {
+      identityStatus: oneOf(
+        verification.identityStatus,
+        ["unverified", "profile-control-confirmed"] as const,
+        "unverified",
+      ),
+      profileStatus: oneOf(
+        verification.profileStatus,
+        ["not-reviewed", "approved"] as const,
+        "not-reviewed",
+      ),
+    },
+    socialLinks,
     rankingEligible: boolean(athlete.rankingEligible),
     ranking,
     statistics,
     achievements,
     timeline,
+    competitionHistory,
     relatedStorySlugs,
     relatedAthleteSlugs,
     visualVariant: oneOf(
@@ -708,6 +874,7 @@ function normalizeAthlete(value: unknown): Athlete | null {
     ),
     disciplineCode: structuralString(athlete.disciplineCode, "FIELD"),
     image: normalizeImage(athlete.profileImage ?? athlete.image),
+    coverImage: normalizeImage(athlete.coverImage),
     seo: normalizeSeo(athlete.seo),
   };
 }
@@ -755,9 +922,29 @@ function normalizeCompetition(value: unknown): Competition | null {
   const parts = dateParts(startDate);
   const status = oneOf<CompetitionStatus>(
     competition.status,
-    ["upcoming", "completed", "postponed", "preview"],
+    ["upcoming", "completed", "postponed", "cancelled", "preview"],
     "preview",
   );
+  const contentStatus = oneOf<CompetitionContentStatus>(
+    competition.contentStatus,
+    [
+      "published-record",
+      "fictional-prototype",
+      "sample-record",
+      "not-official",
+    ],
+    "sample-record",
+  );
+  const resultsStatus = oneOf(
+    competition.resultsStatus,
+    ["not-available", "pending", "verified-results", "sample-results"] as const,
+    "not-available",
+  );
+  const administrativeArea = structuralString(
+    competition.administrativeArea,
+    structuralString(competition.state),
+  );
+  const country = countryNameFor(structuralString(competition.country));
   const divisions = array(competition.divisions).flatMap((item, index) => {
     const division = record(item);
     const divisionName = string(division.name);
@@ -842,6 +1029,7 @@ function normalizeCompetition(value: unknown): Competition | null {
       }
 
       const normalized: CompetitionResult = {
+        key: optionalStructuralString(result.key),
         placement,
         athleteSlug: optionalStructuralString(result.athleteSlug),
         athleteName,
@@ -849,9 +1037,41 @@ function normalizeCompetition(value: unknown): Competition | null {
           result.region,
           structuralString(result.athleteRegion),
         ),
+        category: optionalStructuralString(result.category),
+        division: optionalStructuralString(result.division),
+        ruleset: optionalString(result.ruleset),
+        bodyweightDisplay: optionalStructuralString(result.bodyweightDisplay),
         scoreDisplay: string(result.scoreDisplay),
         resultLabel: string(result.resultLabel, "Sample result"),
         movementNote: string(result.movementNote),
+        verificationStatus: oneOf(
+          result.verificationStatus,
+          [
+            "unverified",
+            "source-reviewed",
+            "verified",
+            "disputed",
+            "sample",
+          ] as const,
+          resultsStatus === "sample-results" ? "sample" : "unverified",
+        ),
+        sourceType: optionalStructuralString(result.sourceType)
+          ? oneOf(
+              result.sourceType,
+              [
+                "official-event-results",
+                "organizer-published",
+                "event-website",
+                "video",
+                "other",
+              ] as const,
+              "other",
+            )
+          : undefined,
+        sourceName: optionalStructuralString(result.sourceName),
+        sourceUrl: safeHttpUrl(result.sourceUrl),
+        videoUrl: safeHttpUrl(result.videoUrl),
+        verifiedAt: optionalStructuralString(result.verifiedAt),
       };
 
       return [normalized];
@@ -899,6 +1119,41 @@ function normalizeCompetition(value: unknown): Competition | null {
 
     return [normalized];
   });
+  const actionLinks = array(competition.actionLinks).flatMap((item) => {
+    const action = record(item);
+    const label = structuralString(action.label);
+    const url = safeHttpUrl(action.url);
+    const affiliate = boolean(action.affiliate);
+    const partnerName = optionalStructuralString(action.partnerName);
+    const disclosure = optionalString(action.disclosure);
+
+    if (!label || !url || (affiliate && (!partnerName || !disclosure))) {
+      return [];
+    }
+
+    const normalized: CompetitionActionLink = {
+      label,
+      url,
+      linkType: oneOf(
+        action.linkType,
+        [
+          "registration",
+          "tickets",
+          "official-site",
+          "organizer-social",
+          "results",
+          "map",
+          "livestream",
+        ] as const,
+        "official-site",
+      ),
+      affiliate,
+      partnerName,
+      disclosure,
+    };
+
+    return [normalized];
+  });
 
   return {
     slug,
@@ -906,17 +1161,19 @@ function normalizeCompetition(value: unknown): Competition | null {
     shortName: string(competition.shortName, name),
     eventNumber: string(competition.eventNumber, "TBD"),
     status,
+    contentStatus,
     startDate,
     endDate: optionalStructuralString(competition.endDate),
     dateDisplay:
       status === "postponed" ? "Date under review" : formatDate(startDate),
     ...parts,
     city: structuralString(competition.city),
-    state: structuralString(competition.state, "California"),
-    country: structuralString(competition.country, "United States"),
+    state: administrativeArea,
+    administrativeArea,
+    country,
     region: structuralString(
       competition.region,
-      structuralString(competition.state, "California"),
+      administrativeArea || country,
     ),
     venueName: string(competition.venueName, "Venue pending"),
     venueType: string(competition.venueType, "Prototype venue"),
@@ -928,26 +1185,37 @@ function normalizeCompetition(value: unknown): Competition | null {
     featured: boolean(competition.featured),
     registrationStatus: oneOf(
       competition.registrationStatus,
-      ["not-open", "preview-only", "closed", "unavailable"] as const,
+      [
+        "not-open",
+        "open",
+        "preview-only",
+        "closed",
+        "sold-out",
+        "unavailable",
+      ] as const,
       "unavailable",
+    ),
+    registrationDeadline: optionalStructuralString(
+      competition.registrationDeadline,
     ),
     scheduleStatus: oneOf(
       competition.scheduleStatus,
       ["pending", "provisional", "published", "completed"] as const,
       "pending",
     ),
-    resultsStatus: oneOf(
-      competition.resultsStatus,
-      ["not-available", "pending", "sample-results"] as const,
-      "not-available",
-    ),
+    resultsStatus,
     capacityLabel: string(
       competition.capacityLabel,
       "Capacity not published",
     ),
     organizerName: string(
       competition.organizerName,
-      "Fictional event organizer",
+      "Organizer not published",
+    ),
+    organizerVerificationStatus: oneOf(
+      competition.organizerVerificationStatus,
+      ["unverified", "reviewed", "verified", "sample"] as const,
+      "unverified",
     ),
     competitionFormat: string(
       competition.competitionFormat,
@@ -961,6 +1229,7 @@ function normalizeCompetition(value: unknown): Competition | null {
     schedule,
     participants,
     results,
+    actionLinks,
     relatedStorySlugs: array(competition.relatedStories)
       .map((item) => structuralString(record(item).slug))
       .filter(Boolean),
@@ -993,6 +1262,11 @@ const videoCategories = [
   "Culture",
   "Athlete Profile",
   "Training",
+  "Interview",
+  "Competition Highlight",
+  "Documentary",
+  "Short Clip",
+  "Cali Central Original",
 ] as const satisfies readonly VideoCategory[];
 
 const videoFormats = [
@@ -1020,6 +1294,37 @@ const videoVariants = [
   "portrait",
   "competition",
 ] as const satisfies readonly VideoVisualVariant[];
+
+const videoSourcePlatforms = [
+  "Cali Central",
+  "Instagram",
+  "TikTok",
+  "YouTube",
+  "Facebook",
+  "X",
+  "Threads",
+  "Website",
+] as const satisfies readonly VideoSourcePlatform[];
+
+const videoOwnershipStatuses = [
+  "cali-central-original",
+  "third-party-attributed",
+  "source-unavailable",
+] as const satisfies readonly VideoOwnershipStatus[];
+
+const videoMetricLabels = [
+  "Views",
+  "Plays",
+  "Engagement",
+] as const satisfies readonly VideoPlatformMetric["label"][];
+
+function normalizeVideoPlatform(
+  value: unknown,
+): VideoSourcePlatform | undefined {
+  const platform = structuralString(value);
+
+  return videoSourcePlatforms.find((candidate) => candidate === platform);
+}
 
 function videoSeriesSlug(value: unknown): VideoSeriesSlug {
   const slug = structuralString(value, "field-notes");
@@ -1110,6 +1415,47 @@ function normalizeVideo(value: unknown): MediaFeature | null {
 
     return [normalized];
   });
+  const sourcePlatform = normalizeVideoPlatform(video.sourcePlatform);
+  const source: VideoSourceAttribution | undefined = sourcePlatform
+    ? {
+        platform: sourcePlatform,
+        account: optionalStructuralString(video.sourceAccount),
+        originalPostUrl: safeHttpUrl(video.originalPostUrl),
+        ownershipStatus: oneOf<VideoOwnershipStatus>(
+          video.ownershipStatus,
+          videoOwnershipStatuses,
+          "source-unavailable",
+        ),
+      }
+    : undefined;
+  const platformMetrics = array(video.platformMetrics).flatMap((item) => {
+    const metric = record(item);
+    const platform = normalizeVideoPlatform(metric.platform);
+    const label = structuralString(metric.label);
+    const value = metric.value;
+
+    if (
+      !platform ||
+      !videoMetricLabels.includes(
+        label as VideoPlatformMetric["label"],
+      ) ||
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      value < 0
+    ) {
+      return [];
+    }
+
+    const normalized: VideoPlatformMetric = {
+      platform,
+      label: label as VideoPlatformMetric["label"],
+      value: Math.floor(value),
+      observedAt: optionalStructuralString(metric.observedAt),
+      sourceUrl: safeHttpUrl(metric.sourceUrl),
+    };
+
+    return [normalized];
+  });
 
   return {
     slug,
@@ -1137,7 +1483,7 @@ function normalizeVideo(value: unknown): MediaFeature | null {
     durationSeconds,
     publishedDate,
     publishedDateDisplay: formatDate(publishedDate),
-    location: structuralString(video.location, "California"),
+    location: structuralString(video.location, "Location not published"),
     summary: string(video.summary),
     description: portableParagraphs(video.portableDescription),
     featured: boolean(video.featured),
@@ -1171,6 +1517,9 @@ function normalizeVideo(value: unknown): MediaFeature | null {
       video.availabilityLabel,
       "Static preview / No playback",
     ),
+    source,
+    platformMetrics,
+    discoverContext: optionalString(video.discoverContext),
     image: normalizeImage(video.posterImage ?? video.image),
     seo: normalizeSeo(video.seo),
   };
@@ -1204,10 +1553,7 @@ function normalizeVideoSeries(value: unknown): VideoSeries | null {
 }
 
 function rankingSlug(value: unknown): RankingCategorySlug {
-  return structuralString(
-    value,
-    "open-freestyle-california",
-  ) as RankingCategorySlug;
+  return structuralString(value) as RankingCategorySlug;
 }
 
 function normalizeRankingCategory(value: unknown): RankingCategory | null {
@@ -1229,6 +1575,37 @@ function normalizeRankingCategory(value: unknown): RankingCategory | null {
         return [];
       }
 
+      const sources = array(entry.sources).flatMap((item) => {
+        const source = record(item);
+        const competitionSlug = structuralString(source.competitionSlug);
+        const competitionName = string(source.competitionName);
+        const resultKey = structuralString(source.resultKey);
+        const sourceName = string(source.sourceName);
+        const sourceUrl = safeHttpUrl(source.sourceUrl);
+
+        if (
+          !competitionSlug ||
+          !competitionName ||
+          !resultKey ||
+          !sourceName ||
+          !sourceUrl ||
+          source.verificationStatus !== "verified"
+        ) {
+          return [];
+        }
+
+        return [
+          {
+            competitionSlug,
+            competitionName,
+            resultKey,
+            sourceName,
+            sourceUrl,
+            verificationStatus: "verified" as const,
+          },
+        ];
+      });
+
       const normalized: RankingEntry = {
         rank,
         athleteSlug,
@@ -1239,7 +1616,8 @@ function normalizeRankingCategory(value: unknown): RankingCategory | null {
         ),
         points: Math.max(0, number(entry.points)),
         movement: normalizeMovement(entry),
-        statusLabel: string(entry.status, "Prototype entry"),
+        statusLabel: string(entry.status, "Published standing"),
+        sources,
       };
 
       return [normalized];
@@ -1252,8 +1630,21 @@ function normalizeRankingCategory(value: unknown): RankingCategory | null {
     subtitle: string(category.subtitle),
     discipline: structuralString(category.discipline),
     division: structuralString(category.division),
-    region: structuralString(category.region, "California"),
-    status: "Prototype standings",
+    region: structuralString(category.region, "Worldwide"),
+    scope: oneOf(category.scope, ["competition", "country"] as const, "competition"),
+    status: oneOf(
+      category.status,
+      ["draft", "published", "retired", "prototype", "unofficial"] as const,
+      "draft",
+    ),
+    methodologyStatus: oneOf(
+      category.methodologyStatus,
+      ["draft", "approved"] as const,
+      "draft",
+    ),
+    seasonLabel: string(category.seasonLabel),
+    seasonStart: optionalStructuralString(category.seasonStart),
+    seasonEnd: optionalStructuralString(category.seasonEnd),
     updatedLabel: string(
       category.updatedLabel,
       formatDate(structuralString(category.updatedAt)),
@@ -1275,7 +1666,9 @@ export function normalizeRankingCategories(
 ): RankingCategory[] {
   return array(value).flatMap((item) => {
     const category = normalizeRankingCategory(item);
-    return category ? [category] : [];
+    return category && isPublishableCompetitionStanding(category)
+      ? [category]
+      : [];
   });
 }
 
@@ -1298,7 +1691,14 @@ export function normalizeHomepageContent(value: unknown): HomepageContent {
     ],
   ).slice(0, 3);
   const athlete = normalizeAthlete(homepage.athlete);
-  const rankingCategory = normalizeRankingCategory(homepage.rankingCategory);
+  const normalizedRankingCategory = normalizeRankingCategory(
+    homepage.rankingCategory,
+  );
+  const rankingCategory =
+    normalizedRankingCategory &&
+    isPublishableCompetitionStanding(normalizedRankingCategory)
+      ? normalizedRankingCategory
+      : null;
   const featuredCompetition = normalizeCompetition(
     homepage.featuredCompetition,
   );

@@ -1,5 +1,11 @@
 import {defineArrayMember, defineField, defineType} from "sanity"
 
+import {
+  athleteCompetitionCategoryOptions,
+  athleteSpecialtyOptions,
+  countryOptions,
+} from "../constants"
+
 const supportingLinkValidation = (links: unknown[] | undefined) => {
   const urls = (links || [])
     .map((link) => {
@@ -215,16 +221,131 @@ export const storyPitchDetails = defineType({
   ],
 })
 
+export const athleteCompetitionHistorySubmission = defineType({
+  name: "athleteCompetitionHistorySubmission",
+  title: "Submitted competition history entry",
+  type: "object",
+  description:
+    "Submitter-provided history. This is evidence for review, not a verified or published result.",
+  fields: [
+    defineField({
+      name: "eventName",
+      title: "Competition",
+      type: "string",
+      validation: (Rule) => Rule.min(2).max(140),
+    }),
+    defineField({
+      name: "organizer",
+      title: "Organizer",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({name: "date", title: "Date", type: "date"}),
+    defineField({
+      name: "country",
+      title: "Country",
+      type: "string",
+      options: {list: countryOptions},
+    }),
+    defineField({
+      name: "city",
+      title: "City",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "divisionCategory",
+      title: "Division or category",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "placement",
+      title: "Placement",
+      type: "string",
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: "score",
+      title: "Published score",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    ...["officialResultUrl", "eventUrl", "videoUrl"].map((name) =>
+      defineField({
+        name,
+        title:
+          name === "officialResultUrl"
+            ? "Official result URL"
+            : name === "eventUrl"
+              ? "Event URL"
+              : "Video URL",
+        type: "url",
+        validation: (Rule) =>
+          Rule.uri({allowRelative: false, scheme: ["http", "https"]}).custom(
+            (value) => validateUrlLength(value),
+          ),
+      }),
+    ),
+  ],
+  preview: {
+    select: {eventName: "eventName", date: "date", category: "divisionCategory"},
+    prepare({eventName, date, category}) {
+      return {
+        title: eventName || "Competition history entry",
+        subtitle: [date, category].filter(Boolean).join(" · "),
+      }
+    },
+  },
+})
+
 export const athleteNominationDetails = defineType({
   name: "athleteNominationDetails",
   title: "Athlete nomination details",
   type: "object",
   fields: [
     defineField({
+      name: "requestKind",
+      title: "Request kind",
+      type: "string",
+      options: {
+        list: [
+          {title: "Create a profile", value: "create"},
+          {title: "Claim an existing profile", value: "claim"},
+        ],
+      },
+      initialValue: "create",
+    }),
+    defineField({
+      name: "existingAthleteSlug",
+      title: "Existing athlete slug",
+      type: "string",
+      description: "Public profile slug supplied for a claim request.",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
       name: "athleteName",
-      title: "Athlete name",
+      title: "Public athlete name",
       type: "string",
       validation: (Rule) => Rule.min(2).max(120),
+    }),
+    defineField({
+      name: "displayName",
+      title: "Alternate display name",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "country",
+      title: "Country",
+      type: "string",
+      options: {list: countryOptions},
+    }),
+    defineField({
+      name: "administrativeArea",
+      title: "State, province, or region",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
     }),
     defineField({
       name: "city",
@@ -234,9 +355,69 @@ export const athleteNominationDetails = defineType({
       validation: (Rule) => Rule.min(2).max(120),
     }),
     defineField({
-      name: "discipline",
-      title: "Discipline",
+      name: "biography",
+      title: "Submitted biography",
+      type: "text",
+      rows: 6,
+      validation: (Rule) => Rule.max(3_000),
+    }),
+    defineField({
+      name: "primaryCategory",
+      title: "Primary competition category",
       type: "string",
+      options: {list: athleteCompetitionCategoryOptions},
+    }),
+    defineField({
+      name: "specialties",
+      title: "Specialties",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "string",
+          options: {list: athleteSpecialtyOptions},
+        }),
+      ],
+      validation: (Rule) => Rule.unique().max(athleteSpecialtyOptions.length),
+    }),
+    defineField({
+      name: "yearsActive",
+      title: "Years active",
+      type: "string",
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: "profileImageUrl",
+      title: "Profile image reference URL",
+      type: "url",
+      description: "Public reference only; never imported or published automatically.",
+      validation: (Rule) =>
+        Rule.uri({allowRelative: false, scheme: ["http", "https"]}).custom(
+          (value) => validateUrlLength(value),
+        ),
+    }),
+    defineField({
+      name: "coverImageUrl",
+      title: "Cover image reference URL",
+      type: "url",
+      description: "Public reference only; never imported or published automatically.",
+      validation: (Rule) =>
+        Rule.uri({allowRelative: false, scheme: ["http", "https"]}).custom(
+          (value) => validateUrlLength(value),
+        ),
+    }),
+    supportingLinksField("socialLinks", "Public social profile links"),
+    defineField({
+      name: "competitionHistory",
+      title: "Submitted competition history",
+      type: "array",
+      of: [defineArrayMember({type: "athleteCompetitionHistorySubmission"})],
+      validation: (Rule) => Rule.max(12),
+    }),
+    defineField({
+      name: "discipline",
+      title: "Legacy discipline",
+      type: "string",
+      description: "Retained for older nomination records.",
       validation: (Rule) => Rule.min(2).max(120),
     }),
     defineField({
@@ -375,6 +556,50 @@ export const mediaPitchDetails = defineType({
       type: "string",
       description: "A plain-language estimate, such as “6–8 minutes”.",
       validation: (Rule) => Rule.min(2).max(80),
+    }),
+    defineField({
+      name: "sourcePlatform",
+      title: "Source platform",
+      type: "string",
+      options: {
+        list: [
+          {title: "Cali Central", value: "Cali Central"},
+          {title: "Instagram", value: "Instagram"},
+          {title: "TikTok", value: "TikTok"},
+          {title: "YouTube", value: "YouTube"},
+          {title: "Facebook", value: "Facebook"},
+          {title: "X", value: "X"},
+          {title: "Threads", value: "Threads"},
+          {title: "Website", value: "Website"},
+        ],
+      },
+    }),
+    defineField({
+      name: "sourceAccount",
+      title: "Source account",
+      type: "string",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "originalPostUrl",
+      title: "Original post URL",
+      type: "url",
+      validation: (Rule) =>
+        Rule.uri({allowRelative: false, scheme: ["http", "https"]}),
+    }),
+    defineField({
+      name: "mediaPermissionStatus",
+      title: "Submitter's media relationship",
+      type: "string",
+      options: {
+        list: [
+          {title: "Unknown", value: "unknown"},
+          {title: "Submitter owns it", value: "submitter-owned"},
+          {title: "Permission confirmed", value: "permission-confirmed"},
+          {title: "Public reference only", value: "public-reference-only"},
+        ],
+      },
+      initialValue: "unknown",
     }),
     supportingLinksField("publicReferenceLinks", "Public reference links"),
   ],

@@ -3,13 +3,15 @@ import type { Metadata } from "next";
 import { AthleteDirectory } from "@/components/athletes/athlete-directory";
 import { AthleteDirectoryHero } from "@/components/athletes/athlete-directory-hero";
 import { FeaturedAthlete } from "@/components/athletes/featured-athlete";
+import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
+import { athleteCategoryLabel } from "@/lib/athlete-taxonomy";
 import { getAthletes } from "@/lib/content";
+import { countryNameFor } from "@/lib/geography";
 import { createPublicMetadata } from "@/lib/site/metadata";
-import type { AthleteDiscipline } from "@/types/athlete";
 
 const description =
-  "Explore fictional Cali Central athlete profiles, disciplines, training records, and illustrative performance statistics.";
+  "Explore Cali Central athlete profiles by country, competition category, specialty, and public verification state.";
 
 export const metadata: Metadata = createPublicMetadata({
   path: "/athletes",
@@ -22,27 +24,32 @@ export default async function AthletesPage() {
   const athletes = await getAthletes();
   const featuredAthlete =
     athletes.find((athlete) => athlete.featured) ?? athletes[0];
-  const disciplineSummary = Array.from(
-    new Set(athletes.flatMap((athlete) => athlete.disciplines)),
+  const categorySummary = Array.from(
+    new Set(athletes.map((athlete) => athlete.primaryCategory)),
   )
-    .sort((first, second) => first.localeCompare(second))
-    .map((discipline) => ({
-      label: discipline,
-      count: athletes.filter((athlete) => {
-        const disciplines: readonly AthleteDiscipline[] =
-          athlete.disciplines;
-
-        return disciplines.includes(discipline);
-      }).length,
-    }));
-  const regionSummary = Array.from(
-    new Set(athletes.map((athlete) => athlete.region)),
+    .map((category) => ({
+      label: athleteCategoryLabel(category),
+      count: athletes.filter(
+        (athlete) => athlete.primaryCategory === category,
+      ).length,
+    }))
+    .sort((first, second) => first.label.localeCompare(second.label));
+  const countrySummary = Array.from(
+    new Set(athletes.map((athlete) => countryNameFor(athlete.country))),
   )
+    .filter(Boolean)
     .sort((first, second) => first.localeCompare(second))
-    .map((region) => ({
-      label: region,
-      count: athletes.filter((athlete) => athlete.region === region).length,
+    .map((country) => ({
+      label: country,
+      count: athletes.filter(
+        (athlete) => countryNameFor(athlete.country) === country,
+      ).length,
     }));
+  const createProfileTarget =
+    "/account/submissions/new?type=athleteNomination&requestKind=create";
+  const createProfileHref = `/sign-in?callbackUrl=${encodeURIComponent(
+    createProfileTarget,
+  )}`;
 
   return (
     <>
@@ -67,11 +74,19 @@ export default async function AthletesPage() {
                 Athlete files
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
-              Search the complete sample record by athlete, place, or
-              discipline. Every profile is fictional and demonstrates a future
-              public archive format.
-            </p>
+            <div>
+              <p className="max-w-xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
+                Search approved and prototype athlete records by worldwide
+                geography, category, specialty, and verification state.
+              </p>
+              <ButtonLink
+                href={createProfileHref}
+                variant="outline"
+                className="mt-5"
+              >
+                Create athlete profile
+              </ButtonLink>
+            </div>
           </div>
 
           <AthleteDirectory athletes={athletes} />
@@ -84,39 +99,39 @@ export default async function AthletesPage() {
           className="technical-grid-dark bg-paper py-16 text-on-light sm:py-20 lg:py-24"
         >
           <Container>
-          <div className="grid gap-10 lg:grid-cols-[minmax(16rem,0.55fr)_minmax(0,1.45fr)] lg:gap-14">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent-dark">
-                Directory index / Scope
-              </p>
-              <h2
-                id="directory-field-heading"
-                className="mt-4 font-display text-4xl font-black uppercase leading-[0.94] tracking-[-0.055em] sm:text-5xl"
-              >
-                The field at a glance
-              </h2>
-              <p className="mt-6 text-sm leading-6 text-muted-dark sm:text-base sm:leading-7">
-                This sample directory spans the disciplines and California
-                regions listed here. Counts are derived directly from the
-                current published athlete records.
-              </p>
+            <div className="grid gap-10 lg:grid-cols-[minmax(16rem,0.55fr)_minmax(0,1.45fr)] lg:gap-14">
+              <div>
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent-dark">
+                  Directory index / Scope
+                </p>
+                <h2
+                  id="directory-field-heading"
+                  className="mt-4 font-display text-4xl font-black uppercase leading-[0.94] tracking-[-0.055em] sm:text-5xl"
+                >
+                  The field at a glance
+                </h2>
+                <p className="mt-6 text-sm leading-6 text-muted-dark sm:text-base sm:leading-7">
+                  Counts are derived from the currently published athlete
+                  records. Empty countries or categories are never padded with
+                  invented profiles.
+                </p>
+              </div>
+
+              <div className="grid gap-8 md:grid-cols-2">
+                <FieldSummary
+                  label="Competition categories"
+                  records={categorySummary}
+                />
+                <FieldSummary label="Country file" records={countrySummary} />
+              </div>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-2">
-              <FieldSummary
-                label="Discipline field"
-                records={disciplineSummary}
-              />
-              <FieldSummary label="Region file" records={regionSummary} />
-            </div>
-          </div>
-
-          <p className="mt-12 border-l-2 border-accent-dark pl-4 text-xs leading-5 text-muted-dark">
-            All names, profiles, quotes, training bases, achievements,
-            rankings, and performance statistics in this directory are
-            fictional prototype content. They do not document or verify real
-            people, teams, or competition results.
-          </p>
+            <p className="mt-12 border-l-2 border-accent-dark pl-4 text-xs leading-5 text-muted-dark">
+              All names, profiles, quotes, training bases, achievements,
+              rankings, and performance statistics in this directory are
+              fictional prototype content. They do not document or verify real
+              people, teams, or competition results.
+            </p>
           </Container>
         </section>
       ) : null}

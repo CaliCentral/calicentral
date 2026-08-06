@@ -115,6 +115,32 @@ function linkField(formData: FormData, name: string): SupportingLinkInput[] {
   return listField(formData, name).map((url) => ({ url }));
 }
 
+function athleteCompetitionHistoryField(formData: FormData) {
+  return Array.from({ length: 12 }, (_, index) => {
+    const entry = {
+      eventName: textField(formData, `competitionEventName${index}`),
+      organizer: textField(formData, `competitionOrganizer${index}`),
+      date: textField(formData, `competitionDate${index}`),
+      country: textField(formData, `competitionCountry${index}`),
+      city: textField(formData, `competitionCity${index}`),
+      divisionCategory: textField(
+        formData,
+        `competitionDivisionCategory${index}`,
+      ),
+      placement: textField(formData, `competitionPlacement${index}`),
+      score: textField(formData, `competitionScore${index}`),
+      officialResultUrl: textField(
+        formData,
+        `competitionOfficialResultUrl${index}`,
+      ),
+      eventUrl: textField(formData, `competitionEventUrl${index}`),
+      videoUrl: textField(formData, `competitionVideoUrl${index}`),
+    };
+
+    return Object.values(entry).some(Boolean) ? entry : null;
+  }).filter((entry) => entry !== null);
+}
+
 function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
   const common = {
     submissionType: textField(formData, "submissionType"),
@@ -149,8 +175,21 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
         ...common,
         submissionType: "athleteNomination",
         athleteNominationDetails: {
+          requestKind: textField(formData, "requestKind"),
+          existingAthleteSlug: textField(formData, "existingAthleteSlug"),
           athleteName: optionalTextField(formData, "athleteName"),
+          displayName: textField(formData, "displayName"),
+          country: optionalTextField(formData, "country"),
+          administrativeArea: textField(formData, "administrativeArea"),
           city: textField(formData, "city"),
+          biography: textField(formData, "biography"),
+          primaryCategory: optionalTextField(formData, "primaryCategory"),
+          specialties: listField(formData, "specialties"),
+          yearsActive: textField(formData, "yearsActive"),
+          profileImageUrl: textField(formData, "profileImageUrl"),
+          coverImageUrl: textField(formData, "coverImageUrl"),
+          socialLinks: linkField(formData, "socialLinks"),
+          competitionHistory: athleteCompetitionHistoryField(formData),
           discipline: optionalTextField(formData, "discipline"),
           nominationReason: optionalTextField(formData, "nominationReason"),
           publicReferenceLinks: linkField(formData, "publicReferenceLinks"),
@@ -191,6 +230,13 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
           location: textField(formData, "location"),
           visualApproach: optionalTextField(formData, "visualApproach"),
           estimatedDuration: textField(formData, "estimatedDuration"),
+          sourcePlatform: textField(formData, "sourcePlatform"),
+          sourceAccount: textField(formData, "sourceAccount"),
+          originalPostUrl: textField(formData, "originalPostUrl"),
+          mediaPermissionStatus: textField(
+            formData,
+            "mediaPermissionStatus",
+          ),
           publicReferenceLinks: linkField(formData, "publicReferenceLinks"),
         },
       };
@@ -250,6 +296,13 @@ function storedSubmissionInput(
         submissionType: "athleteNomination" as const,
         athleteNominationDetails: {
           ...submission.athleteNominationDetails,
+          socialLinks: linksForValidation(
+            submission.athleteNominationDetails.socialLinks,
+          ),
+          competitionHistory:
+            submission.athleteNominationDetails.competitionHistory.map(
+              ({ key: _key, ...entry }) => entry,
+            ),
           publicReferenceLinks: linksForValidation(
             submission.athleteNominationDetails.publicReferenceLinks,
           ),

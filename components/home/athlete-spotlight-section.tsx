@@ -3,6 +3,11 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { CategoryLabel } from "@/components/ui/category-label";
 import { ContentEmptyState } from "@/components/ui/content-empty-state";
 import { Container } from "@/components/ui/container";
+import {
+  athleteCategoryLabel,
+  athleteSpecialtyLabel,
+} from "@/lib/athlete-taxonomy";
+import { formatGlobalLocation } from "@/lib/geography";
 import type { Athlete } from "@/types/athlete";
 
 type AthleteSpotlightSectionProps = {
@@ -14,7 +19,10 @@ export function AthleteSpotlightSection({
 }: AthleteSpotlightSectionProps) {
   if (!athlete) {
     return (
-      <section className="technical-grid-dark bg-paper py-16 text-on-light sm:py-20">
+      <section
+        id="athlete-spotlight"
+        className="technical-grid-dark bg-paper py-16 text-on-light sm:py-20"
+      >
         <Container>
           <ContentEmptyState
             title="No athlete spotlight is published"
@@ -25,12 +33,22 @@ export function AthleteSpotlightSection({
     );
   }
 
+  const isPrototype = /fictional|prototype|sample/i.test(
+    `${athlete.status} ${athlete.profileLabel}`,
+  );
   const facts = [
     { label: "Training base", value: athlete.trainingBase },
-    { label: "Primary focus", value: athlete.primaryDiscipline },
+    {
+      label: "Primary category",
+      value: athleteCategoryLabel(athlete.primaryCategory),
+    },
+    {
+      label: "Specialties",
+      value: athlete.specialties.map(athleteSpecialtyLabel).join(" / "),
+    },
     { label: "Signature", value: athlete.style },
-    { label: "Profile status", value: "Prototype" },
-  ] as const;
+    { label: "Profile status", value: athlete.profileLabel || athlete.status },
+  ].filter((fact) => Boolean(fact.value));
 
   return (
     <section
@@ -52,7 +70,11 @@ export function AthleteSpotlightSection({
 
           <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-14">
             <div>
-              <CategoryLabel inverted>Fictional athlete profile</CategoryLabel>
+              <CategoryLabel inverted>
+                {isPrototype
+                  ? "Fictional athlete profile"
+                  : athlete.profileLabel || "Published athlete profile"}
+              </CategoryLabel>
               <h2
                 id="athlete-heading"
                 className="mt-5 text-balance font-display text-5xl font-black uppercase leading-[0.86] tracking-[-0.06em] text-ink sm:text-6xl xl:text-7xl"
@@ -60,8 +82,8 @@ export function AthleteSpotlightSection({
                 {athlete.name}
               </h2>
               <p className="mt-4 max-w-xl font-mono text-xs font-bold uppercase leading-5 tracking-[0.15em] text-accent-strong">
-                {athlete.disciplines.join(" / ")} / {athlete.city},{" "}
-                {athlete.state}
+                {athleteCategoryLabel(athlete.primaryCategory)} /{" "}
+                {formatGlobalLocation(athlete) || "Location not published"}
               </p>
               <p className="mt-7 max-w-2xl text-base leading-7 text-muted">
                 {athlete.shortBio}
@@ -84,7 +106,7 @@ export function AthleteSpotlightSection({
                   className="min-w-0 border-b border-r border-white/15 p-4"
                 >
                   <dt className="font-mono text-xs font-bold uppercase leading-4 tracking-[0.13em] text-muted">
-                    0{index + 1} / {fact.label}
+                    {String(index + 1).padStart(2, "0")} / {fact.label}
                   </dt>
                   <dd className="mt-2 text-sm font-bold leading-5 text-ink">
                     {fact.value}

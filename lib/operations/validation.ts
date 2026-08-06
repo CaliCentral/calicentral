@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 import {
+  athleteCompetitionCategoryValues,
+  athleteSpecialtyValues,
+} from "@/lib/athlete-taxonomy";
+import { countries } from "@/lib/geography";
+import {
   ACCESS_STATUSES,
   CONTRIBUTOR_ROLES,
   SUBMISSION_PRIORITIES,
@@ -120,6 +125,18 @@ const supportingLinksSchema = z
   })
   .default([]);
 
+const optionalSafeHttpUrlSchema = safeHttpUrlSchema.or(z.literal("")).default("");
+
+const knownCountrySchema = z
+  .string()
+  .trim()
+  .min(2, "Select a country.")
+  .max(FIELD_LIMITS.short)
+  .refine(
+    (value) => countries.some((country) => country.name === value),
+    "Select a country from the list.",
+  );
+
 export const contributorProfileUpdateSchema = z
   .object({
     displayName: z
@@ -186,11 +203,57 @@ export const storyPitchDetailsSchema = z
   })
   .strict();
 
-export const athleteNominationDetailsSchema = z
+const athleteCompetitionHistoryEntrySchema = z
   .object({
-    athleteName: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    eventName: z.string().trim().min(2).max(FIELD_LIMITS.title),
+    organizer: trimmedOptionalString(FIELD_LIMITS.short),
+    date: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter an event date in YYYY-MM-DD format."),
+    country: knownCountrySchema,
     city: trimmedOptionalString(FIELD_LIMITS.short),
-    discipline: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    divisionCategory: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    placement: trimmedOptionalString(80),
+    score: trimmedOptionalString(120),
+    officialResultUrl: optionalSafeHttpUrlSchema,
+    eventUrl: optionalSafeHttpUrlSchema,
+    videoUrl: optionalSafeHttpUrlSchema,
+  })
+  .strict();
+
+const athleteNominationDetailsObjectSchema = z
+  .object({
+    requestKind: z.enum(["create", "claim"]).default("create"),
+    existingAthleteSlug: z
+      .string()
+      .trim()
+      .max(120)
+      .regex(
+        /^$|^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "Enter a valid existing athlete profile slug.",
+      )
+      .default(""),
+    athleteName: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    displayName: trimmedOptionalString(FIELD_LIMITS.short),
+    country: knownCountrySchema,
+    administrativeArea: trimmedOptionalString(FIELD_LIMITS.short),
+    city: trimmedOptionalString(FIELD_LIMITS.short),
+    biography: trimmedOptionalString(3_000),
+    primaryCategory: z.enum(athleteCompetitionCategoryValues),
+    specialties: z
+      .array(z.enum(athleteSpecialtyValues))
+      .max(athleteSpecialtyValues.length)
+      .default([]),
+    yearsActive: trimmedOptionalString(80),
+    profileImageUrl: optionalSafeHttpUrlSchema,
+    coverImageUrl: optionalSafeHttpUrlSchema,
+    socialLinks: supportingLinksSchema,
+    competitionHistory: z
+      .array(athleteCompetitionHistoryEntrySchema)
+      .max(12)
+      .default([]),
+    discipline: trimmedOptionalString(FIELD_LIMITS.short),
     nominationReason: z.string().trim().min(20).max(3_000),
     publicReferenceLinks: supportingLinksSchema,
     relationshipToAthlete: trimmedOptionalString(160),
@@ -206,6 +269,17 @@ export const athleteNominationDetailsSchema = z
       .default(""),
   })
   .strict();
+
+export const athleteNominationDetailsSchema =
+  athleteNominationDetailsObjectSchema.superRefine((value, context) => {
+    if (value.requestKind === "claim" && !value.existingAthleteSlug) {
+      context.addIssue({
+        code: "custom",
+        path: ["existingAthleteSlug"],
+        message: "Identify the existing athlete profile being claimed.",
+      });
+    }
+  });
 
 function isCalendarDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -241,7 +315,7 @@ export const competitionListingDetailsSchema = z
   })
   .strict();
 
-export const mediaPitchDetailsSchema = z
+const mediaPitchDetailsObjectSchema = z
   .object({
     proposedTitle: z.string().trim().min(5).max(FIELD_LIMITS.title),
     series: trimmedOptionalString(FIELD_LIMITS.short),
@@ -250,9 +324,46 @@ export const mediaPitchDetailsSchema = z
     location: trimmedOptionalString(FIELD_LIMITS.short),
     visualApproach: z.string().trim().min(20).max(3_000),
     estimatedDuration: trimmedOptionalString(80),
+    sourcePlatform: z
+      .enum([
+        "",
+        "Cali Central",
+        "Instagram",
+        "TikTok",
+        "YouTube",
+        "Facebook",
+        "X",
+        "Threads",
+        "Website",
+      ])
+      .default(""),
+    sourceAccount: trimmedOptionalString(FIELD_LIMITS.short),
+    originalPostUrl: safeHttpUrlSchema.or(z.literal("")).default(""),
+    mediaPermissionStatus: z
+      .enum([
+        "unknown",
+        "submitter-owned",
+        "permission-confirmed",
+        "public-reference-only",
+      ])
+      .default("unknown"),
     publicReferenceLinks: supportingLinksSchema,
   })
   .strict();
+
+export const mediaPitchDetailsSchema =
+  mediaPitchDetailsObjectSchema.superRefine((value, context) => {
+    if (
+      value.mediaPermissionStatus === "public-reference-only" &&
+      !value.originalPostUrl
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["originalPostUrl"],
+        message: "Add the original public post URL for referenced media.",
+      });
+    }
+  });
 
 export const correctionRequestDetailsSchema = z
   .object({
@@ -352,10 +463,17 @@ export const submissionForReviewSchema = z
 
 const storyPitchDraftDetailsSchema = storyPitchDetailsSchema.partial();
 const athleteNominationDraftDetailsSchema =
-  athleteNominationDetailsSchema.partial();
+  athleteNominationDetailsObjectSchema
+    .partial()
+    .extend({
+      competitionHistory: z
+        .array(athleteCompetitionHistoryEntrySchema.partial())
+        .max(12)
+        .optional(),
+    });
 const competitionListingDraftDetailsSchema =
   competitionListingDetailsSchema.partial();
-const mediaPitchDraftDetailsSchema = mediaPitchDetailsSchema.partial();
+const mediaPitchDraftDetailsSchema = mediaPitchDetailsObjectSchema.partial();
 const correctionRequestDraftDetailsSchema =
   correctionRequestDetailsSchema.partial();
 

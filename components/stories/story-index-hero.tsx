@@ -24,7 +24,7 @@ export function StoryIndexHero() {
           </h1>
           <p className="mt-8 max-w-2xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
             Original prototype reporting, athlete journals, competition
-            analysis, and field notes from California and beyond.
+            analysis, and field notes from communities worldwide.
           </p>
         </div>
 
@@ -35,7 +35,7 @@ export function StoryIndexHero() {
           </div>
           <div className="min-w-0 border-l border-white/15 pl-5 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-5">
             <dt className="text-muted">Field</dt>
-            <dd className="mt-2 font-bold text-ink">California / World</dd>
+            <dd className="mt-2 font-bold text-ink">Worldwide</dd>
           </div>
         </dl>
       </Container>

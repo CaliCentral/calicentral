@@ -32,6 +32,7 @@ export const video = defineType({
     {name: "editorial", title: "Editorial", default: true},
     {name: "record", title: "Video record"},
     {name: "media", title: "Poster"},
+    {name: "source", title: "Source and attribution"},
     {name: "relationships", title: "Related content"},
     {name: "metadata", title: "Metadata"},
   ],
@@ -241,6 +242,87 @@ export const video = defineType({
       description:
         "A truthful public label. This prototype schema intentionally stores no playback URL.",
       validation: (Rule) => Rule.required().max(120),
+    }),
+    defineField({
+      name: "ownershipStatus",
+      title: "Ownership / attribution status",
+      type: "string",
+      group: "source",
+      options: {
+        list: [
+          {title: "Cali Central original", value: "cali-central-original"},
+          {title: "Third-party, attributed", value: "third-party-attributed"},
+          {title: "Source unavailable", value: "source-unavailable"},
+        ],
+        layout: "radio",
+      },
+      initialValue: "source-unavailable",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "sourcePlatform",
+      title: "Source platform",
+      type: "string",
+      group: "source",
+      options: {
+        list: [
+          {title: "Cali Central", value: "Cali Central"},
+          {title: "Instagram", value: "Instagram"},
+          {title: "TikTok", value: "TikTok"},
+          {title: "YouTube", value: "YouTube"},
+          {title: "Facebook", value: "Facebook"},
+          {title: "X", value: "X"},
+          {title: "Threads", value: "Threads"},
+          {title: "Website", value: "Website"},
+        ],
+      },
+    }),
+    defineField({
+      name: "sourceAccount",
+      title: "Source account",
+      type: "string",
+      group: "source",
+      description: "Keep the original account or publisher attribution visible.",
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
+      name: "originalPostUrl",
+      title: "Original post URL",
+      type: "url",
+      group: "source",
+      validation: (Rule) =>
+        Rule.uri({allowRelative: false, scheme: ["http", "https"]}).custom(
+          (value, context) => {
+            if (
+              context.document?.ownershipStatus === "third-party-attributed" &&
+              !value
+            ) {
+              return "Third-party media requires its original public post URL."
+            }
+
+            return true
+          },
+        ),
+    }),
+    defineField({
+      name: "discoverContext",
+      title: "Discover-feed context",
+      type: "text",
+      rows: 3,
+      group: "source",
+      description:
+        "Optional Cali Central context. This does not transfer ownership of third-party media.",
+      validation: (Rule) => Rule.max(400),
+    }),
+    defineField({
+      name: "platformMetrics",
+      title: "Platform-specific metrics",
+      type: "array",
+      group: "source",
+      description:
+        "Record each platform separately with an observation date. Never enter an aggregated cross-platform total.",
+      of: [defineArrayMember({type: "videoPlatformMetric"})],
+      validation: (Rule) => Rule.max(16),
     }),
     defineField({
       name: "relatedAthletes",

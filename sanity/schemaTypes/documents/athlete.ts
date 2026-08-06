@@ -1,13 +1,17 @@
 import {defineArrayMember, defineField, defineType} from "sanity"
 
 import {
+  athleteCompetitionCategoryOptions,
   athleteDisciplineOptions,
+  athleteSpecialtyOptions,
+  countryOptions,
   prototypeStatusOptions,
 } from "../constants"
 import {
   validateNoSelfReference,
   validateSlugLength,
   validateUniqueReferences,
+  validateUniqueStringFields,
 } from "../validation"
 
 export const athlete = defineType({
@@ -18,6 +22,7 @@ export const athlete = defineType({
     {name: "profile", title: "Profile", default: true},
     {name: "record", title: "Record"},
     {name: "media", title: "Media"},
+    {name: "verification", title: "Social & verification"},
     {name: "relationships", title: "Related content"},
     {name: "metadata", title: "Metadata"},
   ],
@@ -70,28 +75,43 @@ export const athlete = defineType({
       title: "City",
       type: "string",
       group: "profile",
-      validation: (Rule) => Rule.required().max(80),
+      description: "Optional public city or locality. Never enter a private address.",
+      validation: (Rule) => Rule.max(80),
     }),
     defineField({
       name: "state",
-      title: "State or province",
+      title: "Legacy state or province",
       type: "string",
       group: "profile",
+      description:
+        "Legacy field retained during migration. Use Administrative area for new records.",
       validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: "administrativeArea",
+      title: "State, province, or region",
+      type: "string",
+      group: "profile",
+      description:
+        "Optional first-level administrative area. Countries do not all use states.",
+      validation: (Rule) => Rule.max(100),
     }),
     defineField({
       name: "country",
       title: "Country",
       type: "string",
       group: "profile",
+      options: {list: countryOptions},
       validation: (Rule) => Rule.required().max(80),
     }),
     defineField({
       name: "region",
-      title: "Region",
+      title: "Legacy editorial subregion",
       type: "string",
       group: "profile",
-      validation: (Rule) => Rule.required().max(100),
+      description:
+        "Legacy field retained for compatibility. It is not used as the global administrative-area filter.",
+      validation: (Rule) => Rule.max(100),
     }),
     defineField({
       name: "primaryDiscipline",
@@ -99,6 +119,16 @@ export const athlete = defineType({
       type: "string",
       group: "profile",
       options: {list: athleteDisciplineOptions},
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "primaryCategory",
+      title: "Primary competition category",
+      type: "string",
+      group: "profile",
+      description:
+        "A flexible Cali Central category, not a claim of universal governing-body standardization.",
+      options: {list: athleteCompetitionCategoryOptions},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -113,6 +143,19 @@ export const athlete = defineType({
         }),
       ],
       validation: (Rule) => Rule.max(5).unique(),
+    }),
+    defineField({
+      name: "specialties",
+      title: "Specialties",
+      type: "array",
+      group: "profile",
+      of: [
+        defineArrayMember({
+          type: "string",
+          options: {list: athleteSpecialtyOptions},
+        }),
+      ],
+      validation: (Rule) => Rule.max(12).unique(),
     }),
     defineField({
       name: "profileLabel",
@@ -135,14 +178,14 @@ export const athlete = defineType({
       type: "text",
       rows: 4,
       group: "profile",
-      validation: (Rule) => Rule.required().min(40).max(500),
+      validation: (Rule) => Rule.min(40).max(500),
     }),
     defineField({
       name: "fullProfile",
       title: "Full profile",
       type: "portableText",
       group: "profile",
-      validation: (Rule) => Rule.required().min(1),
+      validation: (Rule) => Rule.min(1),
     }),
     defineField({
       name: "quote",
@@ -184,12 +227,34 @@ export const athlete = defineType({
     }),
     defineField({
       name: "rankingEligible",
-      title: "Ranking eligible",
+      title: "Legacy ranking eligible",
       type: "boolean",
       group: "profile",
       description:
-        "Eligibility does not imply a verified or official ranking.",
+        "Compatibility field for prototype ranking records. It is not displayed as athlete verification.",
       initialValue: false,
+    }),
+    defineField({
+      name: "socialLinks",
+      title: "Public social links",
+      type: "array",
+      group: "verification",
+      of: [defineArrayMember({type: "athleteSocialLink"})],
+      validation: (Rule) =>
+        Rule.max(8).custom((value) =>
+          validateUniqueStringFields(value, "platform", "Each social platform"),
+        ),
+    }),
+    defineField({
+      name: "verification",
+      title: "Verification states",
+      type: "athleteVerification",
+      group: "verification",
+      initialValue: {
+        _type: "athleteVerification",
+        identityStatus: "unverified",
+        profileStatus: "not-reviewed",
+      },
     }),
     defineField({
       name: "statistics",
@@ -216,8 +281,24 @@ export const athlete = defineType({
       validation: (Rule) => Rule.max(40),
     }),
     defineField({
+      name: "competitionHistory",
+      title: "Competition history",
+      type: "array",
+      group: "record",
+      description:
+        "Result-level records with independent evidence status. Never infer verification from the athlete profile.",
+      of: [defineArrayMember({type: "athleteCompetitionRecord"})],
+      validation: (Rule) => Rule.max(100),
+    }),
+    defineField({
       name: "profileImage",
       title: "Profile image",
+      type: "accessibleImage",
+      group: "media",
+    }),
+    defineField({
+      name: "coverImage",
+      title: "Cover image",
       type: "accessibleImage",
       group: "media",
     }),
@@ -263,6 +344,28 @@ export const athlete = defineType({
               ? validateNoSelfReference(value, context)
               : unique
           }),
+    }),
+    defineField({
+      name: "relatedCompetitions",
+      title: "Related competitions",
+      type: "array",
+      group: "relationships",
+      of: [defineArrayMember({type: "reference", to: [{type: "competition"}]})],
+      validation: (Rule) =>
+        Rule.unique()
+          .max(8)
+          .custom((value) => validateUniqueReferences(value)),
+    }),
+    defineField({
+      name: "relatedVideos",
+      title: "Related videos",
+      type: "array",
+      group: "relationships",
+      of: [defineArrayMember({type: "reference", to: [{type: "video"}]})],
+      validation: (Rule) =>
+        Rule.unique()
+          .max(8)
+          .custom((value) => validateUniqueReferences(value)),
     }),
     defineField({
       name: "prototypeStatus",

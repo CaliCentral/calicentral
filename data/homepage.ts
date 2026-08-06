@@ -11,24 +11,24 @@ export const navigationItems = [
   { label: "Athletes", href: "/athletes" },
   { label: "Competitions", href: "/competitions" },
   { label: "Videos", href: "/videos" },
-  { label: "Rankings", href: "/rankings" },
+  { label: "Standings", href: "/standings" },
 ] as const satisfies readonly NavigationItem[];
 
 export const heroContent = {
-  eyebrow: "Independent calisthenics media / California to worldwide",
+  eyebrow: "Independent calisthenics media / Worldwide",
   title: {
     lead: "Where the world of",
-    emphasis: "calisthenics",
+    emphasis: "CALISTHENICS",
     tail: "comes into focus.",
   },
   description:
-    "Original stories, competition coverage, athlete profiles, and a clearer view of the movement shaping the sport—from California to the global stage.",
+    "Original stories, competition coverage, athlete profiles, published results, and the movement shaping calisthenics worldwide.",
   primaryAction: { label: "Explore the stories", href: "/stories" },
   secondaryAction: { label: "See upcoming events", href: "/competitions" },
   signals: [
-    { label: "Signal", value: "Athlete-led" },
+    { label: "Desk", value: "Independent" },
     { label: "Field", value: "Worldwide" },
-    { label: "Base", value: "California" },
+    { label: "Status", value: "Prototype" },
   ],
 } as const satisfies HeroContent;
 
@@ -83,14 +83,23 @@ export const footerGroups = [
       { label: "Athletes", href: "/athletes" },
       { label: "Competitions", href: "/competitions" },
       { label: "Videos", href: "/videos" },
-      { label: "Rankings", href: "/rankings" },
+      { label: "Standings", href: "/standings" },
     ],
   },
   {
     title: "Field",
     links: [
+      { label: "Search", href: "/search" },
       { label: "Athlete spotlight", href: "/#athlete-spotlight" },
       { label: "Back to top", href: "#top" },
+    ],
+  },
+  {
+    title: "Trust",
+    links: [
+      { label: "Verification", href: "/verification" },
+      { label: "Corrections", href: "/corrections" },
+      { label: "Editorial standards", href: "/editorial-standards" },
     ],
   },
 ] as const satisfies readonly FooterGroup[];

@@ -12,6 +12,8 @@ publishes public content automatically.
   session database.
 - The contributor portal under `/account` handles identity, profiles, pitches,
   revision requests, and contributor-visible feedback.
+- The public `/join` guide sends member, athlete, organizer, and contributor
+  intents through this same Auth.js identity system.
 - The editorial operations area under `/admin` handles intake, assignment,
   moderation, access management, and audit history.
 - Sanity Studio at `/studio` remains the only full content editor and publishing
@@ -165,6 +167,21 @@ Pending contributors may complete only the approved profile fields. An
 administrator must activate the account before submission mutations are
 available.
 
+## Join intents and account capabilities
+
+`/join` presents four non-privileged onboarding intents: member, athlete,
+organizer, and contributor. They are defined centrally in
+`lib/account/capabilities.ts` and are deliberately separate from portal roles.
+An intent cannot grant editor or administrator access, activate a pending
+account, verify an athlete or organizer, publish content, or bypass moderation.
+
+The selected intent is carried through the existing safe same-origin Auth.js
+callback into `/account/onboarding`. It currently personalizes that screen and
+suggests an existing moderated submission type; it is not stored as a
+permission, newsletter subscription, or public profile claim. This is the
+documented boundary until the owner approves a persistent multi-capability
+account model.
+
 ## Roles and access
 
 Effective role resolution is evaluated on the server in this order:
@@ -207,6 +224,11 @@ Supported types:
 - competition listing;
 - media pitch;
 - correction request.
+
+The public `/corrections` guide links into the correction-request form through
+the same sign-in flow. The form may be preselected from a validated
+`type=correctionRequest` query value, but all fields, ownership, access, and
+workflow rules are still enforced on the server.
 
 Forms use bounded plain-text fields and at most eight HTTP(S) supporting links.
 They do not accept files, raw HTML, embeds, passwords, government IDs, birth

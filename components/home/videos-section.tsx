@@ -19,9 +19,9 @@ export function VideosSection({ videos }: VideosSectionProps) {
       <Container>
         <SectionHeading
           headingId="videos-heading"
-          eyebrow="Watch / Preview archive"
-          title="Movement, slowed down"
-          description="Short-form visual stories focused on technique, preparation, and the communities built around every session."
+          eyebrow="Media / Discover worldwide"
+          title="Movement in context"
+          description="Discover original and moderated external media with source attribution, platform-specific metrics, and editorial context kept visible."
           index="02"
         />
 
@@ -40,12 +40,12 @@ export function VideosSection({ videos }: VideosSectionProps) {
 
         <div className="mt-8 flex flex-col gap-6 border-t border-white/15 pt-7 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-3xl text-xs leading-5 text-muted">
-            Video titles, episodes, credits, and preview frames are fictional.
-            Every preview is static and non-interactive; playback is
-            unavailable.
+            Static previews do not automatically load third-party embeds.
+            External metrics remain attached to their named platform and are
+            never combined into a universal total.
           </p>
           <ButtonLink href="/videos" variant="outline">
-            Explore the media archive
+            Open media discover
           </ButtonLink>
         </div>
       </Container>

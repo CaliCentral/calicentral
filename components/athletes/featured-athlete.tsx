@@ -1,6 +1,11 @@
 import { AthleteVisual } from "@/components/athletes/athlete-visual";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
+import {
+  athleteCategoryLabel,
+  athleteSpecialtyLabel,
+} from "@/lib/athlete-taxonomy";
+import { formatGlobalLocation } from "@/lib/geography";
 import type { Athlete } from "@/types/athlete";
 
 type FeaturedAthleteProps = {
@@ -9,6 +14,7 @@ type FeaturedAthleteProps = {
 
 export function FeaturedAthlete({ athlete }: FeaturedAthleteProps) {
   const featuredStatistics = athlete.statistics.slice(0, 4);
+  const location = formatGlobalLocation(athlete);
 
   return (
     <section
@@ -29,7 +35,7 @@ export function FeaturedAthlete({ athlete }: FeaturedAthleteProps) {
             </h2>
           </div>
           <p className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-muted-dark">
-            Fictional athlete profile
+            {athlete.status}
           </p>
         </div>
 
@@ -48,36 +54,44 @@ export function FeaturedAthlete({ athlete }: FeaturedAthleteProps) {
                 {athlete.name}
               </h3>
               <p className="mt-5 font-mono text-xs font-bold uppercase leading-5 tracking-[0.13em] text-accent">
-                {athlete.disciplines.join(" / ")}
-                <span className="text-muted">
-                  {" "}
-                  — {athlete.city}, {athlete.state}
-                </span>
+                {athleteCategoryLabel(athlete.primaryCategory)}
+                {athlete.specialties.length > 0
+                  ? ` / ${athlete.specialties
+                      .map(athleteSpecialtyLabel)
+                      .join(" / ")}`
+                  : ""}
+                {location ? <span className="text-muted"> — {location}</span> : null}
               </p>
-              <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
-                {athlete.shortBio}
-              </p>
-              <blockquote className="mt-7 max-w-2xl border-l-4 border-accent pl-5 text-xl font-bold leading-8 tracking-[-0.025em] text-ink">
-                “{athlete.quote}”
-              </blockquote>
+              {athlete.shortBio ? (
+                <p className="mt-6 max-w-2xl text-base leading-7 text-muted">
+                  {athlete.shortBio}
+                </p>
+              ) : null}
+              {athlete.quote ? (
+                <blockquote className="mt-7 max-w-2xl border-l-4 border-accent pl-5 text-xl font-bold leading-8 tracking-[-0.025em] text-ink">
+                  “{athlete.quote}”
+                </blockquote>
+              ) : null}
             </div>
 
             <div>
-              <dl className="mt-9 grid grid-cols-2 border-l border-t border-white/15 sm:grid-cols-4">
-                {featuredStatistics.map((statistic, index) => (
-                  <div
-                    key={statistic.label}
-                    className="min-w-0 border-b border-r border-white/15 p-4"
-                  >
-                    <dt className="font-mono text-xs font-bold uppercase leading-4 tracking-[0.11em] text-muted">
-                      0{index + 1} / {statistic.label}
-                    </dt>
-                    <dd className="mt-2 break-words text-lg font-black leading-6 text-ink">
-                      {statistic.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+              {featuredStatistics.length > 0 ? (
+                <dl className="mt-9 grid grid-cols-2 border-l border-t border-white/15 sm:grid-cols-4">
+                  {featuredStatistics.map((statistic, index) => (
+                    <div
+                      key={statistic.label}
+                      className="min-w-0 border-b border-r border-white/15 p-4"
+                    >
+                      <dt className="font-mono text-xs font-bold uppercase leading-4 tracking-[0.11em] text-muted">
+                        0{index + 1} / {statistic.label}
+                      </dt>
+                      <dd className="mt-2 break-words text-lg font-black leading-6 text-ink">
+                        {statistic.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
 
               <ButtonLink
                 href={`/athletes/${athlete.slug}`}

@@ -19,7 +19,7 @@ export const mainDocuments = defineDocuments([
   documentWithSlug("competition", "/competitions/:slug"),
   documentWithSlug("video", "/videos/:slug"),
   {
-    route: "/rankings",
+    route: "/standings",
     filter: `_type == "rankingCategory"`,
   },
 ])
@@ -89,10 +89,10 @@ const homeLocations = defineLocations({
   }),
 })
 
-const rankingLocations = defineLocations({
+const standingLocations = defineLocations({
   select: {title: "title"},
   resolve: (document) => ({
-    locations: [{title: document?.title || "Rankings", href: "/rankings"}],
+    locations: [{title: document?.title || "Standings", href: "/standings"}],
   }),
 })
 
@@ -112,6 +112,6 @@ export const presentationResolve: PresentationPluginOptions["resolve"] = {
     competition: competitionLocations,
     video: videoLocations,
     videoSeries: directoryLocations("Videos", "/videos"),
-    rankingCategory: rankingLocations,
+    rankingCategory: standingLocations,
   },
 }

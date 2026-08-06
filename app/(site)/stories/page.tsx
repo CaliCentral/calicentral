@@ -137,7 +137,7 @@ export default async function StoriesPage() {
                 id="coverage-heading"
                 className="mt-4 max-w-xl font-display text-4xl font-black uppercase leading-[0.95] tracking-[-0.055em] sm:text-5xl"
               >
-                Athlete-focused. Independent. Internationally aware.
+                Athlete-focused. Independent. Worldwide in scope.
               </h2>
               <p className="mt-6 max-w-xl text-base leading-7 text-muted-dark">
                 Cali Central is being built to cover the whole movement:

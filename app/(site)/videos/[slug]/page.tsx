@@ -115,7 +115,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
         <Container>
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <Link
-              href="/videos"
+              href="/videos/archive"
               className="inline-flex min-h-11 items-center gap-3 font-mono text-xs font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
             >
               <span aria-hidden="true">←</span>

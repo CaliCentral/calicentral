@@ -33,7 +33,7 @@ export function FeaturedCompetition({
           <div className="flex flex-col bg-canvas p-6 sm:p-9 lg:p-10">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-accent">
-                Next event / Featured field record
+                Next event / Featured field record{competition.contentStatus !== "published-record" ? " / Sample" : ""}
               </p>
               <span className="bg-accent px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.13em] text-canvas">
                 {competitionStatusLabels[competition.status]}
@@ -41,7 +41,7 @@ export function FeaturedCompetition({
             </div>
             <p className="mt-10 font-mono text-xs font-bold uppercase tracking-[0.15em] text-muted">
               {competition.dateDisplay} · {competition.city},{" "}
-              {competition.state}
+              {competition.administrativeArea ?? competition.state}, {competition.country}
             </p>
             <h2
               id="next-event-heading"

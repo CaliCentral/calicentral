@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { videoStatusLabels } from "@/components/videos/video-labels";
 import { VideoVisual } from "@/components/videos/video-visual";
+import { formatPlatformMetric } from "@/lib/media/provenance";
 import type { MediaFeature } from "@/types/video";
 
 type VideoCardProps = {
@@ -9,6 +10,11 @@ type VideoCardProps = {
 };
 
 export function VideoCard({ video }: VideoCardProps) {
+  const sourceLabel = video.source
+    ? [video.source.platform, video.source.account].filter(Boolean).join(" / ")
+    : "Attribution unavailable";
+  const platformMetric = video.platformMetrics?.[0];
+
   return (
     <article className="group relative flex h-full flex-col border border-white/15 bg-canvas transition-colors hover:border-accent/60">
       <Link
@@ -54,6 +60,14 @@ export function VideoCard({ video }: VideoCardProps) {
             <span className="border border-white/15 px-2.5 py-1.5 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-ink/80">
               {video.format}
             </span>
+          </div>
+          <div className="mt-4 border-t border-white/12 pt-4 font-mono text-[0.62rem] font-bold uppercase leading-5 tracking-[0.12em] text-muted">
+            <p>Source / {sourceLabel}</p>
+            <p className="mt-1">
+              {platformMetric
+                ? formatPlatformMetric(platformMetric)
+                : "External view count unavailable"}
+            </p>
           </div>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/12 pt-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted">
             <span>{videoStatusLabels[video.status]} / No playback</span>

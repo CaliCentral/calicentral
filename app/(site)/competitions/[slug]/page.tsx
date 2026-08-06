@@ -11,6 +11,7 @@ import {
   getCompetitionSlugs,
 } from "@/lib/content";
 import { isPublicSlug } from "@/lib/content/public-slug";
+import { formatGlobalLocation } from "@/lib/geography";
 import {
   createPublicMetadata,
   publicRobotsMetadata,
@@ -46,10 +47,15 @@ export async function generateMetadata({
   const { competition } = pageData;
   const title =
     competition.seo?.title ??
-    `${competition.name} — Fictional competition`;
+    `${competition.name} — Competition record`;
+  const location = formatGlobalLocation({
+    city: competition.city,
+    administrativeArea: competition.administrativeArea ?? competition.state,
+    country: competition.country,
+  });
   const description =
     competition.seo?.description ??
-    `${competition.summary} ${competition.dateDisplay} in ${competition.city}, ${competition.state}.`;
+    `${competition.summary} ${competition.dateDisplay}${location ? ` in ${location}` : ""}.`;
   const socialImage = competition.seo?.image ?? competition.image;
 
   return {
@@ -69,7 +75,7 @@ export async function generateMetadata({
     }),
     keywords: [
       "calisthenics",
-      "fictional competition",
+      "calisthenics competition",
       competition.competitionFormat,
       competition.city,
       ...competition.disciplines,
@@ -117,9 +123,9 @@ export default async function CompetitionPage({
               Return to competition directory
             </Link>
             <p className="max-w-xl text-xs leading-5 text-muted sm:text-right">
-              Prototype record only. This event, its participants, schedule,
-              organizer, registration state, and results are entirely
-              fictional.
+              {competition.contentStatus === "published-record"
+                ? "External registration, ticketing, and livestream actions appear only when a reviewed link is attached to this event record."
+                : "Sample / not official. Prototype records retain their disclosure and cannot enter the verified-results archive without verified public provenance."}
             </p>
           </div>
         </Container>

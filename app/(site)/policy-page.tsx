@@ -6,6 +6,9 @@ type PolicyPageProps = {
   readonly eyebrow: string;
   readonly title: string;
   readonly introduction: string;
+  readonly statusLabel?: string;
+  readonly sidebarTitle?: string;
+  readonly sidebarText?: string;
   readonly children: ReactNode;
 };
 
@@ -18,6 +21,10 @@ export function PolicyPage({
   eyebrow,
   title,
   introduction,
+  statusLabel = "Owner-review draft · Not final",
+  sidebarTitle = "Publication status",
+  sidebarText =
+    "This page records the intended launch approach and still requires owner and legal review.",
   children,
 }: PolicyPageProps) {
   return (
@@ -34,7 +41,7 @@ export function PolicyPage({
             {introduction}
           </p>
           <p className="mt-8 inline-flex border border-accent/40 bg-accent/10 px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.15em] text-accent">
-            Owner-review draft · Not final
+            {statusLabel}
           </p>
         </Container>
       </header>
@@ -43,11 +50,10 @@ export function PolicyPage({
         <Container className="grid gap-10 lg:grid-cols-[13rem_minmax(0,48rem)] lg:justify-center lg:gap-16">
           <aside className="lg:sticky lg:top-28 lg:self-start">
             <p className="border-t border-on-light/20 pt-4 font-mono text-xs font-bold uppercase leading-5 tracking-[0.15em] text-accent-dark">
-              Publication status
+              {sidebarTitle}
             </p>
             <p className="mt-3 text-sm leading-6 text-muted-dark">
-              This page records the intended launch approach and still
-              requires owner and legal review.
+              {sidebarText}
             </p>
           </aside>
 

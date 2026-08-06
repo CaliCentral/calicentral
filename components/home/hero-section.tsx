@@ -33,7 +33,7 @@ export function HeroSection({ content }: HeroSectionProps) {
             className="mt-7 max-w-[11ch] text-balance font-display text-[clamp(2.9rem,7.4vw,7rem)] font-black uppercase leading-[0.83] tracking-[-0.07em] text-ink"
           >
             {content.title.lead}{" "}
-            <span className="normal-case text-accent">
+            <span className="text-accent">
               {content.title.emphasis}
             </span>{" "}
             {content.title.tail}
@@ -123,9 +123,9 @@ function HeroVisual() {
           Field frame / 002
         </div>
         <div className="absolute right-4 top-4 text-right font-mono text-xs uppercase leading-5 tracking-[0.15em] text-white/60 sm:right-6 sm:top-6">
-          CA 36.7783° N
+          Worldwide desk
           <br />
-          Global field
+          Global field / 001
         </div>
         <span className="absolute -right-2 top-[28%] font-mono text-[6rem] font-black leading-none tracking-[-0.1em] text-white/6 sm:text-[9rem]">
           02

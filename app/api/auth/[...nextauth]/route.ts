@@ -5,7 +5,7 @@ const authenticationUnavailable = async () =>
   Response.json(
     {
       error:
-        "Contributor authentication is not configured for this environment.",
+        "Account authentication is not configured for this environment.",
     },
     {
       status: 503,

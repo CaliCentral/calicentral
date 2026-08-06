@@ -2,7 +2,7 @@
 
 Cali Central is a global calisthenics media and competition platform. The
 project is intended to bring together editorial coverage, videos, athlete
-profiles, verified statistics and rankings, worldwide competition listings,
+profiles, verified statistics and standings, worldwide competition listings,
 affiliate links, community submissions, and tools for operating Cali
 Central-owned competitions.
 
@@ -25,7 +25,7 @@ intake, role-gated editorial operations, and production preparation for
 Cloudflare Workers through OpenNext. A remote Sanity project/dataset, OAuth
 application, account credentials, CORS origins, Worker deployment, custom
 domain, and production secrets are not created by this repository.
-Names, athlete profiles, events, rankings, statistics, venues, and editorial
+Names, athlete profiles, events, standings, statistics, venues, and editorial
 reporting are fictional prototype content unless explicitly documented
 otherwise.
 
@@ -89,16 +89,21 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 Application routes live under `app/`. The current public routes are `/`,
 `/stories`, `/stories/[slug]`, `/athletes`, `/athletes/[slug]`, and
-`/rankings`, `/competitions`, `/competitions/[slug]`, `/videos`,
-`/videos/[slug]`, `/privacy`, `/terms`, and `/accessibility`. The embedded
+`/standings`, `/standings/methodology`, `/competitions`,
+`/competitions/calendar`, `/competitions/[slug]`, `/videos`,
+`/videos/archive`, `/videos/[slug]`, `/search`, `/join`, `/verification`,
+`/corrections`, `/editorial-standards`, `/privacy`, `/terms`, and
+`/accessibility`. `/rankings` permanently redirects to `/standings`. The embedded
 editorial interface is available at `/studio` after a Sanity project is
 configured. Changes made during development are reflected by the Next.js
 development server.
 
-Contributor authentication begins at `/sign-in`. Authenticated contributors
-use `/account`; active editors and administrators use the separately protected
-`/admin` workspace. These routes are noindex and do not appear in public
-navigation.
+Public account entry begins at `/join` or `/sign-in`. The Join guide presents
+member, athlete, organizer, and contributor intents through the same Auth.js
+identity; selecting an intent does not grant a role, verification, or
+publication access. Authenticated contributors use `/account`; active editors
+and administrators use the separately protected `/admin` workspace. Protected
+routes remain noindex, and authorization continues to run on the server.
 
 Before opening a pull request, run the available validation commands:
 
@@ -155,7 +160,8 @@ must not be run as routine validation.
 │   ├── home/             # Focused public homepage sections
 │   ├── layout/           # Shared header, navigation, and footer
 │   ├── operations/       # Contributor and editorial operations UI
-│   ├── rankings/         # Prototype ranking boards and methodology
+│   ├── standings/        # Gated standings, verified results, methodology
+│   ├── rankings/         # Permanent compatibility redirect to /standings
 │   ├── stories/          # Story cards, article layouts, and artwork
 │   ├── videos/           # Static media archive and editorial records
 │   └── ui/               # Small reusable presentation primitives
@@ -208,6 +214,14 @@ The complete build/runtime/secret matrix is in
 
 ## Contributor portal and editorial operations
 
+The public `/join` experience uses a reusable non-privileged capability
+contract for member, athlete, organizer, and contributor onboarding. These
+capabilities are deliberately separate from the trusted `contributor`,
+`editor`, and `admin` portal roles. The selected Join intent currently guides
+the post-authentication screen only; it is not persisted as a permission or
+subscription. One person can choose a different path later without creating a
+second identity system.
+
 Auth.js provides conditional Google and GitHub OAuth sign-in with encrypted JWT
 sessions. A provider button appears only when that provider has a complete
 credential pair, `AUTH_SECRET`, and canonical `AUTH_URL` are configured. With
@@ -247,6 +261,21 @@ Never commit:
 - Production database exports
 - Private athlete, participant, or submission data
 - Identity documents, waivers, signatures, or private addresses
+
+## Search, trust, and update preferences
+
+`/search` performs a bounded server-side search over published stories,
+athletes, competitions, and videos through the existing content repository.
+It explicitly excludes drafts, private submissions, account records, and
+moderation notes; no separate search service is required.
+
+Public trust guidance lives at `/verification`, `/corrections`, and
+`/editorial-standards`. Correction requests reuse the authenticated moderated
+submission workflow and never overwrite published content directly.
+
+The homepage describes planned newsletter interests but does not present a
+subscription form. No email provider or delivery pipeline is configured, and
+joining does not subscribe an account.
 
 The repository ignores `.env*` files. Store production secrets only in approved
 secret-management systems.

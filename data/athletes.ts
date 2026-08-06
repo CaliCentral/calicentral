@@ -11,9 +11,12 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Northern California",
+    administrativeArea: "California",
     disciplines: ["Freestyle", "Static strength"],
     primaryDiscipline: "Freestyle",
     secondaryDiscipline: "Static strength",
+    primaryCategory: "freestyle",
+    specialties: ["statics"],
     profileLabel: "Field record / composed movement",
     shortBio:
       "Maya is a fictional multidisciplinary athlete whose measured combinations connect patient holds with clean changes of pace.",
@@ -27,26 +30,13 @@ export const athletes = [
     yearsActive: "5 sample seasons",
     style: "Static entries, measured tempo, and composed transitions",
     featured: true,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "open-freestyle-california",
-      categoryTitle: "Open Freestyle — California",
-      rank: 4,
-      points: 884,
-      movement: { direction: "up", amount: 1, label: "Up 1" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "04",
-        detail: "Open Freestyle — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "884",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Training rhythm",
         value: "4 / week",
@@ -116,6 +106,7 @@ export const athletes = [
         type: "Development",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: [
       "after-the-last-round",
       "one-evening-at-harbor-park",
@@ -134,8 +125,11 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Southern California",
+    administrativeArea: "California",
     disciplines: ["Freestyle"],
     primaryDiscipline: "Freestyle",
+    primaryCategory: "freestyle",
+    specialties: [],
     profileLabel: "Competition file / controlled transitions",
     shortBio:
       "Jalen is a fictional freestyle athlete known in this prototype record for controlled transitions and consistent sample-round construction.",
@@ -149,26 +143,13 @@ export const athletes = [
     yearsActive: "6 sample seasons",
     style: "Controlled transitions, compact lines, and repeatable rounds",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "open-freestyle-california",
-      categoryTitle: "Open Freestyle — California",
-      rank: 1,
-      points: 1024,
-      movement: { direction: "hold", amount: 0, label: "Hold" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "01",
-        detail: "Open Freestyle — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "1,024",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Round studies",
         value: "12",
@@ -233,6 +214,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: ["built-on-the-bars", "after-the-last-round"],
     relatedAthleteSlugs: ["maya-calder", "elian-park", "amara-west"],
     visualVariant: "frame",
@@ -248,8 +230,11 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Bay Area",
+    administrativeArea: "California",
     disciplines: ["Static strength"],
     primaryDiscipline: "Static strength",
+    primaryCategory: "skills-static",
+    specialties: ["statics"],
     profileLabel: "Technical file / patient strength",
     shortBio:
       "Noa is a fictional static-strength athlete whose sample practice centers on alignment, patient progressions, and useful technical cues.",
@@ -263,26 +248,13 @@ export const athletes = [
     yearsActive: "5 sample seasons",
     style: "Patient progressions, clean alignment, and deliberate exits",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "static-strength-california",
-      categoryTitle: "Static Strength — California",
-      rank: 1,
-      points: 998,
-      movement: { direction: "up", amount: 1, label: "Up 1" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "01",
-        detail: "Static Strength — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "998",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Technical blocks",
         value: "3 / week",
@@ -295,13 +267,6 @@ export const athletes = [
       },
     ],
     achievements: [
-      {
-        year: "2026",
-        title: "Static field sample leader",
-        description:
-          "Reached the first line of an invented California static-strength table.",
-        status: "Prototype result",
-      },
       {
         year: "2025",
         title: "Technical clarity citation",
@@ -347,6 +312,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: ["language-of-control", "judging-the-line"],
     relatedAthleteSlugs: ["rowan-kim", "micah-vale", "maya-calder"],
     visualVariant: "frame",
@@ -362,8 +328,11 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Bay Area",
+    administrativeArea: "California",
     disciplines: ["Freestyle"],
     primaryDiscipline: "Freestyle",
+    primaryCategory: "freestyle",
+    specialties: [],
     profileLabel: "Motion file / tempo study",
     shortBio:
       "Elian is a fictional freestyle athlete whose combinations use tempo changes and disciplined repetition to make creative lines readable.",
@@ -377,26 +346,13 @@ export const athletes = [
     yearsActive: "4 sample seasons",
     style: "Creative combinations, tempo shifts, and disciplined repetition",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "open-freestyle-california",
-      categoryTitle: "Open Freestyle — California",
-      rank: 2,
-      points: 972,
-      movement: { direction: "up", amount: 1, label: "Up 1" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "02",
-        detail: "Open Freestyle — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "972",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Combination studies",
         value: "09",
@@ -461,6 +417,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: [
       "after-the-last-round",
       "building-a-stage-the-audience-can-understand",
@@ -479,9 +436,12 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Southern California",
+    administrativeArea: "California",
     disciplines: ["Freestyle", "Endurance"],
     primaryDiscipline: "Freestyle",
     secondaryDiscipline: "Endurance",
+    primaryCategory: "freestyle",
+    specialties: ["endurance"],
     profileLabel: "Season file / fluid endurance",
     shortBio:
       "Tessa is a fictional freestyle athlete whose sample program pairs fluid movement with steady endurance preparation for complete rounds.",
@@ -495,26 +455,13 @@ export const athletes = [
     yearsActive: "5 sample seasons",
     style: "Fluid lines, even pacing, and complete-round preparation",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "open-freestyle-california",
-      categoryTitle: "Open Freestyle — California",
-      rank: 3,
-      points: 934,
-      movement: { direction: "down", amount: 1, label: "Down 1" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "03",
-        detail: "Open Freestyle — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "934",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Full-round studies",
         value: "10",
@@ -579,6 +526,7 @@ export const athletes = [
         type: "Development",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: [
       "judging-the-line",
       "one-evening-at-harbor-park",
@@ -597,8 +545,11 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Central California",
+    administrativeArea: "California",
     disciplines: ["Strength"],
     primaryDiscipline: "Strength",
+    primaryCategory: "power-strength",
+    specialties: [],
     profileLabel: "Foundation file / structured strength",
     shortBio:
       "Micah is a fictional strength athlete whose sample record is built around foundational pulling work, structured programming, and consistency.",
@@ -612,26 +563,13 @@ export const athletes = [
     yearsActive: "3 sample seasons",
     style: "Foundational pulling, structured blocks, and steady repetition",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "emerging-athletes-california",
-      categoryTitle: "Emerging Athletes — California",
-      rank: 3,
-      points: 808,
-      movement: { direction: "hold", amount: 0, label: "Hold" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "03",
-        detail: "Emerging Athletes — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "808",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Program blocks",
         value: "04",
@@ -696,6 +634,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: ["language-of-control", "built-on-the-bars"],
     relatedAthleteSlugs: ["noa-bennett", "rowan-kim", "jalen-reyes"],
     visualVariant: "frame",
@@ -711,8 +650,11 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Southern California",
+    administrativeArea: "California",
     disciplines: ["Dynamic freestyle"],
     primaryDiscipline: "Dynamic freestyle",
+    primaryCategory: "freestyle",
+    specialties: ["dynamic-freestyle"],
     profileLabel: "Signal file / dynamic expression",
     shortBio:
       "Amara is a fictional dynamic-freestyle athlete whose fast combinations are shaped by community sessions and expressive performance choices.",
@@ -726,26 +668,13 @@ export const athletes = [
     yearsActive: "4 sample seasons",
     style: "Fast combinations, clear routes, and expressive direction changes",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "dynamic-freestyle-california",
-      categoryTitle: "Dynamic Freestyle — California",
-      rank: 1,
-      points: 1011,
-      movement: { direction: "new", amount: 0, label: "New" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "01",
-        detail: "Dynamic Freestyle — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "1,011",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Route studies",
         value: "11",
@@ -810,6 +739,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: [
       "one-evening-at-harbor-park",
       "building-a-stage-the-audience-can-understand",
@@ -828,9 +758,12 @@ export const athletes = [
     state: "California",
     country: "United States",
     region: "Southern California",
+    administrativeArea: "California",
     disciplines: ["Static strength", "Hand balancing"],
     primaryDiscipline: "Static strength",
     secondaryDiscipline: "Hand balancing",
+    primaryCategory: "skills-static",
+    specialties: ["statics", "hand-balancing"],
     profileLabel: "Alignment file / controlled holds",
     shortBio:
       "Rowan is a fictional static-strength and hand-balancing athlete whose sample practice studies alignment through controlled holds.",
@@ -844,26 +777,13 @@ export const athletes = [
     yearsActive: "6 sample seasons",
     style: "Alignment study, controlled holds, and precise balance entries",
     featured: false,
-    rankingEligible: true,
-    ranking: {
-      categorySlug: "static-strength-california",
-      categoryTitle: "Static Strength — California",
-      rank: 2,
-      points: 952,
-      movement: { direction: "hold", amount: 0, label: "Hold" },
+    verification: {
+      identityStatus: "unverified",
+      profileStatus: "not-reviewed",
     },
+    socialLinks: [],
+    rankingEligible: false,
     statistics: [
-      {
-        label: "Sample rank",
-        value: "02",
-        detail: "Static Strength — California",
-        emphasis: true,
-      },
-      {
-        label: "Prototype points",
-        value: "952",
-        detail: "Illustrative standings total",
-      },
       {
         label: "Alignment studies",
         value: "16",
@@ -881,13 +801,6 @@ export const athletes = [
       },
     ],
     achievements: [
-      {
-        year: "2026",
-        title: "Static sample runner-up",
-        description:
-          "Held second place in the current invented California strength table.",
-        status: "Prototype result",
-      },
       {
         year: "2025",
         title: "Alignment study citation",
@@ -933,6 +846,7 @@ export const athletes = [
         type: "Competition",
       },
     ],
+    competitionHistory: [],
     relatedStorySlugs: [
       "language-of-control",
       "building-a-stage-the-audience-can-understand",

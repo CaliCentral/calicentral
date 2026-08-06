@@ -308,7 +308,6 @@ function makeSiteSettings(): SeedDocument {
     !featuredAthlete ||
     !featuredCompetition ||
     !featuredVideo ||
-    !featuredRankingCategory ||
     !canonicalFeaturedStory
   ) {
     throw new Error("Featured seed references could not be resolved.");
@@ -346,9 +345,13 @@ function makeSiteSettings(): SeedDocument {
       documentId("competition", featuredCompetition.slug),
     ),
     featuredVideo: reference(documentId("video", featuredVideo.slug)),
-    featuredRankingCategory: reference(
-      documentId("ranking", featuredRankingCategory.slug),
-    ),
+    ...(featuredRankingCategory
+      ? {
+          featuredRankingCategory: reference(
+            documentId("ranking", featuredRankingCategory.slug),
+          ),
+        }
+      : {}),
   };
 }
 
@@ -413,11 +416,14 @@ function makeAthleteDocuments(): SeedDocument[] {
     city: athlete.city,
     state: athlete.state,
     country: athlete.country,
+    administrativeArea: athlete.administrativeArea,
     region: athlete.region,
     primaryDiscipline: athlete.primaryDiscipline,
+    primaryCategory: athlete.primaryCategory,
     secondaryDisciplines: athlete.disciplines.filter(
       (discipline) => discipline !== athlete.primaryDiscipline,
     ),
+    specialties: [...athlete.specialties],
     profileLabel: athlete.profileLabel,
     disciplineCode: athlete.disciplineCode,
     shortBio: athlete.shortBio,
@@ -430,6 +436,15 @@ function makeAthleteDocuments(): SeedDocument[] {
     yearsActive: athlete.yearsActive,
     styleLabel: athlete.style,
     featured: athlete.featured,
+    verification: {
+      _type: "athleteVerification",
+      ...athlete.verification,
+    },
+    socialLinks: athlete.socialLinks.map((link) => ({
+      _key: stableKey(athlete.slug, "social", link.platform),
+      _type: "athleteSocialLink",
+      ...link,
+    })),
     rankingEligible: athlete.rankingEligible,
     visualVariant: athlete.visualVariant,
     statistics: athlete.statistics.map((statistic, index) => ({
@@ -467,6 +482,11 @@ function makeAthleteDocuments(): SeedDocument[] {
       description: entry.description,
       type: entry.type,
     })),
+    competitionHistory: athlete.competitionHistory.map((record, index) => ({
+      _key: stableKey(athlete.slug, "competition-history", index + 1),
+      _type: "athleteCompetitionRecord",
+      ...record,
+    })),
     relatedStories: references("story", athlete.relatedStorySlugs),
     relatedAthletes: references("athlete", athlete.relatedAthleteSlugs),
     prototypeStatus: SAMPLE_RECORD,
@@ -486,10 +506,12 @@ function makeCompetitionDocuments(): SeedDocument[] {
     slug: { _type: "slug", current: competition.slug },
     eventNumber: competition.eventNumber,
     status: competition.status,
+    contentStatus: competition.contentStatus,
     startDate: competition.startDate,
     ...(competition.endDate ? { endDate: competition.endDate } : {}),
     city: competition.city,
     state: competition.state,
+    administrativeArea: competition.administrativeArea ?? competition.state,
     country: competition.country,
     region: competition.region,
     venueName: competition.venueName,
@@ -514,10 +536,25 @@ function makeCompetitionDocuments(): SeedDocument[] {
     })),
     featured: competition.featured,
     registrationStatus: competition.registrationStatus,
+    ...(competition.registrationDeadline
+      ? { registrationDeadline: competition.registrationDeadline }
+      : {}),
     scheduleStatus: competition.scheduleStatus,
     resultsStatus: competition.resultsStatus,
     capacityLabel: competition.capacityLabel,
     organizerName: competition.organizerName,
+    organizerVerificationStatus:
+      competition.organizerVerificationStatus ?? "sample",
+    actionLinks: (competition.actionLinks ?? []).map((action, index) => ({
+      _key: stableKey(competition.slug, "action", index + 1, action.linkType),
+      _type: "competitionActionLink",
+      label: action.label,
+      url: action.url,
+      linkType: action.linkType,
+      affiliate: action.affiliate,
+      ...(action.partnerName ? { partnerName: action.partnerName } : {}),
+      ...(action.disclosure ? { disclosure: action.disclosure } : {}),
+    })),
     competitionFormat: competition.competitionFormat,
     visualVariant: competition.visualVariant,
     schedule: competition.schedule.map((item, index) => ({
@@ -566,9 +603,25 @@ function makeCompetitionDocuments(): SeedDocument[] {
           }
         : { displayName: result.athleteName }),
       region: result.region,
+      ...(result.category ? { category: result.category } : {}),
+      ...(result.division ? { division: result.division } : {}),
+      ...(result.ruleset ? { ruleset: result.ruleset } : {}),
+      ...(result.bodyweightDisplay
+        ? { bodyweightDisplay: result.bodyweightDisplay }
+        : {}),
       scoreDisplay: result.scoreDisplay,
       resultLabel: result.resultLabel,
       movementNote: result.movementNote,
+      verificationStatus:
+        result.verificationStatus ??
+        (competition.resultsStatus === "sample-results"
+          ? "sample"
+          : "unverified"),
+      ...(result.sourceType ? { sourceType: result.sourceType } : {}),
+      ...(result.sourceName ? { sourceName: result.sourceName } : {}),
+      ...(result.sourceUrl ? { sourceUrl: result.sourceUrl } : {}),
+      ...(result.videoUrl ? { videoUrl: result.videoUrl } : {}),
+      ...(result.verifiedAt ? { verifiedAt: result.verifiedAt } : {}),
     })),
     timeline: competition.timeline.map((entry, index) => ({
       _key: stableKey(competition.slug, "timeline", index + 1),
@@ -676,6 +729,20 @@ function makeVideoDocuments(): SeedDocument[] {
     })),
     tags: [...video.tags],
     availabilityLabel: video.availabilityLabel,
+    ownershipStatus: video.source?.ownershipStatus ?? "source-unavailable",
+    sourcePlatform: video.source?.platform,
+    sourceAccount: video.source?.account,
+    originalPostUrl: video.source?.originalPostUrl,
+    discoverContext: video.discoverContext,
+    platformMetrics: (video.platformMetrics ?? []).map((metric, index) => ({
+      _key: stableKey(video.slug, "platform-metric", index + 1),
+      _type: "videoPlatformMetric",
+      platform: metric.platform,
+      label: metric.label,
+      value: metric.value,
+      observedAt: metric.observedAt,
+      sourceUrl: metric.sourceUrl,
+    })),
     relatedAthletes: references("athlete", video.relatedAthleteSlugs),
     relatedCompetitions: references(
       "competition",
@@ -701,7 +768,12 @@ function makeRankingDocuments(): SeedDocument[] {
     discipline: category.discipline,
     division: category.division,
     region: category.region,
-    status: "prototype",
+    scope: category.scope,
+    status: category.status,
+    methodologyStatus: category.methodologyStatus,
+    seasonLabel: category.seasonLabel,
+    seasonStart: category.seasonStart,
+    seasonEnd: category.seasonEnd,
     updatedAt: "2026-07-01T12:00:00.000Z",
     description: category.description,
     displayOrder: categoryIndex + 1,
@@ -719,12 +791,23 @@ function makeRankingDocuments(): SeedDocument[] {
       movementAmount: entry.movement.amount,
       movementLabel: entry.movement.label,
       status: entry.statusLabel,
+      sources: entry.sources.map((source) => ({
+        _key: stableKey(category.slug, entry.athleteSlug, source.resultKey),
+        _type: "standingResultSource",
+        competition: reference(
+          documentId("competition", source.competitionSlug),
+        ),
+        resultKey: source.resultKey,
+        sourceName: source.sourceName,
+        sourceUrl: source.sourceUrl,
+        verificationStatus: source.verificationStatus,
+      })),
     })),
     methodologyNote:
-      "Presentation prototype only. The sample points and positions were not generated by an official ranking model.",
+      "Publish only after the scoring methodology is approved and every entry is linked to verified public result provenance.",
     prototypeStatus: NOT_OFFICIAL,
     seo: seo(
-      `${category.title} — Prototype rankings`,
+      `${category.title} — Competition standings`,
       category.description,
     ),
   }));

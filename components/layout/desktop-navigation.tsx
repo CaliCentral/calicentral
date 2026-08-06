@@ -8,6 +8,7 @@ import type { NavigationItem } from "@/types/content";
 type DesktopNavigationProps = {
   readonly items: readonly NavigationItem[];
   readonly isAuthenticated: boolean;
+  readonly isSessionLoading: boolean;
   readonly canUseEditorialDesk: boolean;
   readonly onSignOut: () => Promise<void>;
 };
@@ -27,6 +28,7 @@ function isActiveRoute(href: string, pathname: string) {
 export function DesktopNavigation({
   items,
   isAuthenticated,
+  isSessionLoading,
   canUseEditorialDesk,
   onSignOut,
 }: DesktopNavigationProps) {
@@ -90,6 +92,25 @@ export function DesktopNavigation({
               >
                 Sign out
               </button>
+            </li>
+          </>
+        ) : !isSessionLoading ? (
+          <>
+            <li className="ml-1 border-l border-ink/15 pl-1">
+              <Link
+                href="/sign-in"
+                className="inline-flex min-h-11 items-center px-3 text-xs font-bold uppercase tracking-[0.14em] text-ink transition-colors hover:text-accent focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Sign in
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/join"
+                className="clip-corner inline-flex min-h-10 items-center bg-accent px-4 text-xs font-bold uppercase tracking-[0.14em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Join
+              </Link>
             </li>
           </>
         ) : null}

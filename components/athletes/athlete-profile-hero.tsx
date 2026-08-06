@@ -1,7 +1,13 @@
 import Link from "next/link";
 
 import { AthleteVisual } from "@/components/athletes/athlete-visual";
+import { ContentImage } from "@/components/content/content-image";
 import { Container } from "@/components/ui/container";
+import {
+  athleteCategoryLabel,
+  athleteSpecialtyLabel,
+} from "@/lib/athlete-taxonomy";
+import { formatGlobalLocation } from "@/lib/geography";
 import type { Athlete } from "@/types/athlete";
 
 type AthleteProfileHeroProps = {
@@ -9,16 +15,39 @@ type AthleteProfileHeroProps = {
 };
 
 export function AthleteProfileHero({ athlete }: AthleteProfileHeroProps) {
+  const location = formatGlobalLocation(athlete);
   const metadata = [
     { label: "Profile status", value: athlete.status },
-    { label: "Field base", value: `${athlete.city}, ${athlete.state}` },
-    { label: "Region file", value: athlete.region },
+    { label: "Location", value: location },
+    {
+      label: "Primary category",
+      value: athleteCategoryLabel(athlete.primaryCategory),
+    },
     { label: "Years active", value: athlete.yearsActive },
-  ] as const;
+  ].filter((item) => Boolean(item.value));
+  const identityLabel =
+    athlete.verification.identityStatus === "profile-control-confirmed"
+      ? "Profile control confirmed"
+      : "Identity not verified";
+  const profileReviewLabel =
+    athlete.verification.profileStatus === "approved"
+      ? "Editorial profile approved"
+      : "Profile not reviewed";
 
   return (
     <header className="relative overflow-hidden border-b border-white/10 bg-canvas">
       <div aria-hidden="true" className="technical-grid absolute inset-0" />
+      {athlete.coverImage ? (
+        <div className="relative h-56 border-b border-white/10 sm:h-72 lg:h-96">
+          <ContentImage
+            image={athlete.coverImage}
+            sizes="100vw"
+            priority
+            showDetails
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/35 to-transparent" />
+        </div>
+      ) : null}
       <Container className="relative py-10 sm:py-14 lg:py-18">
         <nav
           aria-label="Athlete breadcrumb"
@@ -46,14 +75,18 @@ export function AthleteProfileHero({ athlete }: AthleteProfileHeroProps) {
               {athlete.name}
             </h1>
             <p className="mt-6 font-mono text-xs font-bold uppercase leading-6 tracking-[0.14em] text-accent">
-              {athlete.primaryDiscipline}
-              {athlete.secondaryDiscipline
-                ? ` / ${athlete.secondaryDiscipline}`
+              {athleteCategoryLabel(athlete.primaryCategory)}
+              {athlete.specialties.length > 0
+                ? ` / ${athlete.specialties
+                    .map(athleteSpecialtyLabel)
+                    .join(" / ")}`
                 : ""}
             </p>
-            <p className="mt-7 max-w-3xl text-lg leading-8 text-muted sm:text-xl sm:leading-9">
-              {athlete.shortBio}
-            </p>
+            {athlete.shortBio ? (
+              <p className="mt-7 max-w-3xl text-lg leading-8 text-muted sm:text-xl sm:leading-9">
+                {athlete.shortBio}
+              </p>
+            ) : null}
 
             <div className="mt-9 grid gap-px border border-white/15 bg-white/15 sm:grid-cols-2 xl:grid-cols-4">
               {metadata.map((item) => (
@@ -68,33 +101,25 @@ export function AthleteProfileHero({ athlete }: AthleteProfileHeroProps) {
               ))}
             </div>
 
-            {athlete.ranking ? (
-              <div className="mt-6 flex flex-wrap items-end gap-5 border-l-4 border-accent bg-surface-2 p-5">
-                <span className="font-mono text-6xl font-black leading-none tracking-[-0.08em] text-accent sm:text-7xl">
-                  {String(athlete.ranking.rank).padStart(2, "0")}
-                </span>
-                <div className="pb-1">
-                  <p className="font-mono text-xs font-bold uppercase tracking-[0.15em] text-accent">
-                    Current sample rank
-                  </p>
-                  <p className="mt-2 text-sm font-bold text-ink">
-                    {athlete.ranking.categoryTitle} · {athlete.ranking.points} pts
-                  </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.1em] text-muted">
-                    {athlete.ranking.movement.label} · Prototype / Not official
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className="mt-6 border-l-4 border-accent bg-surface-2 p-5 font-mono text-xs font-bold uppercase tracking-[0.13em] text-muted">
-                Ranking status / Not listed in this prototype issue
-              </p>
-            )}
+            <div className="mt-6 flex flex-wrap gap-3" aria-label="Verification status">
+              <span className="border border-white/20 bg-surface-2 px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink">
+                {identityLabel}
+              </span>
+              <span className="border border-white/20 bg-surface-2 px-3 py-2 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink">
+                {profileReviewLabel}
+              </span>
+              <Link
+                href="/verification"
+                className="inline-flex min-h-10 items-center px-2 font-mono text-xs font-bold uppercase tracking-[0.1em] text-accent underline decoration-accent/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                What these labels mean
+              </Link>
+            </div>
           </div>
 
           <AthleteVisual
             athlete={athlete}
-            priority
+            priority={!athlete.coverImage}
             className="min-h-[23rem] sm:min-h-[31rem] lg:min-h-[43rem]"
           />
         </div>

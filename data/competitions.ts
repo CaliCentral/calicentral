@@ -11,13 +11,16 @@ export const competitionStatusLabels = {
   upcoming: "Upcoming",
   completed: "Completed",
   postponed: "Postponed",
+  cancelled: "Cancelled",
   preview: "Preview",
 } as const satisfies Record<CompetitionStatus, string>;
 
 export const registrationStatusLabels = {
   "not-open": "Registration not open",
+  open: "Registration open",
   "preview-only": "Preview listing only",
   closed: "Registration closed",
+  "sold-out": "Registration sold out",
   unavailable: "Registration unavailable",
 } as const satisfies Record<RegistrationStatus, string>;
 
@@ -31,6 +34,7 @@ export const competitionScheduleStatusLabels = {
 export const competitionResultsStatusLabels = {
   "not-available": "Not available",
   pending: "Pending",
+  "verified-results": "Verified results",
   "sample-results": "Sample results",
 } as const satisfies Record<CompetitionResultsStatus, string>;
 
@@ -50,6 +54,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Pacific Motion",
     eventNumber: "EVT-001",
     status: "upcoming",
+    contentStatus: "fictional-prototype",
     startDate: "2026-08-22",
     dateDisplay: "August 22, 2026",
     monthCode: "AUG",
@@ -256,6 +261,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Strength Classic",
     eventNumber: "EVT-002",
     status: "upcoming",
+    contentStatus: "fictional-prototype",
     startDate: "2026-09-12",
     dateDisplay: "September 12, 2026",
     monthCode: "SEP",
@@ -437,6 +443,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Coastline Cup",
     eventNumber: "EVT-003",
     status: "upcoming",
+    contentStatus: "fictional-prototype",
     startDate: "2026-10-03",
     dateDisplay: "October 3, 2026",
     monthCode: "OCT",
@@ -618,6 +625,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Harbor Frames",
     eventNumber: "EVT-004",
     status: "completed",
+    contentStatus: "fictional-prototype",
     startDate: "2026-06-20",
     dateDisplay: "June 20, 2026",
     monthCode: "JUN",
@@ -808,6 +816,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Redline Trials",
     eventNumber: "EVT-005",
     status: "completed",
+    contentStatus: "fictional-prototype",
     startDate: "2026-05-16",
     dateDisplay: "May 16, 2026",
     monthCode: "MAY",
@@ -999,6 +1008,7 @@ export const competitions: readonly Competition[] = [
     shortName: "Valley Control",
     eventNumber: "EVT-006",
     status: "postponed",
+    contentStatus: "fictional-prototype",
     startDate: "2026-11-07",
     dateDisplay: "Date under review",
     monthCode: "TBD",

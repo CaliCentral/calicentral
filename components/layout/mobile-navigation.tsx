@@ -15,6 +15,7 @@ import type { NavigationItem } from "@/types/content";
 type MobileNavigationProps = {
   readonly items: readonly NavigationItem[];
   readonly isAuthenticated: boolean;
+  readonly isSessionLoading: boolean;
   readonly canUseEditorialDesk: boolean;
   readonly onSignOut: () => Promise<void>;
 };
@@ -22,6 +23,7 @@ type MobileNavigationProps = {
 export function MobileNavigation({
   items,
   isAuthenticated,
+  isSessionLoading,
   canUseEditorialDesk,
   onSignOut,
 }: MobileNavigationProps) {
@@ -214,11 +216,11 @@ export function MobileNavigation({
 
           {isAuthenticated ? (
             <nav
-              aria-label="Contributor navigation"
+              aria-label="Account navigation"
               className="mt-5 border-t border-ink/15 pt-5"
             >
               <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted">
-                Contributor session
+                Account session
               </p>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
                 <li>
@@ -259,10 +261,43 @@ export function MobileNavigation({
                 </li>
               </ul>
             </nav>
+          ) : !isSessionLoading ? (
+            <nav
+              aria-label="Account access"
+              className="mt-5 border-t border-ink/15 pt-5"
+            >
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted">
+                Account access
+              </p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                <li>
+                  <Link
+                    href="/sign-in"
+                    onClick={closeMenuAndRestoreFocus}
+                    className="inline-flex min-h-12 w-full items-center justify-between border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    Sign in
+                    <span aria-hidden="true" className="text-accent">
+                      →
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/join"
+                    onClick={closeMenuAndRestoreFocus}
+                    className="inline-flex min-h-12 w-full items-center justify-between bg-accent px-4 text-sm font-bold uppercase tracking-[0.1em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    Join
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           ) : null}
 
           <div className="mt-auto flex flex-col gap-2 border-t border-ink/15 pt-5 font-mono text-xs uppercase tracking-[0.16em] text-muted sm:flex-row sm:items-center sm:justify-between">
-            <span>California base</span>
+            <span>Independent desk</span>
             <span>Worldwide field</span>
           </div>
         </div>

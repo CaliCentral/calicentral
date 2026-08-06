@@ -86,7 +86,9 @@ for route_path in \
   /stories/built-on-the-bars \
   /athletes \
   /athletes/maya-calder \
-  /rankings \
+  /standings \
+  /standings/methodology \
+  /competitions/calendar \
   /competitions \
   /competitions/pacific-motion-open \
   /videos \

@@ -1,4 +1,5 @@
 import { Container } from "@/components/ui/container";
+import { countryNameFor } from "@/lib/geography";
 import type { Athlete } from "@/types/athlete";
 
 type AthleteDirectoryHeroProps = {
@@ -8,15 +9,17 @@ type AthleteDirectoryHeroProps = {
 export function AthleteDirectoryHero({
   athletes,
 }: AthleteDirectoryHeroProps) {
-  const regionCount = new Set(athletes.map((athlete) => athlete.region)).size;
-  const disciplineCount = new Set(
-    athletes.flatMap((athlete) => athlete.disciplines),
+  const countryCount = new Set(
+    athletes.map((athlete) => countryNameFor(athlete.country)).filter(Boolean),
+  ).size;
+  const categoryCount = new Set(
+    athletes.map((athlete) => athlete.primaryCategory),
   ).size;
 
   const signals = [
     { label: "Athlete files", value: athletes.length },
-    { label: "Regions", value: regionCount },
-    { label: "Disciplines", value: disciplineCount },
+    { label: "Countries", value: countryCount },
+    { label: "Categories", value: categoryCount },
   ] as const;
 
   return (

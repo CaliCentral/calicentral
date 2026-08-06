@@ -17,10 +17,14 @@ import {
 } from "./objects/accessibility"
 import {
   athleteAchievement,
+  athleteCompetitionRecord,
+  athleteSocialLink,
   athleteStatistic,
+  athleteVerification,
   timelineEntry,
 } from "./objects/athlete-records"
 import {
+  competitionActionLink,
   competitionDivision,
   competitionNotice,
   competitionParticipant,
@@ -35,8 +39,12 @@ import {
   portableText,
   pullQuote,
 } from "./objects/portable-text"
-import {rankingEntry} from "./objects/ranking-entry"
 import {
+  rankingEntry,
+  standingResultSource,
+} from "./objects/ranking-entry"
+import {
+  athleteCompetitionHistorySubmission,
   athleteNominationDetails,
   auditMetadata,
   competitionListingDetails,
@@ -51,6 +59,7 @@ import {
   transcriptBlock,
   videoChapter,
   videoCredit,
+  videoPlatformMetric,
 } from "./objects/video-records"
 
 export const schemaTypes = [
@@ -64,8 +73,12 @@ export const schemaTypes = [
   portableText,
   athleteStatistic,
   athleteAchievement,
+  athleteCompetitionRecord,
+  athleteSocialLink,
+  athleteVerification,
   timelineEntry,
   competitionDivision,
+  competitionActionLink,
   competitionScheduleItem,
   competitionParticipant,
   competitionResult,
@@ -73,11 +86,14 @@ export const schemaTypes = [
   videoChapter,
   transcriptBlock,
   videoCredit,
+  videoPlatformMetric,
   editorialNote,
+  standingResultSource,
   rankingEntry,
   supportingLink,
   privateEditorialNote,
   storyPitchDetails,
+  athleteCompetitionHistorySubmission,
   athleteNominationDetails,
   competitionListingDetails,
   mediaPitchDetails,

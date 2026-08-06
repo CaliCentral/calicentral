@@ -1,21 +1,23 @@
+import Link from "next/link";
+
 import { Container } from "@/components/ui/container";
 
 type CompetitionDirectoryHeroProps = {
   readonly eventCount: number;
-  readonly cityCount: number;
+  readonly countryCount: number;
   readonly disciplineCount: number;
   readonly nextDateLabel: string;
 };
 
 export function CompetitionDirectoryHero({
   eventCount,
-  cityCount,
+  countryCount,
   disciplineCount,
   nextDateLabel,
 }: CompetitionDirectoryHeroProps) {
   const signals = [
     { label: "Event files", value: String(eventCount).padStart(2, "0") },
-    { label: "California cities", value: String(cityCount).padStart(2, "0") },
+    { label: "Countries represented", value: String(countryCount).padStart(2, "0") },
     {
       label: "Disciplines",
       value: String(disciplineCount).padStart(2, "0"),
@@ -46,9 +48,17 @@ export function CompetitionDirectoryHero({
           The field, mapped in public.
         </h1>
         <p className="mt-7 max-w-2xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
-          A prototype calendar for upcoming contests, completed showcases, and
-          event notices across California&apos;s fictional competition season.
+          A worldwide event directory for published dates, locations,
+          disciplines, registration states, and result provenance. Sample
+          records remain explicitly labeled.
         </p>
+        <Link
+          href="/competitions/calendar"
+          className="mt-7 inline-flex min-h-11 items-center gap-3 font-mono text-xs font-bold uppercase tracking-[0.13em] text-ink underline decoration-white/30 underline-offset-4 transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+        >
+          Open calendar view
+          <span aria-hidden="true">→</span>
+        </Link>
 
         <dl className="mt-10 grid border-y border-white/15 min-[430px]:grid-cols-2 lg:grid-cols-4">
           {signals.map((signal, index) => (
@@ -69,4 +79,3 @@ export function CompetitionDirectoryHero({
     </section>
   );
 }
-

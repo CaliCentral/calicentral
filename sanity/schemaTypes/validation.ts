@@ -54,6 +54,24 @@ export function validateUniqueReferences(
     : "The same referenced document cannot be selected more than once."
 }
 
+export function validateUniqueStringFields(
+  values: unknown[] | undefined,
+  fieldName: string,
+  label: string,
+): true | string {
+  const entries = (values || [])
+    .map((value) =>
+      isRecord(value) && typeof value[fieldName] === "string"
+        ? value[fieldName].trim().toLocaleLowerCase()
+        : undefined,
+    )
+    .filter((entry): entry is string => Boolean(entry))
+
+  return new Set(entries).size === entries.length
+    ? true
+    : `${label} may appear only once.`
+}
+
 export function validateNoSelfReference(
   values: unknown[] | undefined,
   context: ValidationContext,
@@ -138,8 +156,10 @@ export function validateCompetitionResultsStatus(
       ? context.document.status
       : undefined
 
-  return status !== "completed" && resultsStatus === "sample-results"
-    ? "Only completed competitions can use the sample-results status."
+  return status !== "completed" &&
+    (resultsStatus === "sample-results" ||
+      resultsStatus === "verified-results")
+    ? "Only completed competitions can publish sample or verified results."
     : true
 }
 
@@ -156,7 +176,148 @@ export function validateCompetitionResults(
     return "Result entries are only allowed for completed competitions."
   }
 
-  return validateUniqueNumbers(results, "placement", "Placements")
+  const resultsStatus =
+    isRecord(context.document) &&
+    typeof context.document.resultsStatus === "string"
+      ? context.document.resultsStatus
+      : undefined
+
+  if (resultsStatus === "verified-results") {
+    const invalidVerifiedResult = (results || []).some((result) => {
+      if (!isRecord(result)) {
+        return true
+      }
+
+      return (
+        result.verificationStatus !== "verified" ||
+        typeof result.sourceType !== "string" ||
+        !result.sourceType.trim() ||
+        typeof result.sourceName !== "string" ||
+        !result.sourceName.trim() ||
+        typeof result.sourceUrl !== "string" ||
+        !/^https?:\/\//i.test(result.sourceUrl)
+      )
+    })
+
+    if (invalidVerifiedResult) {
+      return "Every verified result requires verified status, a source type, a public source name, and an HTTP(S) source URL."
+    }
+  }
+
+  const fieldPlacements = (results || [])
+    .filter(isRecord)
+    .map((result) => {
+      const category =
+        typeof result.category === "string"
+          ? result.category.trim().toLocaleLowerCase()
+          : ""
+      const division =
+        typeof result.division === "string"
+          ? result.division.trim().toLocaleLowerCase()
+          : ""
+      const placement =
+        typeof result.placement === "number" ? result.placement : ""
+
+      return `${category}|${division}|${placement}`
+    })
+
+  return new Set(fieldPlacements).size === fieldPlacements.length
+    ? true
+    : "Placements must be unique within the same category and division."
+}
+
+export function validateResultVerificationStatus(
+  verificationStatus: string | undefined,
+  context: ValidationContext,
+): true | string {
+  if (verificationStatus !== "verified") {
+    return true
+  }
+
+  const parent = isRecord(context.parent) ? context.parent : undefined
+  const hasSourceName =
+    typeof parent?.sourceName === "string" && Boolean(parent.sourceName.trim())
+  const hasSourceUrl =
+    typeof parent?.sourceUrl === "string" &&
+    /^https?:\/\//i.test(parent.sourceUrl)
+  const hasSourceType =
+    typeof parent?.sourceType === "string" && Boolean(parent.sourceType.trim())
+
+  return hasSourceName && hasSourceUrl && hasSourceType
+    ? true
+    : "Verified results require a source type, public source name, and HTTP(S) source URL."
+}
+
+export function validateAffiliateAction(
+  affiliate: boolean | undefined,
+  context: ValidationContext,
+): true | string {
+  if (!affiliate) {
+    return true
+  }
+
+  const parent = isRecord(context.parent) ? context.parent : undefined
+  const hasPartner =
+    typeof parent?.partnerName === "string" && Boolean(parent.partnerName.trim())
+  const hasDisclosure =
+    typeof parent?.disclosure === "string" && Boolean(parent.disclosure.trim())
+
+  return hasPartner && hasDisclosure
+    ? true
+    : "Affiliate actions require both a partner name and a public disclosure."
+}
+
+export function validateStandingPublicationStatus(
+  status: string | undefined,
+  context: ValidationContext,
+): true | string {
+  if (status !== "published") {
+    return true
+  }
+
+  const document = isRecord(context.document) ? context.document : undefined
+  const entries = Array.isArray(document?.entries) ? document.entries : []
+
+  if (document?.scope !== "competition") {
+    return "Only competition standings can currently be published."
+  }
+
+  if (document?.methodologyStatus !== "approved") {
+    return "Approve the methodology before publishing standings."
+  }
+
+  if (typeof document?.seasonLabel !== "string" || !document.seasonLabel.trim()) {
+    return "Published standings require a season label."
+  }
+
+  if (entries.length === 0) {
+    return "Published standings require at least one sourced entry."
+  }
+
+  const hasUnsupportedEntry = entries.some((entry) => {
+    if (!isRecord(entry) || !Array.isArray(entry.sources) || entry.sources.length === 0) {
+      return true
+    }
+
+    return entry.sources.some(
+      (source) =>
+        !isRecord(source) ||
+        !isRecord(source.competition) ||
+        typeof source.competition._ref !== "string" ||
+        !source.competition._ref.trim() ||
+        source.verificationStatus !== "verified" ||
+        typeof source.resultKey !== "string" ||
+        !source.resultKey.trim() ||
+        typeof source.sourceName !== "string" ||
+        !source.sourceName.trim() ||
+        typeof source.sourceUrl !== "string" ||
+        !/^https?:\/\//i.test(source.sourceUrl),
+    )
+  })
+
+  return hasUnsupportedEntry
+    ? "Every published standing entry requires at least one verified result source."
+    : true
 }
 
 export function validateTimestampAgainstDuration(

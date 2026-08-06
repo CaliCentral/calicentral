@@ -258,7 +258,8 @@ SPF, DKIM, or DMARC records while connecting the site.
 
 Public:
 
-- [ ] `/`, `/stories`, one story, `/athletes`, one athlete, `/rankings`,
+- [ ] `/`, `/stories`, one story, `/athletes`, one athlete, `/standings`,
+  `/standings/methodology`, `/competitions/calendar`,
   `/competitions`, one competition, `/videos`, and one video.
 - [ ] `/privacy`, `/terms`, `/accessibility`, unknown route, and forced safe
   error behavior.

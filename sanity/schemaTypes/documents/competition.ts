@@ -2,7 +2,9 @@ import {defineArrayMember, defineField, defineType} from "sanity"
 
 import {
   competitionStatusOptions,
+  competitionContentStatusOptions,
   disciplineCodeOptions,
+  organizerVerificationStatusOptions,
   prototypeStatusOptions,
   registrationStatusOptions,
   resultsStatusOptions,
@@ -15,6 +17,7 @@ import {
   validateNoSelfReference,
   validateSlugLength,
   validateUniqueReferences,
+  validateUniqueStringFields,
 } from "../validation"
 
 export const competition = defineType({
@@ -96,7 +99,17 @@ export const competition = defineType({
       title: "State or province",
       type: "string",
       group: "overview",
+      description:
+        "Legacy field retained for existing records. New records should use Administrative area.",
       validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: "administrativeArea",
+      title: "Administrative area",
+      type: "string",
+      group: "overview",
+      description: "State, province, territory, prefecture, or equivalent.",
+      validation: (Rule) => Rule.max(100),
     }),
     defineField({
       name: "country",
@@ -195,6 +208,13 @@ export const competition = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "registrationDeadline",
+      title: "Registration deadline",
+      type: "datetime",
+      group: "operations",
+      description: "Optional organizer-published deadline, including timezone.",
+    }),
+    defineField({
       name: "scheduleStatus",
       title: "Schedule status",
       type: "string",
@@ -228,6 +248,28 @@ export const competition = defineType({
       validation: (Rule) => Rule.required().max(120),
     }),
     defineField({
+      name: "organizerVerificationStatus",
+      title: "Organizer verification status",
+      type: "string",
+      group: "operations",
+      options: {list: organizerVerificationStatusOptions, layout: "radio"},
+      initialValue: "unverified",
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "actionLinks",
+      title: "Public action links",
+      type: "array",
+      group: "operations",
+      description:
+        "Registration, ticketing, official-site, results, map, and livestream links. Affiliate links require a visible disclosure.",
+      of: [defineArrayMember({type: "competitionActionLink"})],
+      validation: (Rule) =>
+        Rule.max(12).custom((value) =>
+          validateUniqueStringFields(value, "url", "Action URLs"),
+        ),
+    }),
+    defineField({
       name: "competitionFormat",
       title: "Competition format",
       type: "string",
@@ -259,7 +301,7 @@ export const competition = defineType({
       type: "array",
       group: "field",
       description:
-        "Result entries are limited to completed competitions and must remain clearly marked as sample data when unverified.",
+        "Result entries are limited to completed competitions. Verified public results require source provenance; sample results never enter the verified archive.",
       of: [defineArrayMember({type: "competitionResult"})],
       validation: (Rule) =>
         Rule.max(500).custom((value, context) => {
@@ -349,13 +391,22 @@ export const competition = defineType({
           }),
     }),
     defineField({
-      name: "prototypeStatus",
-      title: "Content status",
+      name: "contentStatus",
+      title: "Public record status",
       type: "string",
       group: "metadata",
-      options: {list: prototypeStatusOptions, layout: "radio"},
+      options: {list: competitionContentStatusOptions, layout: "radio"},
       initialValue: "sample-record",
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: "prototypeStatus",
+      title: "Legacy prototype status",
+      type: "string",
+      group: "metadata",
+      description: "Migration-only field retained for existing records.",
+      hidden: true,
+      options: {list: prototypeStatusOptions, layout: "radio"},
     }),
     defineField({
       name: "seo",

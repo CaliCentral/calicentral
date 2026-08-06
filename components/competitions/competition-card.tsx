@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import {
   competitionDisciplineLabels,
+  competitionResultsStatusLabels,
   competitionScheduleStatusLabels,
   competitionStatusLabels,
 } from "@/lib/presentation/competition-labels";
@@ -16,7 +17,7 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
     <article className="group relative flex h-full flex-col border border-white/15 bg-surface transition-colors hover:border-accent/60">
       <Link
         href={`/competitions/${competition.slug}`}
-        aria-label={`Open the prototype listing for ${competition.name}`}
+        aria-label={`Open the event record for ${competition.name}`}
         className="absolute inset-0 z-10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       >
         <span className="sr-only">View event record</span>
@@ -54,10 +55,15 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
             </span>
             <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-muted">
               Event / {competition.eventNumber}
+              {competition.contentStatus !== "published-record" ? (
+                <span className="mt-1 block text-accent">Sample / Not official</span>
+              ) : null}
             </span>
           </div>
           <p className="mt-8 font-mono text-xs font-bold uppercase tracking-[0.14em] text-accent-strong">
-            {competition.city}, {competition.state}
+            {[competition.city, competition.administrativeArea ?? competition.state, competition.country]
+              .filter(Boolean)
+              .join(", ")}
           </p>
         </div>
       </div>
@@ -86,8 +92,7 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
           </ul>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/12 pt-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted">
             <span>
-              {competitionScheduleStatusLabels[competition.scheduleStatus]} /
-              Prototype
+              {competitionScheduleStatusLabels[competition.scheduleStatus]} / {competitionResultsStatusLabels[competition.resultsStatus]}
             </span>
             <span className="text-ink transition-transform group-hover:translate-x-1">
               View record →
