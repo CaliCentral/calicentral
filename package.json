@@ -2,16 +2,38 @@
   "name": "calicentral",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint --ignore-pattern cloudflare-env.d.ts",
+    "typecheck": "tsc --noEmit",
+    "cf:build": "opennextjs-cloudflare build",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy -- --keep-vars",
+    "cf-typegen": "wrangler types --config wrangler.typegen.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "test": "node --import tsx scripts/validate-operations.ts && wrangler types --config wrangler.typegen.jsonc --env-interface CloudflareEnv cloudflare-env.d.ts --check",
+    "check": "npm run lint && npm run cf-typegen && npm run typecheck && npm test && npm run cf:build",
+    "sanity:schema": "sanity schema extract --enforce-required-fields --path schema.json",
+    "sanity:typegen": "sanity typegen generate",
+    "sanity:types": "npm run sanity:schema && npm run sanity:typegen",
+    "sanity:seed": "sanity exec scripts/seed-sanity.ts"
   },
   "dependencies": {
-    "next": "16.2.12",
+    "@opennextjs/cloudflare": "^1.20.2",
+    "@portabletext/react": "7.0.1",
+    "@sanity/image-url": "2.1.1",
+    "@sanity/vision": "5.31.1",
+    "next": "16.3.0",
+    "next-auth": "5.0.0-beta.32",
+    "next-sanity": "13.2.3",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sanity": "5.31.1",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,8 +42,9 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.119.0"
   }
 }

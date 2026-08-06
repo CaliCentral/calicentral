@@ -1,5 +1,2 @@
 blank_issues_enabled: false
-contact_links:
-  - name: Security or privacy concern
-    url: mailto:security@calicentral.com
-    about: Do not publicly report exposed credentials, private data, or security vulnerabilities.
+contact_links: []

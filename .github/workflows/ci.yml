@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SITE_URL: https://preview.invalid
+      NEXT_TELEMETRY_DISABLED: "1"
+      SANITY_TELEMETRY_DISABLED: "1"
+      SITE_INDEXING_ENABLED: "false"
+      SITE_STAGE: preview
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.13.1
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Cloudflare types
+        run: npm run cf-typegen
+
+      - name: Run repository tests
+        run: npm test
+
+      - name: Verify Cloudflare generated file is committed
+        run: |
+          git ls-files --error-unmatch cloudflare-env.d.ts
+          git diff --exit-code -- cloudflare-env.d.ts
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Generate Sanity schema and types
+        run: npm run sanity:types
+
+      - name: Verify Sanity generated files are current
+        run: |
+          git ls-files --error-unmatch schema.json sanity.types.ts
+          git diff --exit-code -- schema.json sanity.types.ts
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Build for Cloudflare Workers
+        run: npm run cf:build

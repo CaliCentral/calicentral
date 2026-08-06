@@ -53,5 +53,8 @@ Use the package manager identified by the repository lockfile.
 
 Expected command when npm is in use:
 
+VS CODE TERMINAL
+
 ```bash
 npm ci
+```

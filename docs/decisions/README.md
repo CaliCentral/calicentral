@@ -8,6 +8,11 @@ Use sequential filenames:
 - `0002-use-cloudflare-workers.md`
 - `0003-use-sanity-cms.md`
 
+Accepted decisions:
+
+- [`0001-use-nextjs.md`](0001-use-nextjs.md)
+- [`0002-use-cloudflare-workers.md`](0002-use-cloudflare-workers.md)
+
 Each decision should include:
 
 1. Status

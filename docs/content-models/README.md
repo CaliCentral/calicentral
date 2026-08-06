@@ -1,24 +1,27 @@
 # Content Models
 
-Document all CMS and application data models here.
+This directory records CMS and application data-model responsibilities.
 
-Planned models:
+Registered Sanity models:
 
 - Article
 - Video
 - Athlete
-- Athlete result
 - Ranking
 - Competition
-- Competition organizer
-- Venue
-- Affiliate link
-- Sponsor
 - Submission
-- User account
-- Team
-- Record
-- Product guide
+- Contributor profile
+- Audit event
+- Author
+- Video series
+- Site settings
+- Internal contributor identity claim
+- Internal operational lock
+
+Structured objects within those documents cover athlete statistics and
+achievements, competition schedules/divisions/participants/results, ranking
+entries, supporting links, editorial notes, Portable Text, accessibility, and
+SEO fields.
 
 Each model document should describe:
 

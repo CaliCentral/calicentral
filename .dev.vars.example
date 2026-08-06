@@ -1,0 +1,5 @@
+# OpenNext preview defaults to the production Next.js environment. Copy this
+# file to `.dev.vars` to make `npm run preview` load development `.env` files.
+# Keep application values in `.env.local` so both `next dev` and workerd
+# preview use the same local configuration.
+NEXTJS_ENV=development

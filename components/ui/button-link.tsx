@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 type ButtonLinkProps = {
   readonly children: ReactNode;
   readonly href: string;
-  readonly variant?: "primary" | "light";
+  readonly variant?: "primary" | "light" | "outline";
   readonly className?: string;
 };
 
@@ -16,15 +16,17 @@ export function ButtonLink({
 }: ButtonLinkProps) {
   const variants = {
     primary:
-      "bg-ink text-canvas hover:bg-accent hover:text-ink focus-visible:outline-ink",
+      "bg-accent text-canvas hover:bg-accent-strong focus-visible:outline-accent",
     light:
-      "bg-canvas text-ink hover:bg-accent focus-visible:outline-canvas",
+      "bg-paper text-on-light hover:bg-white focus-visible:outline-paper",
+    outline:
+      "border border-white/30 bg-transparent text-ink hover:border-accent hover:text-accent focus-visible:outline-accent",
   };
 
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-12 items-center justify-center gap-3 rounded-md px-5 py-3 text-sm font-bold tracking-[-0.01em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 ${variants[variant]} ${className}`}
+      className={`clip-corner inline-flex min-h-12 items-center justify-center gap-3 px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 ${variants[variant]} ${className}`}
     >
       {children}
       <ArrowIcon />

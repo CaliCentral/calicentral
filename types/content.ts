@@ -5,7 +5,7 @@ export type NavigationItem = {
 
 export type CallToAction = NavigationItem;
 
-export type EditorialTone = "sunset" | "ocean" | "clay" | "night";
+export type EditorialTone = "signal" | "field" | "frame" | "paper";
 
 export type HeroContent = {
   readonly eyebrow: string;
@@ -25,6 +25,7 @@ export type HeroContent = {
 
 export type StoryPreview = {
   readonly id: string;
+  readonly href: string;
   readonly category: string;
   readonly title: string;
   readonly summary: string;
@@ -33,65 +34,28 @@ export type StoryPreview = {
   readonly readingTime: string;
   readonly location: string;
   readonly tone: EditorialTone;
-};
-
-export type VideoPreview = {
-  readonly id: string;
-  readonly series: string;
-  readonly title: string;
-  readonly description: string;
-  readonly duration: string;
-  readonly episode: string;
-  readonly tone: EditorialTone;
-};
-
-export type CompetitionPreview = {
-  readonly id: string;
-  readonly name: string;
-  readonly dateTime: string;
-  readonly month: string;
-  readonly day: string;
-  readonly location: string;
-  readonly region: string;
-  readonly division: string;
-  readonly status: "Next event" | "Upcoming";
-  readonly featured?: boolean;
-};
-
-export type AthleteSpotlight = {
-  readonly label: string;
-  readonly name: string;
-  readonly location: string;
-  readonly discipline: string;
-  readonly biography: string;
-  readonly quote: string;
-  readonly initials: string;
-  readonly facts: readonly {
-    readonly label: string;
-    readonly value: string;
-  }[];
-};
-
-export type RankingMovement =
-  | { readonly direction: "up"; readonly places: number }
-  | { readonly direction: "down"; readonly places: number }
-  | { readonly direction: "same"; readonly places: 0 };
-
-export type RankingEntry = {
-  readonly rank: number;
-  readonly name: string;
-  readonly region: string;
-  readonly points: number;
-  readonly movement: RankingMovement;
-};
-
-export type RankingsPreview = {
-  readonly category: string;
-  readonly description: string;
-  readonly entries: readonly RankingEntry[];
+  readonly image?: EditorialImage;
 };
 
 export type FooterGroup = {
   readonly title: string;
   readonly links: readonly NavigationItem[];
+};
+
+export type EditorialImage = {
+  readonly src: string;
+  readonly width: number;
+  readonly height: number;
+  readonly alt: string;
+  readonly decorative: boolean;
+  readonly caption?: string;
+  readonly credit?: string;
+  readonly blurDataURL?: string;
+};
+
+export type SeoData = {
+  readonly title?: string;
+  readonly description?: string;
+  readonly noIndex?: boolean;
+  readonly image?: EditorialImage;
 };

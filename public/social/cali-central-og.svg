@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Cali Central</title>
+  <description id="description">Independent calisthenics media</description>
+  <rect width="1200" height="630" fill="#08090a"/>
+  <g fill="none" stroke="#34373b" stroke-width="2">
+    <rect x="48" y="48" width="1104" height="534"/>
+    <path d="M48 152h1104M48 478h1104M186 48v534M1014 48v534"/>
+    <path d="M48 48l138 104M1152 48l-138 104M48 582l138-104M1152 582l-138-104" stroke-dasharray="8 12"/>
+  </g>
+  <g fill="#f43f50">
+    <rect x="48" y="48" width="138" height="12"/>
+    <rect x="1014" y="570" width="138" height="12"/>
+    <rect x="82" y="110" width="12" height="12"/>
+    <rect x="1106" y="508" width="12" height="12"/>
+  </g>
+  <g fill="#8e9299" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="3">
+    <text x="82" y="116">GLOBAL FIELD RECORD</text>
+    <text x="1118" y="524" text-anchor="end">CC / 001</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" letter-spacing="-8">
+    <text x="82" y="320" fill="#f3f1ec" font-size="156">CALI</text>
+    <text x="82" y="454" fill="#f43f50" font-size="156">CENTRAL</text>
+  </g>
+  <g fill="#f3f1ec" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="6">
+    <text x="1108" y="558" text-anchor="end">INDEPENDENT CALISTHENICS MEDIA</text>
+  </g>
+</svg>
