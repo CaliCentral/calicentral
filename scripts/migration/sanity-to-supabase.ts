@@ -246,6 +246,23 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       created_at: text(document.createdAt) ?? text(document._createdAt) ?? new Date(0).toISOString(),
     }}];
     case "siteSettings": return [{ sourceKey: document._id, table: "site_settings", onConflict: "id", row: { id: true, settings: document, updated_at: text(document._updatedAt) ?? new Date(0).toISOString() } }];
+    // Both of these are Sanity-internal coordination mechanisms with no
+    // content or historical value of their own, and both are already
+    // superseded by a real Postgres equivalent in the target schema:
+    // - contributorIdentityClaim existed only to guard against duplicate
+    //   contributor provisioning, a job Postgres's UNIQUE constraint on
+    //   members.auth_user_id plus the provision_auth_user() trigger already
+    //   does atomically and natively.
+    // - operationalLock existed only to serialize risky admin mutations in a
+    //   document store with no real transactions; Postgres has real
+    //   transactions and the public.operational_locks table (added in
+    //   202608290002_editorial_and_sport.sql) already replaces it.
+    // OBSOLETE/INTENTIONALLY EXCLUDED, not a migration gap -- see
+    // docs/migration/repository-truth.md for the full classification.
+    case "contributorIdentityClaim":
+    case "operationalLock":
+      warnings.push(`INTENTIONALLY EXCLUDED: Sanity type ${document._type} (${document._id}) has no Supabase migration target by design; it is a Sanity-only coordination mechanism already superseded by a native Postgres equivalent.`);
+      return [];
     default:
       warnings.push(`No write transformer yet for Sanity type ${document._type} (${document._id}); retained in the dry-run inventory.`);
       return [];

@@ -43,6 +43,35 @@ The tools refuse all non-local writes. A local write additionally requires
 `SUPABASE_SERVICE_ROLE_KEY`. Production import needs a later owner-approved
 gate and is intentionally unavailable here.
 
+### Migration coverage classification
+
+Every D1 table (all 31, across the three `migrations/*.sql` files) has a
+write transformer in `scripts/migration/d1-to-supabase.ts`. D1 coverage is
+complete; there is nothing to classify there.
+
+Two of the 24 Sanity document types have no write transformer in
+`scripts/migration/sanity-to-supabase.ts`, by design:
+
+| Sanity type | Classification | Why |
+| --- | --- | --- |
+| `contributorIdentityClaim` | OBSOLETE / INTENTIONALLY EXCLUDED | Existed only to guard against duplicate contributor provisioning in a document store with no unique constraints. Postgres's `UNIQUE` constraint on `members.auth_user_id` plus the `provision_auth_user()` trigger already does this atomically and natively; there is no historical or content value in the claim documents themselves. |
+| `operationalLock` | OBSOLETE / INTENTIONALLY EXCLUDED | Existed only to serialize risky admin mutations in a document store with no real transactions. Postgres has real transactions, and `public.operational_locks` (added in `202608290002_editorial_and_sport.sql`) already replaces it. |
+
+Both are logged as `INTENTIONALLY EXCLUDED` warnings (not silently dropped)
+in every dry-run report produced by `sanity-to-supabase.ts`, distinct from
+the generic "no write transformer yet" warning used for a genuine gap.
+
+One known residual gap, tracked rather than silently accepted: Postgres
+`members.email_normalized` has no `UNIQUE` constraint today, unlike the
+`auth_user_id`/`legacy_principal_id` columns. `contributorIdentityClaim`'s
+retirement above assumes one verified email maps to one `auth.users` row,
+which holds today because only Google is wired as a Supabase Auth provider.
+If a second provider is added before this constraint exists, the same real
+person could provision two `members` rows via the same email through
+different providers -- add a `UNIQUE` constraint on `email_normalized` (or an
+equivalent reconciliation step) before or alongside enabling a second
+provider.
+
 ## Auth migration boundary
 
 `AUTH_MIGRATION_PROVIDER=authjs` is the default. When an isolated environment
