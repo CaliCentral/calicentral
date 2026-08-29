@@ -9,7 +9,7 @@ export class SupabaseRepositoryError extends Error {
   }
 }
 
-function requireData<T>(data: T | null, error: { message: string } | null): T {
+export function requireData<T>(data: T | null, error: { message: string } | null): T {
   if (error) throw new SupabaseRepositoryError(error.message);
   if (data === null) throw new SupabaseRepositoryError("Supabase returned no data.");
   return data;
