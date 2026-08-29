@@ -51,9 +51,7 @@ export const operationalDocumentIdSchema = z
 export const submissionIdempotencyKeySchema = z
   .string()
   .trim()
-  .uuid(
-    "This submission form has expired. Reload the page and try again.",
-  );
+  .uuid("This submission form has expired. Reload the page and try again.");
 
 export const mutationOperationKeySchema = z
   .string()
@@ -125,7 +123,9 @@ const supportingLinksSchema = z
   })
   .default([]);
 
-const optionalSafeHttpUrlSchema = safeHttpUrlSchema.or(z.literal("")).default("");
+const optionalSafeHttpUrlSchema = safeHttpUrlSchema
+  .or(z.literal(""))
+  .default("");
 
 const knownCountrySchema = z
   .string()
@@ -210,7 +210,10 @@ const athleteCompetitionHistoryEntrySchema = z
     date: z
       .string()
       .trim()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter an event date in YYYY-MM-DD format."),
+      .regex(
+        /^\d{4}-\d{2}-\d{2}$/,
+        "Enter an event date in YYYY-MM-DD format.",
+      ),
     country: knownCountrySchema,
     city: trimmedOptionalString(FIELD_LIMITS.short),
     divisionCategory: z.string().trim().min(2).max(FIELD_LIMITS.short),
@@ -287,7 +290,9 @@ function isCalendarDate(value: string): boolean {
   }
 
   const parsed = new Date(`${value}T00:00:00.000Z`);
-  return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().startsWith(value);
+  return (
+    !Number.isNaN(parsed.valueOf()) && parsed.toISOString().startsWith(value)
+  );
 }
 
 const optionalCalendarDateSchema = z
@@ -315,8 +320,111 @@ export const competitionListingDetailsSchema = z
   })
   .strict();
 
+const teamApplicationRosterEntrySchema = z
+  .object({
+    name: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    privateEmail: z.string().trim().email().max(320).or(z.literal("")),
+    privatePhone: trimmedOptionalString(40),
+    existingProfileSlug: z
+      .string()
+      .trim()
+      .max(120)
+      .regex(
+        /^$|^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "Enter a valid public profile slug.",
+      ),
+    relationshipToTeam: trimmedOptionalString(160),
+    role: z.enum([
+      "captain",
+      "athlete",
+      "reserve",
+      "coach",
+      "manager",
+      "administrator",
+      "media-manager",
+    ]),
+    rosterStatus: z.enum(["proposed", "invited", "accepted", "declined"]),
+    specialty: z.enum(["", "strength", "control", "endurance", "freestyle"]),
+    consentStatus: z.enum(["not-contacted", "pending", "accepted", "declined"]),
+  })
+  .strict();
+
+const teamApplicationDetailsObjectSchema = z
+  .object({
+    proposedTeamName: z.string().trim().min(2).max(FIELD_LIMITS.title),
+    shortName: z.string().trim().min(2).max(80),
+    code: z
+      .string()
+      .trim()
+      .toUpperCase()
+      .min(2)
+      .max(8)
+      .regex(/^[A-Z0-9-]+$/, "Use 2–8 uppercase letters, numbers, or hyphens."),
+    teamType: z.enum([
+      "prospective-wcl-team",
+      "competitive-team",
+      "crew",
+      "club",
+      "gym-team",
+      "national-team",
+      "other",
+    ]),
+    representedIdentity: z.string().trim().min(2).max(160),
+    country: knownCountrySchema,
+    administrativeArea: trimmedOptionalString(FIELD_LIMITS.short),
+    city: trimmedOptionalString(FIELD_LIMITS.short),
+    trainingBase: trimmedOptionalString(FIELD_LIMITS.short),
+    foundingYear: z
+      .string()
+      .trim()
+      .regex(
+        /^$|^(18|19|20)\d{2}$/,
+        "Enter a four-digit year or leave it blank.",
+      ),
+    description: z.string().trim().min(20).max(2_000),
+    disciplines: boundedList(12, 80),
+    competitionIntentions: z.string().trim().min(10).max(2_000),
+    website: optionalSafeHttpUrlSchema,
+    socialLinks: supportingLinksSchema,
+    primaryColor: z
+      .string()
+      .trim()
+      .regex(/^#[0-9A-Fa-f]{6}$/, "Use a six-digit hex color such as #C9252D."),
+    secondaryColor: z
+      .string()
+      .trim()
+      .regex(/^#[0-9A-Fa-f]{6}$/, "Use a six-digit hex color such as #F4F1EA."),
+    accentColor: z
+      .string()
+      .trim()
+      .regex(
+        /^$|^#[0-9A-Fa-f]{6}$/,
+        "Use a six-digit hex color or leave it blank.",
+      ),
+    crestReferenceUrl: optionalSafeHttpUrlSchema,
+    wordmarkReferenceUrl: optionalSafeHttpUrlSchema,
+    brandingPermissionAcknowledged: z.literal(
+      true,
+      "Confirm authority to submit the proposed branding.",
+    ),
+    proposedUniformDesign: trimmedOptionalString(2_000),
+    proposedRoster: z.array(teamApplicationRosterEntrySchema).max(8),
+  })
+  .strict();
+
+export const teamApplicationDetailsSchema = teamApplicationDetailsObjectSchema;
+
 const mediaPitchDetailsObjectSchema = z
   .object({
+    mediaKind: z
+      .enum(["photo", "photo-series", "mixed-media", "other"])
+      .default("photo"),
+    submittingIdentityType: z
+      .enum(["member", "organization"])
+      .default("member"),
+    submittingIdentityId: operationalDocumentIdSchema
+      .or(z.literal(""))
+      .default(""),
     proposedTitle: z.string().trim().min(5).max(FIELD_LIMITS.title),
     series: trimmedOptionalString(FIELD_LIMITS.short),
     format: z.string().trim().min(2).max(FIELD_LIMITS.short),
@@ -339,6 +447,9 @@ const mediaPitchDetailsObjectSchema = z
       .default(""),
     sourceAccount: trimmedOptionalString(FIELD_LIMITS.short),
     originalPostUrl: safeHttpUrlSchema.or(z.literal("")).default(""),
+    creatorName: trimmedOptionalString(FIELD_LIMITS.short),
+    caption: trimmedOptionalString(1_000),
+    altText: trimmedOptionalString(500),
     mediaPermissionStatus: z
       .enum([
         "unknown",
@@ -354,6 +465,41 @@ const mediaPitchDetailsObjectSchema = z
 export const mediaPitchDetailsSchema =
   mediaPitchDetailsObjectSchema.superRefine((value, context) => {
     if (
+      value.submittingIdentityType === "organization" &&
+      !value.submittingIdentityId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["submittingIdentityId"],
+        message: "Select an organization you are authorized to represent.",
+      });
+    }
+    if (
+      value.submittingIdentityType === "member" &&
+      value.submittingIdentityId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["submittingIdentityId"],
+        message: "A member submission cannot include another identity ID.",
+      });
+    }
+    if (!value.originalPostUrl) {
+      context.addIssue({
+        code: "custom",
+        path: ["originalPostUrl"],
+        message:
+          "Add the original public media URL. Direct uploads are not configured.",
+      });
+    }
+    if (value.mediaPermissionStatus === "unknown") {
+      context.addIssue({
+        code: "custom",
+        path: ["mediaPermissionStatus"],
+        message: "Declare ownership, permission, or public-reference status.",
+      });
+    }
+    if (
       value.mediaPermissionStatus === "public-reference-only" &&
       !value.originalPostUrl
     ) {
@@ -361,6 +507,168 @@ export const mediaPitchDetailsSchema =
         code: "custom",
         path: ["originalPostUrl"],
         message: "Add the original public post URL for referenced media.",
+      });
+    }
+  });
+
+const organizationClaimDetailsObjectSchema = z
+  .object({
+    requestKind: z.enum(["create", "claim"]).default("claim"),
+    existingOrganizationId: operationalDocumentIdSchema.or(z.literal("")),
+    organizationName: z.string().trim().min(2).max(FIELD_LIMITS.title),
+    organizationType: z.enum([
+      "federation",
+      "league",
+      "competition-organizer",
+      "gym",
+      "training-facility",
+      "team-operator",
+      "brand",
+      "retailer",
+      "media-company",
+      "community-organization",
+      "other",
+    ]),
+    country: knownCountrySchema,
+    website: optionalSafeHttpUrlSchema,
+    relationshipToOrganization: z.string().trim().min(10).max(1_000),
+    requestedCapabilities: z
+      .array(z.enum(["manage-profile", "submit-media", "submit-products"]))
+      .min(1)
+      .max(3),
+    evidenceLinks: supportingLinksSchema,
+  })
+  .strict();
+
+export const organizationClaimDetailsSchema =
+  organizationClaimDetailsObjectSchema.superRefine((value, context) => {
+    if (value.requestKind === "claim" && !value.existingOrganizationId) {
+      context.addIssue({
+        code: "custom",
+        path: ["existingOrganizationId"],
+        message: "Enter the stable organization record ID being claimed.",
+      });
+    }
+    if (value.requestKind === "claim" && !value.evidenceLinks.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["evidenceLinks"],
+        message: "Add at least one public evidence link for a claim.",
+      });
+    }
+  });
+
+const videoSubmissionDetailsObjectSchema = z
+  .object({
+    submittingIdentityType: z
+      .enum(["member", "organization"])
+      .default("member"),
+    submittingIdentityId: operationalDocumentIdSchema
+      .or(z.literal(""))
+      .default(""),
+    videoTitle: z.string().trim().min(5).max(FIELD_LIMITS.title),
+    description: z.string().trim().min(20).max(3_000),
+    category: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    discipline: trimmedOptionalString(FIELD_LIMITS.short),
+    sourceHost: z.enum(["youtube", "instagram", "tiktok", "other-approved"]),
+    originalPublicUrl: safeHttpUrlSchema,
+    submitterRelationship: z.string().trim().min(2).max(300),
+    creatorName: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    creatorProfileUrl: optionalSafeHttpUrlSchema,
+    featuredAthletes: boundedList(12, 120),
+    featuredTeams: boundedList(12, 120),
+    organizationId: operationalDocumentIdSchema.or(z.literal("")),
+    competition: trimmedOptionalString(FIELD_LIMITS.title),
+    eventDate: optionalCalendarDateSchema,
+    location: trimmedOptionalString(FIELD_LIMITS.short),
+    thumbnailReferenceUrl: optionalSafeHttpUrlSchema,
+    rightsDeclaration: z.enum([
+      "submitter-owned",
+      "permission-confirmed",
+      "public-reference-only",
+    ]),
+    ownershipSourceDeclaration: z.string().trim().min(20).max(1_000),
+    sourceAccount: trimmedOptionalString(FIELD_LIMITS.short),
+    editorialNote: trimmedOptionalString(2_000),
+    contentWarnings: boundedList(8, 120),
+  })
+  .strict();
+
+export const videoSubmissionDetailsSchema =
+  videoSubmissionDetailsObjectSchema.superRefine((value, context) => {
+    if (
+      value.submittingIdentityType === "organization" &&
+      !value.submittingIdentityId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["submittingIdentityId"],
+        message: "Select an organization you are authorized to represent.",
+      });
+    }
+    if (
+      value.submittingIdentityType === "member" &&
+      value.submittingIdentityId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["submittingIdentityId"],
+        message: "A member submission cannot include another identity ID.",
+      });
+    }
+    const hostname = new URL(value.originalPublicUrl).hostname
+      .toLowerCase()
+      .replace(/^www\./, "");
+    const allowed =
+      value.sourceHost === "youtube"
+        ? hostname === "youtu.be" ||
+          hostname === "youtube.com" ||
+          hostname.endsWith(".youtube.com")
+        : value.sourceHost === "instagram"
+          ? hostname === "instagram.com" || hostname.endsWith(".instagram.com")
+          : value.sourceHost === "tiktok"
+            ? hostname === "tiktok.com" || hostname.endsWith(".tiktok.com")
+            : true;
+
+    if (!allowed) {
+      context.addIssue({
+        code: "custom",
+        path: ["originalPublicUrl"],
+        message: "The source URL does not match the selected host.",
+      });
+    }
+  });
+
+const productSubmissionDetailsObjectSchema = z
+  .object({
+    organizationId: operationalDocumentIdSchema,
+    productName: z.string().trim().min(2).max(FIELD_LIMITS.title),
+    category: z.string().trim().min(2).max(FIELD_LIMITS.short),
+    productSummary: z.string().trim().min(20).max(2_000),
+    standardProductUrl: safeHttpUrlSchema,
+    affiliateUrl: optionalSafeHttpUrlSchema,
+    affiliateRelationship: z.enum(["none", "pending", "active"]),
+    submitterRelationship: z.string().trim().min(10).max(500),
+    commercialDisclosure: z.string().trim().min(10).max(1_000),
+  })
+  .strict();
+
+export const productSubmissionDetailsSchema =
+  productSubmissionDetailsObjectSchema.superRefine((value, context) => {
+    if (value.affiliateRelationship === "active" && !value.affiliateUrl) {
+      context.addIssue({
+        code: "custom",
+        path: ["affiliateUrl"],
+        message:
+          "An active affiliate relationship requires its destination URL.",
+      });
+    }
+    if (value.affiliateRelationship !== "active" && value.affiliateUrl) {
+      context.addIssue({
+        code: "custom",
+        path: ["affiliateUrl"],
+        message:
+          "Do not provide an affiliate URL unless the relationship is active.",
       });
     }
   });
@@ -396,6 +704,27 @@ export const competitionListingSchema = fullSubmissionCommonSchema
   })
   .strict();
 
+export const teamApplicationSchema = fullSubmissionCommonSchema
+  .extend({
+    submissionType: z.literal("teamApplication"),
+    teamApplicationDetails: teamApplicationDetailsSchema,
+  })
+  .strict();
+
+export const organizationClaimSchema = fullSubmissionCommonSchema
+  .extend({
+    submissionType: z.literal("organizationClaim"),
+    organizationClaimDetails: organizationClaimDetailsSchema,
+  })
+  .strict();
+
+export const videoSubmissionSchema = fullSubmissionCommonSchema
+  .extend({
+    submissionType: z.literal("videoSubmission"),
+    videoSubmissionDetails: videoSubmissionDetailsSchema,
+  })
+  .strict();
+
 export const mediaPitchSchema = fullSubmissionCommonSchema
   .extend({
     submissionType: z.literal("mediaPitch"),
@@ -410,10 +739,19 @@ export const correctionRequestSchema = fullSubmissionCommonSchema
   })
   .strict();
 
+export const productSubmissionSchema = fullSubmissionCommonSchema
+  .extend({
+    submissionType: z.literal("productSubmission"),
+    productSubmissionDetails: productSubmissionDetailsSchema,
+  })
+  .strict();
+
 function typeSpecificLinkCount(value: {
   submissionType: string;
   athleteNominationDetails?: { publicReferenceLinks?: unknown[] };
   competitionListingDetails?: { publicReferenceLinks?: unknown[] };
+  teamApplicationDetails?: { socialLinks?: unknown[] };
+  organizationClaimDetails?: { evidenceLinks?: unknown[] };
   mediaPitchDetails?: { publicReferenceLinks?: unknown[] };
   correctionRequestDetails?: { sourceLinks?: unknown[] };
 }): number {
@@ -422,6 +760,10 @@ function typeSpecificLinkCount(value: {
       return value.athleteNominationDetails?.publicReferenceLinks?.length ?? 0;
     case "competitionListing":
       return value.competitionListingDetails?.publicReferenceLinks?.length ?? 0;
+    case "teamApplication":
+      return value.teamApplicationDetails?.socialLinks?.length ?? 0;
+    case "organizationClaim":
+      return value.organizationClaimDetails?.evidenceLinks?.length ?? 0;
     case "mediaPitch":
       return value.mediaPitchDetails?.publicReferenceLinks?.length ?? 0;
     case "correctionRequest":
@@ -437,6 +779,8 @@ function enforceCombinedLinkLimit(
     supportingLinks: unknown[];
     athleteNominationDetails?: { publicReferenceLinks?: unknown[] };
     competitionListingDetails?: { publicReferenceLinks?: unknown[] };
+    teamApplicationDetails?: { socialLinks?: unknown[] };
+    organizationClaimDetails?: { evidenceLinks?: unknown[] };
     mediaPitchDetails?: { publicReferenceLinks?: unknown[] };
     correctionRequestDetails?: { sourceLinks?: unknown[] };
   },
@@ -456,24 +800,41 @@ export const submissionForReviewSchema = z
     storyPitchSchema,
     athleteNominationSchema,
     competitionListingSchema,
+    teamApplicationSchema,
+    organizationClaimSchema,
+    videoSubmissionSchema,
     mediaPitchSchema,
+    productSubmissionSchema,
     correctionRequestSchema,
   ])
   .superRefine(enforceCombinedLinkLimit);
 
 const storyPitchDraftDetailsSchema = storyPitchDetailsSchema.partial();
-const athleteNominationDraftDetailsSchema =
-  athleteNominationDetailsObjectSchema
-    .partial()
-    .extend({
-      competitionHistory: z
-        .array(athleteCompetitionHistoryEntrySchema.partial())
-        .max(12)
-        .optional(),
-    });
+const athleteNominationDraftDetailsSchema = athleteNominationDetailsObjectSchema
+  .partial()
+  .extend({
+    competitionHistory: z
+      .array(athleteCompetitionHistoryEntrySchema.partial())
+      .max(12)
+      .optional(),
+  });
 const competitionListingDraftDetailsSchema =
   competitionListingDetailsSchema.partial();
+const teamApplicationDraftDetailsSchema = teamApplicationDetailsObjectSchema
+  .partial()
+  .extend({
+    proposedRoster: z
+      .array(teamApplicationRosterEntrySchema.partial())
+      .max(8)
+      .optional(),
+  });
 const mediaPitchDraftDetailsSchema = mediaPitchDetailsObjectSchema.partial();
+const organizationClaimDraftDetailsSchema =
+  organizationClaimDetailsObjectSchema.partial();
+const videoSubmissionDraftDetailsSchema =
+  videoSubmissionDetailsObjectSchema.partial();
+const productSubmissionDraftDetailsSchema =
+  productSubmissionDetailsObjectSchema.partial();
 const correctionRequestDraftDetailsSchema =
   correctionRequestDetailsSchema.partial();
 
@@ -489,17 +850,51 @@ export const submissionDraftSchema = z
     z
       .object({
         ...draftSubmissionCommonShape,
+        submissionType: z.literal("organizationClaim"),
+        organizationClaimDetails: organizationClaimDraftDetailsSchema.default(
+          {},
+        ),
+      })
+      .strict(),
+    z
+      .object({
+        ...draftSubmissionCommonShape,
+        submissionType: z.literal("videoSubmission"),
+        videoSubmissionDetails: videoSubmissionDraftDetailsSchema.default({}),
+      })
+      .strict(),
+    z
+      .object({
+        ...draftSubmissionCommonShape,
         submissionType: z.literal("athleteNomination"),
-        athleteNominationDetails:
-          athleteNominationDraftDetailsSchema.default({}),
+        athleteNominationDetails: athleteNominationDraftDetailsSchema.default(
+          {},
+        ),
+      })
+      .strict(),
+    z
+      .object({
+        ...draftSubmissionCommonShape,
+        submissionType: z.literal("productSubmission"),
+        productSubmissionDetails: productSubmissionDraftDetailsSchema.default(
+          {},
+        ),
       })
       .strict(),
     z
       .object({
         ...draftSubmissionCommonShape,
         submissionType: z.literal("competitionListing"),
-        competitionListingDetails:
-          competitionListingDraftDetailsSchema.default({}),
+        competitionListingDetails: competitionListingDraftDetailsSchema.default(
+          {},
+        ),
+      })
+      .strict(),
+    z
+      .object({
+        ...draftSubmissionCommonShape,
+        submissionType: z.literal("teamApplication"),
+        teamApplicationDetails: teamApplicationDraftDetailsSchema.default({}),
       })
       .strict(),
     z
@@ -513,8 +908,9 @@ export const submissionDraftSchema = z
       .object({
         ...draftSubmissionCommonShape,
         submissionType: z.literal("correctionRequest"),
-        correctionRequestDetails:
-          correctionRequestDraftDetailsSchema.default({}),
+        correctionRequestDetails: correctionRequestDraftDetailsSchema.default(
+          {},
+        ),
       })
       .strict(),
   ])

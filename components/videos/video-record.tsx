@@ -73,9 +73,9 @@ export function VideoRecord({ video }: VideoRecordProps) {
               Attribution stays attached.
             </h2>
             <p className="mt-5 max-w-2xl text-sm leading-6 text-muted sm:text-base sm:leading-7">
-              External media remains credited to its original account and
-              platform. Metrics are recorded per source and are never combined
-              into a universal view count.
+              Origin and source details remain attached to the record. Any
+              metrics are recorded per platform and are never combined into a
+              universal view count.
             </p>
             {video.discoverContext ? (
               <p className="mt-5 max-w-2xl border-l-2 border-accent pl-4 text-sm leading-6 text-ink/85">
@@ -154,7 +154,9 @@ export function VideoRecord({ video }: VideoRecordProps) {
                       </p>
                     ) : null}
                   </div>
-                  <p className="text-base leading-7 text-ink/85">{block.text}</p>
+                  <p className="text-base leading-7 text-ink/85">
+                    {block.text}
+                  </p>
                 </article>
               ))}
             </div>

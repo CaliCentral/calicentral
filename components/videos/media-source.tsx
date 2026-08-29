@@ -2,6 +2,7 @@ import {
   formatPlatformMetric,
   safeMediaSourceUrl,
 } from "@/lib/media/provenance";
+import { VideoOriginLabel } from "@/components/videos/video-origin-label";
 import type { MediaFeature } from "@/types/video";
 
 type MediaSourceProps = {
@@ -14,7 +15,9 @@ export function MediaSource({ video, compact = false }: MediaSourceProps) {
   const metrics = video.platformMetrics ?? [];
   const sourceLabel = video.source
     ? [video.source.platform, video.source.account].filter(Boolean).join(" / ")
-    : "Source attribution not published";
+    : video.origin === "cali-central-original"
+      ? "Cali Central"
+      : "Source attribution not published";
 
   return (
     <div
@@ -24,25 +27,26 @@ export function MediaSource({ video, compact = false }: MediaSourceProps) {
           : "border border-white/15 bg-surface p-5 sm:p-6"
       }
     >
-      <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
+      <VideoOriginLabel origin={video.origin} />
+      <p className="mt-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
         Source / Attribution
       </p>
       <p className="mt-2 text-sm font-bold uppercase leading-5 text-ink">
         {sourceLabel}
       </p>
-      {video.source?.ownershipStatus === "third-party-attributed" ? (
+      {video.origin === "cali-central-original" ? (
         <p className="mt-2 text-xs leading-5 text-muted">
-          Third-party media remains owned by and attributed to its original
-          source.
+          Produced or published as Cali Central original editorial media.
         </p>
-      ) : video.source?.ownershipStatus === "cali-central-original" ? (
+      ) : video.origin === "community-submission" ? (
         <p className="mt-2 text-xs leading-5 text-muted">
-          Cali Central original editorial media.
+          Accepted from the community for editorial listing. Creator, source,
+          and rights details remain attached when available.
         </p>
       ) : (
         <p className="mt-2 text-xs leading-5 text-muted">
-          Ownership and original-post details are not available for this
-          record.
+          Hosted by a third party and presented with attribution. Cali Central
+          does not claim ownership of the original media.
         </p>
       )}
 
@@ -72,7 +76,7 @@ export function MediaSource({ video, compact = false }: MediaSourceProps) {
           </ul>
         ) : (
           <p className="mt-2 text-xs leading-5 text-muted">
-            External view counts are unavailable. No cross-platform total is
+            No platform metrics are published. No cross-platform total is
             estimated.
           </p>
         )}

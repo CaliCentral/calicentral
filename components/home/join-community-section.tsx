@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
+import { featureConfig } from "@/lib/features/config";
 
 const futurePreferences = [
   "Weekly Cali Central",
@@ -34,7 +35,9 @@ export function JoinCommunitySection() {
               no account choice grants verification or editorial access.
             </p>
             <div className="mt-8 flex flex-col items-stretch gap-3 min-[420px]:items-start sm:flex-row">
-              <ButtonLink href="/join">Join Cali Central</ButtonLink>
+              <ButtonLink href={featureConfig.community ? "/community" : "/join"}>
+                {featureConfig.community ? "Open Community" : "Join Cali Central"}
+              </ButtonLink>
               <ButtonLink href="/editorial-standards" variant="outline">
                 Read our standards
               </ButtonLink>

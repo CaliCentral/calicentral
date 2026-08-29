@@ -11,6 +11,9 @@ import type {
 } from "@/types/content";
 import type { RankingCategory } from "@/types/ranking";
 import type { MediaFeature, VideoSeries } from "@/types/video";
+import type { Team } from "@/types/team";
+import type { Organization } from "@/types/organization";
+import type { Product } from "@/types/product";
 
 export type ContentFetchOptions = {
   /**
@@ -43,6 +46,9 @@ export type AthleteContent = Athlete;
 export type CompetitionContent = Competition;
 
 export type VideoContent = MediaFeature;
+export type TeamContent = Team;
+export type OrganizationContent = Organization;
+export type ProductContent = Product;
 
 export type { EditorialImage };
 

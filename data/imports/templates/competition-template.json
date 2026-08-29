@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "kind": "competitions",
+  "sourceId": "replace-with-registered-source-id",
+  "collectionMethod": "manual-editorial",
+  "sourceRights": {
+    "reviewStatus": "review-pending",
+    "automatedCollectionAllowed": false,
+    "notes": "Approval is recorded in data/imports/source-registry.json; do not claim approval here without evidence."
+  },
+  "source": {
+    "sourceTitle": "Replace with official organizer/federation source",
+    "sourceType": "organizer-source",
+    "sourceUrl": "https://replace-with-official-source.example/",
+    "checkedAt": "YYYY-MM-DDTHH:mm:ssZ",
+    "verificationStatus": "unverified"
+  },
+  "competitions": [
+    {
+      "reviewedKey": "replace-with-stable-reviewed-key",
+      "name": "Replace with official event name",
+      "eventSeries": "Replace only when source-supported",
+      "editorialPriority": "standard",
+      "featured": false,
+      "startDate": "YYYY-MM-DD",
+      "country": "Replace only when source-supported",
+      "disciplines": [
+        "replace-with-supported-discipline"
+      ],
+      "officialWebsite": "https://replace-with-official-event-source.example/"
+    }
+  ]
+}

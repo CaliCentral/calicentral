@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   PolicyPage,
@@ -64,6 +65,18 @@ export default function PrivacyPage() {
             submitted for editorial review.
           </li>
           <li>
+            When community features are enabled, explicitly public member
+            profile fields, posts, comments, and linked media, plus relationship,
+            engagement, report, block, save, and collection records needed to
+            operate those features.
+          </li>
+          <li>
+            Team applications, proposed roster and consent information,
+            organization claims, media-rights details, product submissions, and
+            information about a submitter&apos;s representative or commercial
+            relationship.
+          </li>
+          <li>
             Submission history, editorial decisions, review notes, role and
             access records, and suspension status.
           </li>
@@ -80,11 +93,55 @@ export default function PrivacyPage() {
         </p>
       </PolicySection>
 
+      <PolicySection title="Community visibility">
+        <p>
+          A public member profile is separate from the private contributor
+          record and requires an explicit publication choice. Authentication
+          email, private contributor biography, submissions, access status,
+          claim evidence, report details, blocks, saves, and collections are not
+          part of the public member projection. A public count or relationship
+          state does not make the underlying private account record public.
+        </p>
+        <p>
+          Public posts and comments may be visible to anyone while the feature
+          is enabled. Likes, follows, reports, blocks, saves, and collections
+          may be processed to provide and protect the community experience.
+          Exact retention and account-request handling still require owner and
+          legal review before launch.
+        </p>
+      </PolicySection>
+
+      <PolicySection title="Teams, organizations, media, and products">
+        <p>
+          Applications and claims remain private intake records. A separate
+          public team, organization, roster, media, or product record is created
+          only through an editorial publishing decision. Proposed roster email,
+          phone, consent, invitation, claim-evidence, and review fields are not
+          public profile data.
+        </p>
+        <p>
+          A published product or organization record may identify public brand,
+          retailer, source, and commercial-disclosure information. It does not
+          expose private representative evidence or submission notes. Cali
+          Central does not provide product checkout; following an external link
+          sends the visitor to a third party under that party&apos;s privacy terms.
+        </p>
+        <p>
+          The current application does not claim to collect payment-card or
+          checkout data. If Cali Central later introduces first-party affiliate
+          click attribution, purchase analytics, or advertising measurement,
+          the production notice must describe that processing before it is
+          enabled.
+        </p>
+      </PolicySection>
+
       <PolicySection title="Why information may be used">
         <p>
           The intended uses are to authenticate accounts, maintain
           contributor profiles, receive and review submissions, communicate
-          about editorial decisions, protect the platform, investigate
+          about editorial decisions, operate community and personal-library
+          features, review claimed relationships and media rights, maintain
+          accurate commercial disclosures, protect the platform, investigate
           misuse, and diagnose service problems.
         </p>
         <p>
@@ -98,9 +155,9 @@ export default function PrivacyPage() {
         <p>
           The planned platform uses OAuth providers for sign-in, Sanity for
           public content and operational account and submission records, and
-          Cloudflare services for web hosting, static delivery, compute, and
-          security controls. Those providers may process information under
-          their own terms and policies.
+          Cloudflare services for web hosting, static delivery, compute,
+          community persistence, and security controls. Those providers may
+          process information under their own terms and policies.
         </p>
         <p>
           Access should be limited according to role. Authorized editors,
@@ -134,6 +191,10 @@ export default function PrivacyPage() {
         <p>
           Privacy questions or requests can be directed to{" "}
           <ContactDetails />.
+        </p>
+        <p>
+          The <Link href="/help">Help page</Link> lists the correction, safety,
+          rights, and accessibility routes that are currently implemented.
         </p>
       </PolicySection>
     </PolicyPage>

@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Session } from "next-auth";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 import { auth } from "@/auth";
 import { isAuthConfigured } from "@/lib/auth/config";
@@ -17,6 +18,8 @@ import {
   isPortalRole,
 } from "@/lib/auth/types";
 import { safeLog } from "@/lib/observability/logger";
+import { getSupabasePortalUser } from "@/lib/auth/supabase-session";
+import { isSupabaseConfigured, useSupabaseAuth } from "@/lib/supabase/config";
 
 const ROLE_WEIGHT: Record<PortalRole, number> = {
   contributor: 0,
@@ -36,6 +39,11 @@ export async function getCurrentSession(): Promise<Session | null> {
     return null;
   }
 
+  // Session state is request-bound. Waiting for an incoming request keeps
+  // Next's prerender analysis from invoking Auth.js without request context;
+  // actual runtime failures still pass through the logged catch below.
+  await connection();
+
   try {
     return await auth();
   } catch {
@@ -50,6 +58,21 @@ export async function getCurrentSession(): Promise<Session | null> {
 }
 
 export async function getCurrentUser(): Promise<PortalUser | null> {
+  if (useSupabaseAuth) {
+    if (!isSupabaseConfigured) return null;
+    try {
+      return await getSupabasePortalUser();
+    } catch {
+      safeLog({
+        severity: "error",
+        event: "auth.session_lookup_failed",
+        routeCategory: "auth",
+        errorCategory: "auth_error",
+      });
+      return null;
+    }
+  }
+
   const session = await getCurrentSession();
   const user = session?.user;
 

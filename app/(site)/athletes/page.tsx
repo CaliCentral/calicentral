@@ -10,6 +10,8 @@ import { getAthletes } from "@/lib/content";
 import { countryNameFor } from "@/lib/geography";
 import { createPublicMetadata } from "@/lib/site/metadata";
 
+export const dynamic = "force-dynamic";
+
 const description =
   "Explore Cali Central athlete profiles by country, competition category, specialty, and public verification state.";
 

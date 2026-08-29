@@ -3,13 +3,8 @@ import Link from "next/link";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { NavigationSessionIsland } from "@/components/layout/navigation-session-island";
 import { Container } from "@/components/ui/container";
-import type { NavigationItem } from "@/types/content";
 
-type SiteHeaderProps = {
-  readonly navigation: readonly NavigationItem[];
-};
-
-export function SiteHeader({ navigation }: SiteHeaderProps) {
+export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-canvas/90 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] backdrop-blur-xl supports-[backdrop-filter]:bg-canvas/80">
       <div
@@ -38,7 +33,7 @@ export function SiteHeader({ navigation }: SiteHeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center">
-          <NavigationSessionIsland items={navigation} />
+          <NavigationSessionIsland />
         </div>
       </Container>
     </header>

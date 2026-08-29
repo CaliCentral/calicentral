@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.tmp/
 
 # next.js
 /.next/
@@ -39,6 +40,8 @@ yarn-error.log*
 # Cloudflare/OpenNext local output
 /.open-next/
 /.wrangler/
+/.sanity/runtime/
+/.sanity/dist/
 
 # vercel
 .vercel

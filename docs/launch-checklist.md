@@ -55,14 +55,21 @@ npm run preview
 - [ ] Record observability sampling/retention/cost shown in the account.
 - [ ] Configure staging rate-limit rules in monitor mode before production
   blocking.
-- [ ] Confirm no unused D1, R2, KV, Queue, Durable Object, Images, or rate-limit
-  binding exists.
+- [ ] Confirm no unreviewed D1, R2, KV, Queue, Durable Object, Images, or
+  rate-limit binding exists. Community flags remain false until the reviewed
+  D1 migration/binding is intentionally provisioned.
 
 ## 3. Content owner review
 
 - [ ] Approve or replace prototype homepage copy.
 - [ ] Verify every story, author, date, image credit, and related link.
 - [ ] Verify athlete names, statistics, records, and fictional/verified status.
+- [ ] Verify team names, status/admission labels, roster consent, branding, and
+  fictional/prospective disclosures.
+- [ ] Verify each athlete ranking names its provider, snapshot date, source,
+  and authority; do not imply a universal world rank.
+- [ ] Confirm WCL 2.0 remains the default official metadata setting and every
+  3.0 surface says “Proposed.”
 - [ ] Verify competition dates, places, registration/ticket/livestream labels,
   and disclaimers.
 - [ ] Verify media labels; do not imply a static record is playable.
@@ -95,9 +102,9 @@ npm run preview
 - [ ] Studio, Draft Mode signed enable/disable, Visual Editing, published
   perspective, preview perspective, Portable Text, crop/hotspot images, and
   configuration errors are tested.
-- [ ] Published-content release is documented as rebuild-on-publish. The owner
-  understands that static HTML, metadata, and sitemap do not update until a
-  reviewed rebuild/deploy.
+- [ ] Published-page live refresh works without a browser token; Draft Mode
+  remains protected. Metadata and sitemap update behavior is separately
+  verified in the target runtime.
 - [ ] Sanity schema extraction and TypeGen match source changes.
 - [ ] A private encrypted dataset export/recovery process is approved; no
   export is stored in Git.
@@ -217,6 +224,10 @@ This is an implementation audit, not formal WCAG certification.
 - [ ] Public directories omit full bodies and use bounded queries; private
   dashboards omit unnecessary content and audit history.
 - [ ] Draft/Visual Editing client code is limited to authenticated Draft Mode.
+- [ ] Public team/ranking projections contain no roster invitation contacts,
+  external-identity review notes, or moderation data.
+- [ ] Disabled community/team/WCL/ranking features fail closed and do not
+  prepare writes or expose unfinished routes.
 - [ ] Sanity CDN image loader emits responsive widths/quality and rejects
   untrusted transform hosts.
 - [ ] Fonts are self-hosted in output with a sensible fallback and no runtime
@@ -258,7 +269,8 @@ SPF, DKIM, or DMARC records while connecting the site.
 
 Public:
 
-- [ ] `/`, `/stories`, one story, `/athletes`, one athlete, `/standings`,
+- [ ] `/`, `/stories`, one story, `/athletes`, one athlete, `/teams`, one team,
+  `/rankings`, `/standings`,
   `/standings/methodology`, `/competitions/calendar`,
   `/competitions`, one competition, `/videos`, and one video.
 - [ ] `/privacy`, `/terms`, `/accessibility`, unknown route, and forced safe
@@ -270,7 +282,8 @@ Auth/account:
 
 - [ ] Sign-in configuration, Google/GitHub callback when enabled, verified
   identity gate, session cookie, account dashboard/profile/submissions/new
-  submission/detail, sign-out, suspended account, and unauthorized admin.
+  submission/detail, `/account/teams`, sign-out, suspended account, and
+  unauthorized admin.
 
 Sanity:
 

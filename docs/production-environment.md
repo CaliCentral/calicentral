@@ -32,6 +32,7 @@ output. “Runtime” means the deployed Worker must receive the value.
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Public | Yes | Yes | Omit with the dataset to use fictional local fallback content. |
 | `NEXT_PUBLIC_SANITY_DATASET` | Public | Yes | Yes | Dataset name. The unified production dataset must be private. |
 | `NEXT_PUBLIC_SANITY_API_VERSION` | Public | Yes | Yes | Pinned API date used by the application. |
+| `NEXT_PUBLIC_SANITY_STUDIO_URL` | Public | Yes | Yes | Optional reviewed HTTPS URL for the separately hosted Studio. When absent, editor links use the noindex `/studio` handoff. |
 | `SANITY_API_READ_TOKEN` | Secret | Yes in configured production | Yes | Viewer-only token for private published reads and Draft Mode. Never prefix with `NEXT_PUBLIC_`. |
 | `SANITY_API_WRITE_TOKEN` | Secret | No | Yes | Least-privilege token for guarded contributor/editorial mutations. |
 | `AUTH_SECRET` | Secret | No | Yes | Auth.js JWT/session encryption secret, unique per environment. |
@@ -42,12 +43,31 @@ output. “Runtime” means the deployed Worker must receive the value.
 | `GITHUB_CLIENT_SECRET` | Secret | No | Yes | Optional GitHub OAuth client secret. |
 | `CALI_CENTRAL_ADMIN_EMAILS` | Secret personal data | No | Yes | Comma-separated verified bootstrap identities. Keep out of build logs and source control. |
 | `CALI_CENTRAL_EDITOR_EMAILS` | Secret personal data | No | Yes | Comma-separated verified bootstrap identities. Keep out of build logs and source control. |
+| `TEAM_APPLICATIONS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` opens private team application creation/update; defaults false. |
+| `PUBLIC_PROSPECTIVE_TEAMS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` permits reviewed prospective-team records in public queries; defaults false. |
+| `EXTERNAL_RANKINGS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` permits source-confirmed athlete ranking snapshots; defaults false. |
+| `WCL_FEATURES_ENABLED` | Server feature flag | Yes | Yes | Exact `true` exposes `/wcl` routes; defaults false. |
+| `WCL_ACTIVE_RULESET` | Server configuration | Yes | Yes | `2.0` by default; `3.0-proposed` is explicitly proposed and must never be relabeled official. |
+| `COMMUNITY_FEATURES_ENABLED` | Server feature flag | No | Yes | Exact `true` is necessary but insufficient; a reviewed D1 binding is also required. |
+| `COMMUNITY_MEDIA_UPLOADS_ENABLED` | Server feature flag | No | Yes | Exact `true` is necessary but insufficient; a reviewed media-store binding is also required. |
+| `ORGANIZATION_CLAIMS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` exposes moderated organization-claim intake; approved existing-organization claims still require the explicit admin D1 capability-grant action. |
+| `VIDEO_SUBMISSIONS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` exposes URL-based video intake; review approval remains separate from publication. |
+| `MEDIA_SUBMISSIONS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` exposes photo/media-reference intake; it does not enable binary upload. |
+| `SHOP_FEATURES_ENABLED` | Server feature flag | Yes | Yes | Exact `true` exposes published product discovery; defaults false and never enables checkout. |
+| `PRODUCT_SUBMISSIONS_ENABLED` | Server feature flag | Yes | Yes | Exact `true` permits only server-authorized organization representatives to use product intake. |
 | `NEXTJS_ENV` | Local tool control | No | Local preview only | Optional `.dev.vars` selector that lets OpenNext preview load development environment files. Do not deploy as product configuration. |
 
 `CONFIRM_SANITY_SEED` is a local safety confirmation for the manual seed tool,
 not a deployed application variable. Cloudflare API tokens and account
 identifiers are operator/CI credentials, not application runtime variables.
 They are not committed to `wrangler.jsonc`.
+Environment-isolated `COMMUNITY_DB`, `COMMUNITY_MEDIA`, and distributed
+rate-limit bindings are configured. Bindings are typed runtime resources rather
+than secret string variables; see [`community-database.md`](community-database.md).
+The visible community routes and controls fail closed without that D1 binding;
+they do not use an in-memory persistence fallback. The four distributed
+rate-limit hooks are environment-isolated Cloudflare bindings; production uses
+namespaces `1001`–`1004` and staging uses `2001`–`2004`.
 `NODE_ENV` is framework-owned. `NEXT_TELEMETRY_DISABLED` and
 `SANITY_TELEMETRY_DISABLED` are nonsecret CI/tool noise controls, not product
 configuration.
@@ -55,7 +75,8 @@ configuration.
 ## Missing-value behavior
 
 - With no complete public Sanity connection, public routes use the explicitly
-  labeled fictional fallback and Studio shows configuration guidance.
+  labeled fictional fallback. `/studio` remains a lightweight standalone-Studio
+  handoff and never loads editor runtime code into the application Worker.
 - Development alone may fall back to `http://localhost:3000`. Preview,
   prototype, and production stages fail closed until an explicit public HTTPS
   origin is configured, preventing a deliberately staged deployment from
@@ -102,6 +123,17 @@ Do not solve a build-variable problem by adding `NEXT_PUBLIC_` to a secret.
 OpenNext output can contain statically rendered content, so build only in a
 trusted environment and never print environment dumps.
 
+`npm run cf:build` deliberately rewrites OpenNext's generated
+`.open-next/cloudflare/next-env.mjs` fallbacks to empty objects after the build.
+It then scans regular files in `.open-next` for non-empty sensitive values from
+the local environment and fails without printing the values if any remain. The
+guard also removes the intermediate `.next` directory, which Next may populate
+with build-time environment values and which is not needed to deploy the final
+OpenNext artifact. The build fails closed if a local `next dev` lock is present,
+because that process would immediately recreate the sensitive cache. Deployed
+runtime configuration must therefore come from reviewed Cloudflare vars and
+encrypted secrets, never from a developer's `.env.local` fallback.
+
 CLOUDFLARE DASHBOARD
 
 In Workers Builds, add nonsecret build variables separately from encrypted
@@ -118,6 +150,7 @@ Variables and Secrets**. Add these reviewed values as ordinary variables:
 - `NEXT_PUBLIC_SANITY_PROJECT_ID`
 - `NEXT_PUBLIC_SANITY_DATASET`
 - `NEXT_PUBLIC_SANITY_API_VERSION`
+- `NEXT_PUBLIC_SANITY_STUDIO_URL` after the hosted URL is owner-approved
 - `AUTH_URL`
 - `GOOGLE_CLIENT_ID` when Google is enabled
 - `GITHUB_CLIENT_ID` when GitHub is enabled

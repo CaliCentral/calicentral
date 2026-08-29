@@ -8,11 +8,20 @@ import {
   getFallbackCompetitions,
   getFallbackCompetitionSlugs,
   getFallbackHomepageContent,
+  getFallbackOrganizationPage,
+  getFallbackOrganizations,
+  getFallbackOrganizationSlugs,
+  getFallbackProductPage,
+  getFallbackProducts,
+  getFallbackProductSlugs,
   getFallbackRankingCategories,
   getFallbackSiteSettings,
   getFallbackStories,
   getFallbackStoryPage,
   getFallbackStorySlugs,
+  getFallbackTeamPage,
+  getFallbackTeams,
+  getFallbackTeamSlugs,
   getFallbackVideoPage,
   getFallbackVideosPageData,
   getFallbackVideoSlugs,
@@ -25,11 +34,21 @@ import {
   getSanityCompetitions,
   getSanityCompetitionSlugs,
   getSanityHomepageContent,
+  getSanityOrganizationPage,
+  getSanityOrganizations,
+  getSanityOrganizationSlugs,
+  getSanityProductPage,
+  getSanityProducts,
+  getSanityProductSlugs,
   getSanityRankingCategories,
   getSanitySiteSettings,
   getSanityStories,
   getSanityStoryPage,
   getSanityStorySlugs,
+  getSanityTeamPage,
+  getSanityTeams,
+  getSanityTeamSlugs,
+  getSanityAthleteRankingSnapshots,
   getSanityVideoPage,
   getSanityVideosPageData,
   getSanityVideoSlugs,
@@ -49,6 +68,11 @@ import type { Article } from "@/types/article";
 import type { Athlete } from "@/types/athlete";
 import type { Competition } from "@/types/competition";
 import type { RankingCategory } from "@/types/ranking";
+import type { Team } from "@/types/team";
+import type { AthleteRankingSnapshot } from "@/types/ranking-source";
+import type { Organization } from "@/types/organization";
+import type { Product } from "@/types/product";
+import { featureConfig } from "@/lib/features/config";
 
 export type {
   AthletePageData,
@@ -128,6 +152,96 @@ export async function getRankingCategories(): Promise<
   return isSanityConfigured
     ? getSanityRankingCategories()
     : getFallbackRankingCategories();
+}
+
+function visibleTeams(records: readonly Team[]): readonly Team[] {
+  return records.filter(
+    (team) => team.publicStatus !== "approved-prospective" || featureConfig.publicProspectiveTeams,
+  );
+}
+
+export async function getTeams(
+  options?: ContentFetchOptions,
+): Promise<readonly Team[]> {
+  const records = isSanityConfigured
+    ? await getSanityTeams(options)
+    : await getFallbackTeams();
+  return visibleTeams(records);
+}
+
+export async function getTeamPage(
+  slug: string,
+  options?: ContentFetchOptions,
+): Promise<Team | null> {
+  const record = isSanityConfigured
+    ? await getSanityTeamPage(slug, options)
+    : await getFallbackTeamPage(slug);
+  return record && visibleTeams([record]).length ? record : null;
+}
+
+export async function getTeamSlugs(): Promise<readonly string[]> {
+  const slugs = isSanityConfigured
+    ? await getSanityTeamSlugs()
+    : await getFallbackTeamSlugs();
+  const records = await getTeams({publishedOnly: true, stega: false});
+  const visible = new Set(records.map((team) => team.slug));
+  return slugs.filter((slug) => visible.has(slug));
+}
+
+export async function getAthleteRankingSnapshots(
+  options?: ContentFetchOptions,
+): Promise<readonly AthleteRankingSnapshot[]> {
+  if (!featureConfig.externalRankings || !isSanityConfigured) return [];
+  return getSanityAthleteRankingSnapshots(options);
+}
+
+export async function getOrganizations(
+  options?: ContentFetchOptions,
+): Promise<readonly Organization[]> {
+  return isSanityConfigured
+    ? getSanityOrganizations(options)
+    : getFallbackOrganizations();
+}
+
+export async function getOrganizationPage(
+  slug: string,
+  options?: ContentFetchOptions,
+): Promise<Organization | null> {
+  return isSanityConfigured
+    ? getSanityOrganizationPage(slug, options)
+    : getFallbackOrganizationPage(slug);
+}
+
+export async function getOrganizationSlugs(): Promise<readonly string[]> {
+  return isSanityConfigured
+    ? getSanityOrganizationSlugs()
+    : getFallbackOrganizationSlugs();
+}
+
+export async function getProducts(
+  options?: ContentFetchOptions,
+): Promise<readonly Product[]> {
+  if (!featureConfig.shop) return [];
+  return isSanityConfigured
+    ? getSanityProducts(options)
+    : getFallbackProducts();
+}
+
+export async function getProductPage(
+  slug: string,
+  options?: ContentFetchOptions,
+): Promise<Product | null> {
+  if (!featureConfig.shop) return null;
+  return isSanityConfigured
+    ? getSanityProductPage(slug, options)
+    : getFallbackProductPage(slug);
+}
+
+export async function getProductSlugs(): Promise<readonly string[]> {
+  if (!featureConfig.shop) return [];
+  return isSanityConfigured
+    ? getSanityProductSlugs()
+    : getFallbackProductSlugs();
 }
 
 export async function getCompetitions(

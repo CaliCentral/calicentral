@@ -50,6 +50,7 @@ import type {
   VideoCredit,
   VideoEditorialNote,
   VideoFormat,
+  VideoOrigin,
   VideoOwnershipStatus,
   VideoPlatformMetric,
   VideoSeries,
@@ -85,9 +86,10 @@ const navigation = [
   { label: "Home", href: "/" },
   { label: "Stories", href: "/stories" },
   { label: "Athletes", href: "/athletes" },
+  { label: "Teams", href: "/teams" },
   { label: "Competitions", href: "/competitions" },
+  { label: "Rankings", href: "/rankings" },
   { label: "Videos", href: "/videos" },
-  { label: "Standings", href: "/standings" },
 ] as const;
 
 const footerGroups = [
@@ -98,17 +100,21 @@ const footerGroups = [
   {
     title: "Field",
     links: [
+      { label: "Standings", href: "/standings" },
       { label: "Search", href: "/search" },
-      { label: "Athlete spotlight", href: "/#athlete-spotlight" },
-      { label: "Back to top", href: "#top" },
+      { label: "About", href: "/about" },
     ],
   },
   {
     title: "Trust",
     links: [
+      { label: "Help", href: "/help" },
+      { label: "Community guidelines", href: "/community-guidelines" },
       { label: "Verification", href: "/verification" },
       { label: "Corrections", href: "/corrections" },
       { label: "Editorial standards", href: "/editorial-standards" },
+      { label: "Copyright & takedown", href: "/copyright" },
+      { label: "Affiliate disclosure", href: "/affiliate-disclosure" },
     ],
   },
 ] as const;
@@ -525,6 +531,7 @@ function normalizeStory(value: unknown): Article | null {
     .filter(Boolean);
 
   return {
+    canonicalId: structuralString(story.canonicalId, `sample.story.${slug}`),
     slug,
     title,
     dek: string(story.excerpt, string(story.dek)),
@@ -560,7 +567,7 @@ function normalizeStoryPreview(value: unknown): StoryPreview | null {
   }
 
   return {
-    id: story.slug,
+    id: story.canonicalId,
     href: `/stories/${story.slug}`,
     category: story.category,
     title: story.title,
@@ -808,6 +815,10 @@ function normalizeAthlete(value: unknown): Athlete | null {
     .filter(Boolean);
 
   return {
+    canonicalId: structuralString(
+      athlete.canonicalId,
+      `sample.athlete.${slug}`,
+    ),
     slug,
     name,
     initials: string(
@@ -888,9 +899,12 @@ export function normalizeAthletes(value: unknown): Athlete[] {
 
 const competitionDisciplines = [
   "freestyle",
+  "streetlifting",
+  "weighted-calisthenics",
   "static-strength",
   "dynamic",
   "endurance",
+  "skills",
   "team",
   "mixed",
 ] as const satisfies readonly CompetitionDiscipline[];
@@ -1156,6 +1170,10 @@ function normalizeCompetition(value: unknown): Competition | null {
   });
 
   return {
+    canonicalId: structuralString(
+      competition.canonicalId,
+      `sample.competition.${slug}`,
+    ),
     slug,
     name,
     shortName: string(competition.shortName, name),
@@ -1312,6 +1330,12 @@ const videoOwnershipStatuses = [
   "source-unavailable",
 ] as const satisfies readonly VideoOwnershipStatus[];
 
+const videoOrigins = [
+  "cali-central-original",
+  "community-submission",
+  "external-source",
+] as const satisfies readonly VideoOrigin[];
+
 const videoMetricLabels = [
   "Views",
   "Plays",
@@ -1416,16 +1440,25 @@ function normalizeVideo(value: unknown): MediaFeature | null {
     return [normalized];
   });
   const sourcePlatform = normalizeVideoPlatform(video.sourcePlatform);
+  const ownershipStatus = oneOf<VideoOwnershipStatus>(
+    video.ownershipStatus,
+    videoOwnershipStatuses,
+    "source-unavailable",
+  );
+  const origin = oneOf<VideoOrigin>(
+    video.origin,
+    videoOrigins,
+    ownershipStatus === "cali-central-original" ||
+      sourcePlatform === "Cali Central"
+      ? "cali-central-original"
+      : "external-source",
+  );
   const source: VideoSourceAttribution | undefined = sourcePlatform
     ? {
         platform: sourcePlatform,
         account: optionalStructuralString(video.sourceAccount),
         originalPostUrl: safeHttpUrl(video.originalPostUrl),
-        ownershipStatus: oneOf<VideoOwnershipStatus>(
-          video.ownershipStatus,
-          videoOwnershipStatuses,
-          "source-unavailable",
-        ),
+        ownershipStatus,
       }
     : undefined;
   const platformMetrics = array(video.platformMetrics).flatMap((item) => {
@@ -1458,6 +1491,7 @@ function normalizeVideo(value: unknown): MediaFeature | null {
   });
 
   return {
+    canonicalId: structuralString(video.canonicalId, `sample.video.${slug}`),
     slug,
     title,
     shortTitle: string(video.shortTitle, title),
@@ -1479,6 +1513,7 @@ function normalizeVideo(value: unknown): MediaFeature | null {
       videoStatuses,
       "published-prototype",
     ),
+    origin,
     duration: formatTime(durationSeconds),
     durationSeconds,
     publishedDate,

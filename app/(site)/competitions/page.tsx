@@ -7,6 +7,8 @@ import { Container } from "@/components/ui/container";
 import { getCompetitions } from "@/lib/content";
 import { createPublicMetadata } from "@/lib/site/metadata";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   ...createPublicMetadata({
     path: "/competitions",

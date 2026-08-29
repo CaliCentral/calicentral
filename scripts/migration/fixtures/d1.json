@@ -1,0 +1,55 @@
+{
+  "member_profiles": [
+    {
+      "id": "fixture-member-a",
+      "principal_id": "fixture-principal-a",
+      "handle": "fixture-member-a",
+      "display_name": "Fixture Member A",
+      "biography": "",
+      "interests_json": "[]",
+      "disciplines_json": "[]",
+      "public_roles_json": "[]",
+      "profile_public": 1,
+      "show_location": 0,
+      "show_social_accounts": 0,
+      "show_media": 0,
+      "discoverable": 1,
+      "status": "active",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "fixture-post-a",
+      "author_member_id": "fixture-member-a",
+      "body": "Synthetic migration fixture",
+      "post_type": "general",
+      "visibility": "public",
+      "status": "published",
+      "canonical_target_type": null,
+      "canonical_target_id": null,
+      "repost_of_post_id": null,
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
+    }
+  ],
+  "training_sessions": [
+    {
+      "id": "fixture-session-a",
+      "owner_member_id": "fixture-member-a",
+      "session_date": "2026-01-01",
+      "title": "Fixture session",
+      "notes": "",
+      "bodyweight_kg": null,
+      "duration_seconds": 1800,
+      "visibility": "private",
+      "status": "active",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "deleted_at": null
+    }
+  ]
+}

@@ -9,6 +9,11 @@ Registered Sanity models:
 - Athlete
 - Competition standing (`rankingCategory` is retained as the dataset type name)
 - Competition
+- Team and historical team season roster
+- Organization and ruleset metadata
+- Ranking provider, athlete ranking system, and dated ranking snapshot
+- Private external athlete and competition identity mappings
+- Structured sporting result
 - Submission
 - Contributor profile
 - Audit event
@@ -22,6 +27,10 @@ Structured objects within those documents cover athlete statistics and
 achievements, competition schedules/divisions/participants/results, standing
 entries and verified result sources, competition action links, supporting
 links, editorial notes, Portable Text, accessibility, and SEO fields.
+They also cover reusable sporting provenance, typed measurements and result
+performances, public team branding/social links, consented historical roster
+relationships, WCL equipment determinations, and private team-application
+roster intake.
 
 Public standings are limited to competition scope. Publication requires an
 approved methodology, a season label, and verified public result provenance

@@ -50,6 +50,7 @@ export const videoSeries = [
 
 export const videos = [
   {
+    canonicalId: "sample.video.finding-control-through-the-handstand-line",
     slug: "finding-control-through-the-handstand-line",
     title: "Finding Control Through the Handstand Line",
     shortTitle: "The Handstand Line",
@@ -59,6 +60,11 @@ export const videos = [
     category: "Technique",
     format: "Visual Study",
     status: "archive-sample",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "08:42",
     durationSeconds: 522,
     publishedDate: "2026-07-29",
@@ -146,6 +152,7 @@ export const videos = [
     availabilityLabel: "Archive sample / No playback",
   },
   {
+    canonicalId: "sample.video.after-the-last-round",
     slug: "after-the-last-round",
     title: "After the Last Round",
     shortTitle: "After the Last Round",
@@ -155,6 +162,11 @@ export const videos = [
     category: "Competition",
     format: "Short Documentary",
     status: "preview",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "12:18",
     durationSeconds: 738,
     publishedDate: "2026-07-22",
@@ -250,6 +262,7 @@ export const videos = [
     availabilityLabel: "Preview only / No playback",
   },
   {
+    canonicalId: "sample.video.one-evening-at-harbor-park",
     slug: "one-evening-at-harbor-park",
     title: "One Evening at Harbor Park",
     shortTitle: "Harbor Park",
@@ -259,6 +272,11 @@ export const videos = [
     category: "Culture",
     format: "Field Report",
     status: "archive-sample",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "06:35",
     durationSeconds: 395,
     publishedDate: "2026-07-15",
@@ -345,6 +363,7 @@ export const videos = [
     availabilityLabel: "Archive sample / No playback",
   },
   {
+    canonicalId: "sample.video.building-the-first-clean-transition",
     slug: "building-the-first-clean-transition",
     title: "Building the First Clean Transition",
     shortTitle: "The First Clean Transition",
@@ -354,6 +373,11 @@ export const videos = [
     category: "Training",
     format: "Technique Breakdown",
     status: "published-prototype",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "09:14",
     durationSeconds: 554,
     publishedDate: "2026-07-08",
@@ -444,6 +468,7 @@ export const videos = [
     availabilityLabel: "Published prototype / No playback",
   },
   {
+    canonicalId: "sample.video.inside-the-pacific-motion-open",
     slug: "inside-the-pacific-motion-open",
     title: "Inside the Pacific Motion Open",
     shortTitle: "Inside Pacific Motion",
@@ -453,6 +478,11 @@ export const videos = [
     category: "Competition",
     format: "Event Preview",
     status: "preview",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "11:06",
     durationSeconds: 666,
     publishedDate: "2026-07-01",
@@ -548,6 +578,7 @@ export const videos = [
     availabilityLabel: "Preview only / No playback",
   },
   {
+    canonicalId: "sample.video.maya-calder-between-hold-and-flight",
     slug: "maya-calder-between-hold-and-flight",
     title: "Maya Calder: Between Hold and Flight",
     shortTitle: "Between Hold and Flight",
@@ -557,6 +588,11 @@ export const videos = [
     category: "Athlete Profile",
     format: "Interview/Profile Study",
     status: "archive-sample",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "10:28",
     durationSeconds: 628,
     publishedDate: "2026-06-24",
@@ -655,6 +691,7 @@ export const videos = [
     availabilityLabel: "Archive sample / No playback",
   },
   {
+    canonicalId: "sample.video.the-crew-builds-the-session",
     slug: "the-crew-builds-the-session",
     title: "The Crew Builds the Session",
     shortTitle: "The Crew Builds",
@@ -664,6 +701,11 @@ export const videos = [
     category: "Culture",
     format: "Short Documentary",
     status: "published-prototype",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "07:50",
     durationSeconds: 470,
     publishedDate: "2026-06-17",
@@ -764,6 +806,7 @@ export const videos = [
     availabilityLabel: "Published prototype / No playback",
   },
   {
+    canonicalId: "sample.video.reading-a-freestyle-round",
     slug: "reading-a-freestyle-round",
     title: "Reading a Freestyle Round",
     shortTitle: "Reading a Round",
@@ -773,6 +816,11 @@ export const videos = [
     category: "Competition",
     format: "Editorial Breakdown",
     status: "preview",
+    origin: "cali-central-original",
+    source: {
+      platform: "Cali Central",
+      ownershipStatus: "cali-central-original",
+    },
     duration: "13:02",
     durationSeconds: 782,
     publishedDate: "2026-06-10",

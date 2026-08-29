@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cali-central-community-example",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-31",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "vars": {
+    "COMMUNITY_FEATURES_ENABLED": "false",
+    "COMMUNITY_MEDIA_UPLOADS_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "COMMUNITY_DB",
+      "database_name": "replace-with-reviewed-database-name",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "COMMUNITY_MEDIA",
+      "bucket_name": "replace-with-reviewed-production-bucket",
+      "preview_bucket_name": "replace-with-reviewed-preview-bucket"
+    }
+  ],
+  "ratelimits": [
+    { "name": "COMMUNITY_RATE_LIMIT_STRICT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_WRITE", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_INTERACTION", "namespace_id": "1003", "simple": { "limit": 60, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_UPLOAD", "namespace_id": "1004", "simple": { "limit": 5, "period": 60 } }
+  ]
+}

@@ -7,7 +7,7 @@ Those are deliberate external setup steps.
 
 ## Runtime and packages
 
-Use Node.js 22.12.0 or newer and npm. The locked Sanity 5 toolchain requires
+Use Node.js 22.12.0 or newer and npm. The locked Sanity toolchain requires
 that Node version even though Next.js itself supports older releases.
 
 Install the repository exactly as locked:
@@ -20,9 +20,9 @@ npm ci
 
 The CMS integration uses:
 
-- `sanity` for schemas and the embedded Studio
+- `sanity` for schemas and the separately built Studio
 - `next-sanity` for typed queries, Live Content, Draft Mode, and Visual Editing
-- `@sanity/vision` for the development-only Studio query tool
+- `@sanity/vision` for the authenticated standalone Studio query tool
 - `@sanity/image-url` for crop- and hotspot-aware image URLs
 - `@portabletext/react` for safe structured story rendering
 
@@ -64,8 +64,8 @@ only to the document mutations that environment needs.
 The public application behaves in two explicit modes:
 
 - Without a valid project ID and dataset, it uses the centralized fictional
-  records under `data/`. `/studio` displays setup guidance and no Sanity client
-  makes a content request.
+  records under `data/`. `/studio` displays the standalone-Studio handoff and no
+  Sanity client makes a content request.
 - With valid configuration, Sanity is authoritative. Query failures are
   surfaced, and an empty dataset produces public empty states. The application
   never silently substitutes local records for an empty or failing configured
@@ -100,10 +100,27 @@ query and review both files with the source change.
 
 ## Studio
 
-Start the Next.js application and open
-[http://localhost:3000/studio](http://localhost:3000/studio). The Studio is
-embedded in its own App Router group, carries `noindex`, and is not wrapped in
-the public header, footer, Live Content bridge, or Visual Editing overlay.
+The Studio is a separate static application built from the same
+`sanity.config.ts`, `sanity/structure.ts`, Presentation configuration, and
+schema tree used by type generation. Start or build it locally with:
+
+VS CODE TERMINAL
+
+```bash
+npm run studio:dev
+npm run studio:build
+```
+
+The build is written to ignored `.sanity/dist`. It targets the configured
+project (currently `h6xagk9x`) and `production` dataset; no token is embedded.
+Structure, Presentation, and Vision remain available after authenticated Sanity
+sign-in. Do not run `sanity deploy` until the owner approves the hosted Studio
+hostname. After deployment, provide its reviewed HTTPS URL as
+`NEXT_PUBLIC_SANITY_STUDIO_URL` to make editor-only application links external.
+
+The application `/studio` route is intentionally only a noindex handoff page.
+It does not import `sanity`, `@sanity/vision`, Studio UI, or schema runtime into
+the Cloudflare Worker.
 
 The desk is grouped into:
 
@@ -136,15 +153,15 @@ cookie and redirects to the fixed same-site `/` route.
 The read token is supplied only to server-side preview requests. It is never
 configured as a `browserToken`, serialized into props, or included in public
 JavaScript. Give it Viewer/read-only permissions—never Editor or write
-permissions. Visual Editing mounts only in Draft Mode and does not wrap
-`/studio`.
+permissions. Visual Editing mounts only in Draft Mode and does not wrap the
+standalone Studio or the `/studio` handoff.
 
-Live refresh and Visual Editing mount only in authenticated Draft Mode. Draft
-cookies bypass the public static cache, and draft documents are fetched through
-authenticated Server Components without a browser token. Published HTML,
-metadata, and sitemap use a rebuild-on-publish release model because the
-Workers static-assets cache does not provide tag revalidation. A CMS publish
-does not replace that reviewed rebuild/deploy.
+The supported `SanityLive` listener mounts for published page queries as well as
+preview requests. Visual Editing still mounts only in authenticated Draft Mode,
+and draft documents are fetched through authenticated Server Components
+without a browser token. Verify published-page refresh, metadata, and sitemap
+behavior in the target Worker runtime; metadata/sitemap updates may still
+require a reviewed rebuild/deploy.
 
 Presentation resolves the homepage and story, athlete, competition, video, and
 standing routes. External hosts must use the configured site URL and matching
@@ -226,14 +243,14 @@ Before production:
 - regenerate schema/query types
 - validate Draft Mode and Presentation on the deployed origin
 - confirm operational documents cannot be edited/published directly in Studio
-- approve the rebuild-on-publish release policy
-- validate Cloudflare workerd support for Draft Mode and embedded Studio
+- verify published-page live refresh and approve the metadata/sitemap release policy
+- validate Cloudflare workerd support for Draft Mode and the standalone Studio handoff
 
 SANITY MANAGE DASHBOARD
 
 For local authenticated preview, add `http://localhost:3000` with credentials.
 For production, add only the exact `https://YOUR_DOMAIN` frontend origin with
-credentials where Presentation/embedded Studio requires it. Add a stable
+credentials where Presentation/standalone Studio requires it. Add a stable
 staging origin separately. Never combine credentials with a wildcard or add
 every possible `workers.dev` origin. Remove obsolete preview origins.
 

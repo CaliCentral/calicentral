@@ -28,6 +28,11 @@ import {
 } from "@/data/homepage";
 import { rankingCategories } from "@/data/rankings";
 import {
+  getOrganizationBySlug,
+  organizations,
+} from "@/data/organizations";
+import { getProductBySlug, products } from "@/data/products";
+import {
   getFeaturedVideo,
   getHomepageVideos,
   getRelatedVideos,
@@ -51,6 +56,10 @@ import type { Athlete } from "@/types/athlete";
 import type { Competition } from "@/types/competition";
 import type { RankingCategory } from "@/types/ranking";
 import type { StoryPreview } from "@/types/content";
+import { teams } from "@/data/teams";
+import type { Team } from "@/types/team";
+import type { Organization } from "@/types/organization";
+import type { Product } from "@/types/product";
 
 // This is the sole temporary boundary around the local prototype records.
 // Public routes select it only when Sanity project configuration is absent.
@@ -188,6 +197,48 @@ export async function getFallbackRankingCategories(): Promise<
   readonly RankingCategory[]
 > {
   return rankingCategories;
+}
+
+export async function getFallbackTeams(): Promise<readonly Team[]> {
+  return teams;
+}
+
+export async function getFallbackTeamSlugs(): Promise<readonly string[]> {
+  return teams.map((team) => team.slug);
+}
+
+export async function getFallbackTeamPage(slug: string): Promise<Team | null> {
+  return teams.find((team) => team.slug === slug) ?? null;
+}
+
+export async function getFallbackOrganizations(): Promise<
+  readonly Organization[]
+> {
+  return organizations;
+}
+
+export async function getFallbackOrganizationSlugs(): Promise<readonly string[]> {
+  return organizations.map((organization) => organization.slug);
+}
+
+export async function getFallbackOrganizationPage(
+  slug: string,
+): Promise<Organization | null> {
+  return getOrganizationBySlug(slug) ?? null;
+}
+
+export async function getFallbackProducts(): Promise<readonly Product[]> {
+  return products;
+}
+
+export async function getFallbackProductSlugs(): Promise<readonly string[]> {
+  return products.map((product) => product.slug);
+}
+
+export async function getFallbackProductPage(
+  slug: string,
+): Promise<Product | null> {
+  return getProductBySlug(slug) ?? null;
 }
 
 export async function getFallbackCompetitions(): Promise<

@@ -7,6 +7,9 @@
     "nodejs_compat",
     "global_fetch_strictly_public"
   ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "minify": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -20,9 +23,66 @@
       "head_sampling_rate": 1
     }
   },
+  "vars": {
+    "COMMUNITY_FEATURES_ENABLED": "false",
+    "COMMUNITY_MEDIA_UPLOADS_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "COMMUNITY_DB",
+      "database_name": "cali-central-community",
+      "database_id": "95716af8-50dd-490e-a2ce-db8764a96b32",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "COMMUNITY_MEDIA",
+      "bucket_name": "cali-central-community-media"
+    }
+  ],
+  "ratelimits": [
+    { "name": "COMMUNITY_RATE_LIMIT_STRICT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_WRITE", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_INTERACTION", "namespace_id": "1003", "simple": { "limit": 60, "period": 60 } },
+    { "name": "COMMUNITY_RATE_LIMIT_UPLOAD", "namespace_id": "1004", "simple": { "limit": 5, "period": 60 } }
+  ],
   "env": {
     "staging": {
-      "name": "cali-central-staging"
+      "name": "cali-central-staging",
+      "workers_dev": true,
+      "preview_urls": true,
+      "vars": {
+        "COMMUNITY_FEATURES_ENABLED": "true",
+        "COMMUNITY_MEDIA_UPLOADS_ENABLED": "true",
+        "NEXT_PUBLIC_SITE_URL": "https://cali-central-staging.calicentral.workers.dev",
+        "NEXT_PUBLIC_SANITY_PROJECT_ID": "h6xagk9x",
+        "NEXT_PUBLIC_SANITY_DATASET": "production",
+        "NEXT_PUBLIC_SANITY_API_VERSION": "2026-07-01",
+        "AUTH_URL": "https://cali-central-staging.calicentral.workers.dev",
+        "SITE_STAGE": "preview",
+        "SITE_INDEXING_ENABLED": "false"
+      },
+      "d1_databases": [
+        {
+          "binding": "COMMUNITY_DB",
+          "database_name": "cali-central-community-preview",
+          "database_id": "417ed372-717c-493e-a69e-edb817af1db4",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "COMMUNITY_MEDIA",
+          "bucket_name": "cali-central-community-media-preview"
+        }
+      ],
+      "ratelimits": [
+        { "name": "COMMUNITY_RATE_LIMIT_STRICT", "namespace_id": "2001", "simple": { "limit": 5, "period": 60 } },
+        { "name": "COMMUNITY_RATE_LIMIT_WRITE", "namespace_id": "2002", "simple": { "limit": 30, "period": 60 } },
+        { "name": "COMMUNITY_RATE_LIMIT_INTERACTION", "namespace_id": "2003", "simple": { "limit": 60, "period": 60 } },
+        { "name": "COMMUNITY_RATE_LIMIT_UPLOAD", "namespace_id": "2004", "simple": { "limit": 5, "period": 60 } }
+      ]
     }
   }
 }

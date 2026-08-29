@@ -2,8 +2,12 @@ export const PUBLIC_SEARCH_FILTERS = [
   "all",
   "stories",
   "athletes",
+  "teams",
   "competitions",
   "videos",
+  "members",
+  "organizations",
+  "products",
 ] as const;
 
 export type PublicSearchFilter = (typeof PUBLIC_SEARCH_FILTERS)[number];

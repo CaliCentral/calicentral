@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "official-streetlifting",
+  "collectionMethod": "manual-editorial",
+  "provider": {
+    "canonicalId": "rankingProvider.official-streetlifting",
+    "slug": "official-streetlifting",
+    "name": "Official Streetlifting",
+    "website": "https://rankings.officialstreetlifting.com/",
+    "integrationMethod": "manual",
+    "status": "under-review"
+  },
+  "sourceRights": {
+    "reviewStatus": "review-pending",
+    "automatedCollectionAllowed": false,
+    "notes": "Manually transcribed from the provider's public ranking table. No API, licensed feed, reuse approval, or crawling permission has been established."
+  },
+  "rankingSystem": {
+    "canonicalId": "rankingSystem.official-streetlifting-male-all4-world-minus-101kg",
+    "slug": "official-streetlifting-male-all4-world-minus-101kg",
+    "name": "Official Streetlifting — Male All4 -101kg World",
+    "rankingKind": "ordinal-position",
+    "discipline": "Streetlifting",
+    "category": "All4",
+    "sexDivision": "Male",
+    "weightClass": "-101kg",
+    "geographicScope": "World",
+    "status": "draft"
+  },
+  "snapshot": {
+    "rankingDate": "2026-08-11",
+    "checkedAt": "2026-08-11T22:24:39Z",
+    "coverage": "selected-rows",
+    "selection": "Positions 1 through 8 and position 17 (Abu Asada)",
+    "sourceTitle": "Official Streetlifting — All4 Male -101kg Weight Class",
+    "sourceType": "organization-ranking-page",
+    "sourceUrl": "https://rankings.officialstreetlifting.com/records/male/classes/-101kg",
+    "verificationStatus": "source-confirmed",
+    "entries": [
+      {
+        "providerAthleteId": "xavier-macias",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/xavier-macias",
+        "providerDisplayName": "Xavier Macias",
+        "countryCode": "ITA",
+        "country": "Italy",
+        "position": 1,
+        "performance": {"metric": "All4 total", "value": 625.25, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "mathew-zlat",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/mathew-zlat",
+        "providerDisplayName": "Mathew Zlat",
+        "countryCode": "RUS",
+        "country": "Russia",
+        "position": 2,
+        "performance": {"metric": "All4 total", "value": 587.5, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "bikai-christian-kevin",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/bikai-christian-kevin",
+        "providerDisplayName": "Bikai Christian Kevin",
+        "countryCode": "CMR",
+        "country": "Cameroon",
+        "position": 3,
+        "performance": {"metric": "All4 total", "value": 547.5, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "valerio-naldi",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/valerio-naldi",
+        "providerDisplayName": "Valerio Naldi",
+        "countryCode": "ITA",
+        "country": "Italy",
+        "position": 4,
+        "performance": {"metric": "All4 total", "value": 526.25, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "miguel-tirado",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/miguel-tirado",
+        "providerDisplayName": "Miguel Tirado",
+        "countryCode": "ESP",
+        "country": "Spain",
+        "position": 5,
+        "performance": {"metric": "All4 total", "value": 525, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "albin-gordan",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/albin-gordan",
+        "providerDisplayName": "Albin Gordan",
+        "countryCode": "SWE",
+        "country": "Sweden",
+        "position": 6,
+        "performance": {"metric": "All4 total", "value": 522.5, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "jermaine-straker",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/jermaine-straker",
+        "providerDisplayName": "Jermaine Straker",
+        "countryCode": "GBR",
+        "country": "United Kingdom",
+        "position": 7,
+        "performance": {"metric": "All4 total", "value": 520, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "christian-kevin-bikai",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/christian-kevin-bikai",
+        "providerDisplayName": "Christian Kevin Bikai",
+        "countryCode": "FRA",
+        "country": "France",
+        "position": 8,
+        "performance": {"metric": "All4 total", "value": 518.75, "unit": "kg"}
+      },
+      {
+        "providerAthleteId": "abu-asada",
+        "providerAthleteUrl": "https://rankings.officialstreetlifting.com/athletes/abu-asada",
+        "providerDisplayName": "Abu Asada",
+        "countryCode": "USA",
+        "country": "United States",
+        "position": 17,
+        "performance": {"metric": "All4 total", "value": 500, "unit": "kg"},
+        "canonicalAthleteId": "athlete.abu-asada"
+      }
+    ]
+  }
+}

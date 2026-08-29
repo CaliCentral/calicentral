@@ -2,6 +2,7 @@ export const ACCOUNT_CAPABILITIES = [
   "member",
   "athlete",
   "organizer",
+  "team",
   "contributor",
 ] as const;
 
@@ -21,9 +22,9 @@ export const JOIN_INTENTS = [
     label: "I'm here to follow the sport",
     title: "Member",
     description:
-      "Create one account for future saved stories, followed athletes, competition alerts, and update preferences.",
+      "Create one account to follow the field, save public records, organize private collections, and manage update preferences.",
     nextStep:
-      "Complete your private account profile. Following, saving, and email delivery are not active in this prototype.",
+      "Complete your private account profile. Follow and save tools appear when Community is enabled; email delivery is not active.",
   },
   {
     capability: "athlete",
@@ -42,6 +43,15 @@ export const JOIN_INTENTS = [
       "Propose competition information, schedules, official links, results, or corrections for review.",
     nextStep:
       "Complete your account profile, then submit competition information for editorial review.",
+  },
+  {
+    capability: "team",
+    label: "I manage a team",
+    title: "Team manager",
+    description:
+      "Prepare a private application for a crew, club, competitive team, or prospective WCL team.",
+    nextStep:
+      "Complete your account profile, then use the team workspace when applications are open. Approval does not publish a team or grant league admission.",
   },
   {
     capability: "contributor",

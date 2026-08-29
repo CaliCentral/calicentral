@@ -3,11 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import {
-  getBootstrapRole,
-  getCurrentUser,
-  isBootstrapAdmin,
-} from "@/lib/auth";
+import { getBootstrapRole, getCurrentUser, isBootstrapAdmin } from "@/lib/auth";
 import type { ActionResult } from "@/lib/operations/action-result";
 import { getBootstrapAdminEmails } from "@/lib/operations/bootstrap";
 import {
@@ -21,10 +17,7 @@ import {
   updateContributorProfileRecord,
   updateContributorRoleRecord,
 } from "@/lib/operations/contributors";
-import {
-  isOperationalError,
-  OperationalError,
-} from "@/lib/operations/errors";
+import { isOperationalError, OperationalError } from "@/lib/operations/errors";
 import {
   assertCanAdministerContributors,
   assertCanEditSubmission,
@@ -46,6 +39,7 @@ import {
   assignSubmissionReviewerRecord,
   createSubmissionRecord,
   getSubmissionForContributor,
+  getSubmissionForReview,
   getSubmissionMutationTarget,
   transitionSubmissionRecord,
   updateSubmissionPriorityRecord,
@@ -79,6 +73,15 @@ import {
   visibleFeedbackSchema,
 } from "@/lib/operations/validation";
 import { safeLog } from "@/lib/observability/logger";
+import { featureConfig } from "@/lib/features/config";
+import { getCommunityApplicationRepository, getCommunityRuntime } from "@/lib/community/runtime";
+import { enforceCommunityRateLimit } from "@/lib/community/rate-limit";
+import { ORGANIZATION_CAPABILITIES } from "@/lib/community/types";
+import { getAthletePage } from "@/lib/content";
+import type {
+  SubmissionDraftInput,
+  SubmissionForReviewInput,
+} from "@/lib/operations/validation";
 
 type MinimumRole = "contributor" | "editor" | "admin";
 
@@ -102,9 +105,7 @@ function booleanField(formData: FormData, name: string): boolean {
 function listField(formData: FormData, name: string): string[] {
   const values = formData
     .getAll(name)
-    .flatMap((value) =>
-      typeof value === "string" ? value.split(/\r?\n/) : [],
-    )
+    .flatMap((value) => (typeof value === "string" ? value.split(/\r?\n/) : []))
     .map((value) => value.trim())
     .filter(Boolean);
 
@@ -139,6 +140,70 @@ function athleteCompetitionHistoryField(formData: FormData) {
 
     return Object.values(entry).some(Boolean) ? entry : null;
   }).filter((entry) => entry !== null);
+}
+
+function teamApplicationRosterField(formData: FormData) {
+  return Array.from({ length: 8 }, (_, index) => {
+    const entry = {
+      name: textField(formData, `teamRosterName${index}`),
+      privateEmail: textField(formData, `teamRosterEmail${index}`),
+      privatePhone: textField(formData, `teamRosterPhone${index}`),
+      existingProfileSlug: textField(formData, `teamRosterProfileSlug${index}`),
+      relationshipToTeam: textField(formData, `teamRosterRelationship${index}`),
+      role: textField(formData, `teamRosterRole${index}`),
+      rosterStatus: textField(formData, `teamRosterStatus${index}`),
+      specialty: textField(formData, `teamRosterSpecialty${index}`),
+      consentStatus: textField(formData, `teamRosterConsent${index}`),
+    };
+    const populated = [
+      entry.name,
+      entry.privateEmail,
+      entry.privatePhone,
+      entry.existingProfileSlug,
+      entry.relationshipToTeam,
+      entry.specialty,
+    ].some(Boolean);
+    return populated ? entry : null;
+  }).filter((entry) => entry !== null);
+}
+
+function assertSubmissionFeatureEnabled(submissionType: string): void {
+  if (submissionType === "teamApplication" && !featureConfig.teamApplications) {
+    throw new OperationalError(
+      "access_denied",
+      "Team applications are not currently accepting changes.",
+    );
+  }
+  if (
+    submissionType === "organizationClaim" &&
+    !featureConfig.organizationClaims
+  ) {
+    throw new OperationalError(
+      "access_denied",
+      "Organization claims are not currently accepting changes.",
+    );
+  }
+  if (submissionType === "videoSubmission" && !featureConfig.videoSubmissions) {
+    throw new OperationalError(
+      "access_denied",
+      "Video submissions are not currently accepting changes.",
+    );
+  }
+  if (submissionType === "mediaPitch" && !featureConfig.mediaSubmissions) {
+    throw new OperationalError(
+      "access_denied",
+      "Photo and media submissions are not currently accepting changes.",
+    );
+  }
+  if (
+    submissionType === "productSubmission" &&
+    !featureConfig.productSubmissions
+  ) {
+    throw new OperationalError(
+      "access_denied",
+      "Product submissions are not currently accepting changes.",
+    );
+  }
 }
 
 function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
@@ -193,10 +258,7 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
           discipline: optionalTextField(formData, "discipline"),
           nominationReason: optionalTextField(formData, "nominationReason"),
           publicReferenceLinks: linkField(formData, "publicReferenceLinks"),
-          relationshipToAthlete: textField(
-            formData,
-            "relationshipToAthlete",
-          ),
+          relationshipToAthlete: textField(formData, "relationshipToAthlete"),
           permissionStatus: textField(formData, "permissionStatus"),
         },
       };
@@ -210,12 +272,114 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
           proposedDate: textField(formData, "proposedDate"),
           format: optionalTextField(formData, "format"),
           divisions: listField(formData, "divisions"),
-          organizerRelationship: textField(
-            formData,
-            "organizerRelationship",
-          ),
+          organizerRelationship: textField(formData, "organizerRelationship"),
           publicReferenceLinks: linkField(formData, "publicReferenceLinks"),
           scheduleStatus: textField(formData, "scheduleStatus"),
+        },
+      };
+    case "teamApplication":
+      return {
+        ...common,
+        submissionType: "teamApplication",
+        teamApplicationDetails: {
+          proposedTeamName: optionalTextField(formData, "proposedTeamName"),
+          shortName: optionalTextField(formData, "teamShortName"),
+          code: optionalTextField(formData, "teamCode"),
+          teamType: optionalTextField(formData, "teamType"),
+          representedIdentity: optionalTextField(
+            formData,
+            "representedIdentity",
+          ),
+          country: optionalTextField(formData, "teamCountry"),
+          administrativeArea: textField(formData, "teamAdministrativeArea"),
+          city: textField(formData, "teamCity"),
+          trainingBase: textField(formData, "teamTrainingBase"),
+          foundingYear: textField(formData, "teamFoundingYear"),
+          description: optionalTextField(formData, "teamDescription"),
+          disciplines: listField(formData, "teamDisciplines"),
+          competitionIntentions: optionalTextField(
+            formData,
+            "competitionIntentions",
+          ),
+          website: textField(formData, "teamWebsite"),
+          socialLinks: linkField(formData, "teamSocialLinks"),
+          primaryColor: optionalTextField(formData, "teamPrimaryColor"),
+          secondaryColor: optionalTextField(formData, "teamSecondaryColor"),
+          accentColor: textField(formData, "teamAccentColor"),
+          crestReferenceUrl: textField(formData, "crestReferenceUrl"),
+          wordmarkReferenceUrl: textField(formData, "wordmarkReferenceUrl"),
+          brandingPermissionAcknowledged: booleanField(
+            formData,
+            "brandingPermissionAcknowledged",
+          ),
+          proposedUniformDesign: textField(formData, "proposedUniformDesign"),
+          proposedRoster: teamApplicationRosterField(formData),
+        },
+      };
+    case "organizationClaim":
+      return {
+        ...common,
+        submissionType: "organizationClaim",
+        organizationClaimDetails: {
+          requestKind: textField(formData, "organizationRequestKind"),
+          existingOrganizationId: textField(formData, "existingOrganizationId"),
+          organizationName: optionalTextField(formData, "organizationName"),
+          organizationType: optionalTextField(formData, "organizationType"),
+          country: optionalTextField(formData, "organizationCountry"),
+          website: textField(formData, "organizationWebsite"),
+          relationshipToOrganization: optionalTextField(
+            formData,
+            "relationshipToOrganization",
+          ),
+          requestedCapabilities: listField(formData, "requestedCapabilities"),
+          evidenceLinks: linkField(formData, "organizationEvidenceLinks"),
+        },
+      };
+    case "videoSubmission":
+      return {
+        ...common,
+        submissionType: "videoSubmission",
+        videoSubmissionDetails: {
+          submittingIdentityId: textField(formData, "submittingIdentityId"),
+          submittingIdentityType: textField(formData, "submittingIdentityId")
+            ? "organization"
+            : "member",
+          videoTitle: optionalTextField(formData, "videoTitle"),
+          description: optionalTextField(formData, "videoDescription"),
+          category: optionalTextField(formData, "videoCategory"),
+          discipline: textField(formData, "videoDiscipline"),
+          sourceHost: optionalTextField(formData, "videoSourceHost"),
+          originalPublicUrl: optionalTextField(
+            formData,
+            "videoOriginalPublicUrl",
+          ),
+          submitterRelationship: optionalTextField(
+            formData,
+            "videoSubmitterRelationship",
+          ),
+          creatorName: optionalTextField(formData, "videoCreatorName"),
+          creatorProfileUrl: textField(formData, "videoCreatorProfileUrl"),
+          featuredAthletes: listField(formData, "videoFeaturedAthletes"),
+          featuredTeams: listField(formData, "videoFeaturedTeams"),
+          organizationId: textField(formData, "videoOrganizationId"),
+          competition: textField(formData, "videoCompetition"),
+          eventDate: textField(formData, "videoEventDate"),
+          location: textField(formData, "videoLocation"),
+          thumbnailReferenceUrl: textField(
+            formData,
+            "videoThumbnailReferenceUrl",
+          ),
+          rightsDeclaration: optionalTextField(
+            formData,
+            "videoRightsDeclaration",
+          ),
+          ownershipSourceDeclaration: optionalTextField(
+            formData,
+            "videoOwnershipSourceDeclaration",
+          ),
+          sourceAccount: textField(formData, "videoSourceAccount"),
+          editorialNote: textField(formData, "videoEditorialNote"),
+          contentWarnings: listField(formData, "videoContentWarnings"),
         },
       };
     case "mediaPitch":
@@ -223,6 +387,11 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
         ...common,
         submissionType: "mediaPitch",
         mediaPitchDetails: {
+          mediaKind: textField(formData, "mediaKind") || "photo",
+          submittingIdentityId: textField(formData, "submittingIdentityId"),
+          submittingIdentityType: textField(formData, "submittingIdentityId")
+            ? "organization"
+            : "member",
           proposedTitle: optionalTextField(formData, "proposedTitle"),
           series: textField(formData, "series"),
           format: optionalTextField(formData, "format"),
@@ -233,11 +402,36 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
           sourcePlatform: textField(formData, "sourcePlatform"),
           sourceAccount: textField(formData, "sourceAccount"),
           originalPostUrl: textField(formData, "originalPostUrl"),
-          mediaPermissionStatus: textField(
-            formData,
-            "mediaPermissionStatus",
-          ),
+          creatorName: textField(formData, "mediaCreatorName"),
+          caption: textField(formData, "mediaCaption"),
+          altText: textField(formData, "mediaAltText"),
+          mediaPermissionStatus: textField(formData, "mediaPermissionStatus"),
           publicReferenceLinks: linkField(formData, "publicReferenceLinks"),
+        },
+      };
+    case "productSubmission":
+      return {
+        ...common,
+        submissionType: "productSubmission",
+        productSubmissionDetails: {
+          organizationId: optionalTextField(formData, "productOrganizationId"),
+          productName: optionalTextField(formData, "productName"),
+          category: optionalTextField(formData, "productCategory"),
+          productSummary: optionalTextField(formData, "productSummary"),
+          standardProductUrl: optionalTextField(formData, "standardProductUrl"),
+          affiliateUrl: textField(formData, "affiliateUrl"),
+          affiliateRelationship: optionalTextField(
+            formData,
+            "affiliateRelationship",
+          ),
+          submitterRelationship: optionalTextField(
+            formData,
+            "productSubmitterRelationship",
+          ),
+          commercialDisclosure: optionalTextField(
+            formData,
+            "commercialDisclosure",
+          ),
         },
       };
     case "correctionRequest":
@@ -252,14 +446,85 @@ function rawSubmissionInput(formData: FormData, includeTerms: boolean) {
             "requestedCorrection",
           ),
           sourceLinks: linkField(formData, "sourceLinks"),
-          relationshipToSubject: textField(
-            formData,
-            "relationshipToSubject",
-          ),
+          relationshipToSubject: textField(formData, "relationshipToSubject"),
         },
       };
     default:
       return common;
+  }
+}
+
+async function assertSubmissionIdentityAuthorized(
+  actor: OperationalActor,
+  content: SubmissionDraftInput | SubmissionForReviewInput,
+): Promise<void> {
+  if (
+    content.submissionType !== "videoSubmission" &&
+    content.submissionType !== "mediaPitch" &&
+    content.submissionType !== "productSubmission"
+  ) {
+    return;
+  }
+
+  const identity =
+    content.submissionType === "videoSubmission"
+      ? content.videoSubmissionDetails
+      : content.submissionType === "mediaPitch"
+        ? content.mediaPitchDetails
+        : null;
+  if (identity?.submittingIdentityType === "member") {
+    if (identity.submittingIdentityId) {
+      throw new OperationalError(
+        "invalid_input",
+        "A member submission cannot include another identity ID.",
+      );
+    }
+    return;
+  }
+
+  const organizationId =
+    content.submissionType === "productSubmission"
+      ? content.productSubmissionDetails.organizationId
+      : identity?.submittingIdentityId;
+  const capability =
+    content.submissionType === "productSubmission"
+      ? "submit-products"
+      : "submit-media";
+  if (!organizationId || !actor.principalId) {
+    throw new OperationalError(
+      "access_denied",
+      "A verified organization relationship is required for this submission identity.",
+    );
+  }
+
+  const repository = await getCommunityApplicationRepository();
+  if (!repository.availability.writable) {
+    throw new OperationalError(
+      "configuration_unavailable",
+      "Organization capability records are unavailable. This submission cannot be saved.",
+    );
+  }
+  const member = await repository.getMemberProfileByPrincipalId(
+    actor.principalId,
+  );
+  if (member?.status !== "active") {
+    throw new OperationalError(
+      "access_denied",
+      "An active member profile is required for organization submissions.",
+    );
+  }
+  const authorized = member
+    ? await repository.hasOrganizationCapability(
+        member.id,
+        organizationId,
+        capability,
+      )
+    : false;
+  if (!authorized) {
+    throw new OperationalError(
+      "access_denied",
+      "Only an active approved organization representative may submit with this organization identity.",
+    );
   }
 }
 
@@ -301,7 +566,19 @@ function storedSubmissionInput(
           ),
           competitionHistory:
             submission.athleteNominationDetails.competitionHistory.map(
-              ({ key: _key, ...entry }) => entry,
+              (entry) => ({
+                eventName: entry.eventName,
+                organizer: entry.organizer,
+                date: entry.date,
+                country: entry.country,
+                city: entry.city,
+                divisionCategory: entry.divisionCategory,
+                placement: entry.placement,
+                score: entry.score,
+                officialResultUrl: entry.officialResultUrl,
+                eventUrl: entry.eventUrl,
+                videoUrl: entry.videoUrl,
+              }),
             ),
           publicReferenceLinks: linksForValidation(
             submission.athleteNominationDetails.publicReferenceLinks,
@@ -319,6 +596,47 @@ function storedSubmissionInput(
           ),
         },
       };
+    case "teamApplication":
+      return {
+        ...common,
+        submissionType: "teamApplication" as const,
+        teamApplicationDetails: {
+          ...submission.teamApplicationDetails,
+          socialLinks: linksForValidation(
+            submission.teamApplicationDetails.socialLinks,
+          ),
+          proposedRoster: submission.teamApplicationDetails.proposedRoster.map(
+            (entry) => ({
+              name: entry.name,
+              privateEmail: entry.privateEmail,
+              privatePhone: entry.privatePhone,
+              existingProfileSlug: entry.existingProfileSlug,
+              relationshipToTeam: entry.relationshipToTeam,
+              role: entry.role,
+              rosterStatus: entry.rosterStatus,
+              specialty: entry.specialty,
+              consentStatus: entry.consentStatus,
+            }),
+          ),
+        },
+      };
+    case "organizationClaim":
+      return {
+        ...common,
+        submissionType: "organizationClaim" as const,
+        organizationClaimDetails: {
+          ...submission.organizationClaimDetails,
+          evidenceLinks: linksForValidation(
+            submission.organizationClaimDetails.evidenceLinks,
+          ),
+        },
+      };
+    case "videoSubmission":
+      return {
+        ...common,
+        submissionType: "videoSubmission" as const,
+        videoSubmissionDetails: submission.videoSubmissionDetails,
+      };
     case "mediaPitch":
       return {
         ...common,
@@ -329,6 +647,12 @@ function storedSubmissionInput(
             submission.mediaPitchDetails.publicReferenceLinks,
           ),
         },
+      };
+    case "productSubmission":
+      return {
+        ...common,
+        submissionType: "productSubmission" as const,
+        productSubmissionDetails: submission.productSubmissionDetails,
       };
     case "correctionRequest":
       return {
@@ -433,6 +757,7 @@ async function currentActor(
     : profile.role;
   const actor: OperationalActor = {
     id: profile.id,
+    principalId: user.id,
     displayName: profile.displayName,
     normalizedEmail: profile.normalizedEmail,
     role: effectiveRole,
@@ -589,6 +914,7 @@ export async function createSubmissionAction(
     const actor = await currentActor("contributor");
     assertContributorMutationAccess(actor);
     const intent = textField(formData, "intent");
+    assertSubmissionFeatureEnabled(textField(formData, "submissionType"));
     const parsedIdempotencyKey = submissionIdempotencyKeySchema.safeParse(
       textField(formData, "idempotencyKey"),
     );
@@ -615,6 +941,8 @@ export async function createSubmissionAction(
     if (!parsed.success) {
       return validationFailure(parsed.error);
     }
+
+    await assertSubmissionIdentityAuthorized(actor, parsed.data);
 
     const created = await createSubmissionRecord({
       actor,
@@ -659,6 +987,7 @@ export async function updateSubmissionAction(
     const target = requireTarget(
       await getSubmissionMutationTarget(submissionId),
     );
+    assertSubmissionFeatureEnabled(target.submissionType);
     assertSubmissionOwner(actor, target.submitterId);
     assertCanEditSubmission(actor, target.submitterId, target.status);
     const parsed = submissionDraftSchema.safeParse(
@@ -675,6 +1004,8 @@ export async function updateSubmissionAction(
         "A submission type cannot be changed after the draft is created.",
       );
     }
+
+    await assertSubmissionIdentityAuthorized(actor, parsed.data);
 
     const outcome = await updateSubmissionRecord({
       actor,
@@ -710,6 +1041,8 @@ async function validateStoredSubmissionForReview(input: {
     throw new OperationalError("not_found", "Submission not found.");
   }
 
+  assertSubmissionFeatureEnabled(submission.submissionType);
+
   const parsed = submissionForReviewSchema.safeParse(
     storedSubmissionInput(submission, input.termsAccepted),
   );
@@ -717,6 +1050,8 @@ async function validateStoredSubmissionForReview(input: {
   if (!parsed.success) {
     return validationFailure(parsed.error);
   }
+
+  await assertSubmissionIdentityAuthorized(input.actor, parsed.data);
 
   return null;
 }
@@ -751,6 +1086,20 @@ export async function submitSubmissionAction(
       return validationError;
     }
 
+    const claimDetail = target.submissionType === "athleteNomination"
+      ? await getSubmissionForContributor(target.id, actor.id)
+      : null;
+    if (
+      claimDetail?.submissionType === "athleteNomination" &&
+      claimDetail.athleteNominationDetails.requestKind === "claim"
+    ) {
+      const runtime = await getCommunityRuntime();
+      const member = runtime.repository.availability.writable
+        ? await runtime.repository.getMemberProfileByPrincipalId(actor.id)
+        : null;
+      await enforceCommunityRateLimit({ limiter: runtime.rateLimiter, operation: "claim", memberId: member?.id ?? actor.id });
+    }
+
     await transitionSubmissionRecord({
       actor,
       workflowActor: "contributor",
@@ -758,6 +1107,24 @@ export async function submitSubmissionAction(
       nextStatus: "submitted",
       acceptTerms: true,
     });
+    if (
+      claimDetail?.submissionType === "athleteNomination" &&
+      claimDetail.athleteNominationDetails.requestKind === "claim"
+    ) {
+      try {
+        const slug = claimDetail.athleteNominationDetails.existingAthleteSlug;
+        const canonicalAthlete = slug ? (await getAthletePage(slug, { stega: false }))?.athlete : null;
+        await (await getCommunityApplicationRepository()).recordAthleteClaimAudit({
+          eventType: "athleteClaimSubmitted",
+          actorPrincipalId: actor.id,
+          claimantPrincipalId: actor.id,
+          submissionId: target.id,
+          canonicalAthleteId: canonicalAthlete?.canonicalId,
+        });
+      } catch {
+        safeLog({ severity: "error", event: "operations.mutation_failed", routeCategory: "operations", errorCategory: "community_error" });
+      }
+    }
     revalidateContributorSubmission(actor.id, target.id);
     return {
       success: true,
@@ -967,6 +1334,9 @@ async function transitionAfterReview(input: {
   const target = requireTarget(
     await getSubmissionMutationTarget(input.submissionId),
   );
+  const claimDetail = target.submissionType === "athleteNomination"
+    ? await getSubmissionForReview(target.id)
+    : null;
   await transitionSubmissionRecord({
     actor: input.actor,
     workflowActor: input.actor.role,
@@ -974,6 +1344,35 @@ async function transitionAfterReview(input: {
     nextStatus: input.nextStatus,
     visibleFeedback: input.visibleFeedback,
   });
+  try {
+    await (await getCommunityApplicationRepository()).notifySubmissionStatus({
+      contributorPrincipalId: target.submitterId,
+      submissionId: target.id,
+      status: input.nextStatus,
+      operationKey: `${target.id}:${target.revisionNumber + 1}`,
+    });
+  } catch {
+    safeLog({ severity: "error", event: "operations.mutation_failed", routeCategory: "operations", errorCategory: "community_error" });
+  }
+  if (
+    claimDetail?.submissionType === "athleteNomination" &&
+    claimDetail.athleteNominationDetails.requestKind === "claim" &&
+    (input.nextStatus === "approved" || input.nextStatus === "rejected")
+  ) {
+    try {
+      const slug = claimDetail.athleteNominationDetails.existingAthleteSlug;
+      const canonicalAthlete = slug ? (await getAthletePage(slug, { stega: false }))?.athlete : null;
+      await (await getCommunityApplicationRepository()).recordAthleteClaimAudit({
+        eventType: input.nextStatus === "approved" ? "athleteClaimApproved" : "athleteClaimRejected",
+        actorPrincipalId: input.actor.id,
+        claimantPrincipalId: target.submitterId,
+        submissionId: target.id,
+        canonicalAthleteId: canonicalAthlete?.canonicalId,
+      });
+    } catch {
+      safeLog({ severity: "error", event: "operations.mutation_failed", routeCategory: "operations", errorCategory: "community_error" });
+    }
+  }
   revalidateContributorSubmission(target.submitterId, target.id);
   return {
     success: true,
@@ -1034,6 +1433,159 @@ export async function approveSubmissionAction(
       submissionId: parsed.data.submissionId,
       nextStatus: "approved",
     });
+  } catch (error) {
+    return safeFailure(error);
+  }
+}
+
+export async function grantOrganizationClaimAccessAction(
+  _previousState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const actor = await currentActor("admin");
+    assertCanAdministerContributors(actor);
+    const parsed = reviewActionSchema.safeParse({
+      submissionId: textField(formData, "submissionId"),
+    });
+    if (!parsed.success) return validationFailure(parsed.error);
+
+    const submission = await getSubmissionForReview(parsed.data.submissionId);
+    if (
+      !submission ||
+      submission.status !== "approved" ||
+      submission.submissionType !== "organizationClaim" ||
+      submission.organizationClaimDetails.requestKind !== "claim" ||
+      !submission.organizationClaimDetails.existingOrganizationId
+    ) {
+      throw new OperationalError(
+        "invalid_transition",
+        "Only an approved claim for an existing organization can grant access.",
+      );
+    }
+    const capabilities = z
+      .array(z.enum(ORGANIZATION_CAPABILITIES))
+      .min(1)
+      .parse(submission.organizationClaimDetails.requestedCapabilities);
+    if (!actor.principalId) {
+      throw new OperationalError(
+        "access_denied",
+        "A stable administrator identity is required.",
+      );
+    }
+    const repository = await getCommunityApplicationRepository();
+    if (!repository.availability.writable) {
+      throw new OperationalError(
+        "configuration_unavailable",
+        "Organization capability records are temporarily unavailable.",
+      );
+    }
+    const member = await repository.getMemberProfileByPrincipalId(
+      submission.submitter.id,
+    );
+    if (!member || member.status !== "active") {
+      throw new OperationalError(
+        "access_denied",
+        "The claimant needs an active member profile before access can be granted.",
+      );
+    }
+    const granted = await repository.grantOrganizationMembership({
+      memberPrincipalId: submission.submitter.id,
+      organizationId:
+        submission.organizationClaimDetails.existingOrganizationId,
+      capabilities,
+      reviewedByPrincipalId: actor.principalId,
+    });
+    if (!granted) {
+      throw new OperationalError(
+        "configuration_unavailable",
+        "The reviewed organization capabilities could not be persisted.",
+      );
+    }
+    revalidateContributorSubmission(submission.submitter.id, submission.id);
+    return {
+      success: true,
+      message: "Reviewed organization capabilities granted.",
+      recordId: submission.id,
+    };
+  } catch (error) {
+    return safeFailure(error);
+  }
+}
+
+export async function grantAthleteClaimAccessAction(
+  _previousState: ActionResult,
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const actor = await currentActor("admin");
+    assertCanAdministerContributors(actor);
+    const parsed = reviewActionSchema.safeParse({
+      submissionId: textField(formData, "submissionId"),
+    });
+    if (!parsed.success) return validationFailure(parsed.error);
+
+    const submission = await getSubmissionForReview(parsed.data.submissionId);
+    if (
+      !submission ||
+      submission.status !== "approved" ||
+      submission.submissionType !== "athleteNomination" ||
+      submission.athleteNominationDetails.requestKind !== "claim" ||
+      !submission.athleteNominationDetails.existingAthleteSlug
+    ) {
+      throw new OperationalError(
+        "invalid_transition",
+        "Only an approved claim for an existing athlete can grant access.",
+      );
+    }
+    if (!actor.principalId) {
+      throw new OperationalError(
+        "access_denied",
+        "A stable administrator identity is required.",
+      );
+    }
+    const athletePage = await getAthletePage(
+      submission.athleteNominationDetails.existingAthleteSlug,
+      { publishedOnly: true, stega: false },
+    );
+    if (
+      !athletePage ||
+      athletePage.athlete.slug !==
+        submission.athleteNominationDetails.existingAthleteSlug
+    ) {
+      throw new OperationalError(
+        "invalid_transition",
+        "The approved claim must resolve to an existing public canonical athlete.",
+      );
+    }
+    const athlete = athletePage.athlete;
+    const repository = await getCommunityApplicationRepository();
+    if (!repository.availability.writable) {
+      throw new OperationalError(
+        "configuration_unavailable",
+        "Athlete control records are temporarily unavailable.",
+      );
+    }
+    const granted = await repository.grantAthleteProfileControl({
+      memberPrincipalId: submission.submitter.id,
+      athleteId: athlete.canonicalId,
+      submissionId: submission.id,
+      reviewedByPrincipalId: actor.principalId,
+    });
+    if (!granted) {
+      throw new OperationalError(
+        "configuration_unavailable",
+        "The reviewed athlete control could not be persisted.",
+      );
+    }
+    revalidateContributorSubmission(submission.submitter.id, submission.id);
+    revalidatePath(`/athletes/${athlete.slug}`);
+    revalidatePath("/members", "layout");
+    return {
+      success: true,
+      message: "Reviewed athlete profile control granted.",
+      recordId: submission.id,
+    };
   } catch (error) {
     return safeFailure(error);
   }

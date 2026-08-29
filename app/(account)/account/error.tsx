@@ -18,8 +18,9 @@ export default function AccountError({
           The secure account record could not be loaded
         </h1>
         <p className="mt-4 text-sm leading-6 text-muted">
-          No change was made. Check the operational Sanity configuration or try
-          this request again. Private diagnostics are not displayed here.
+          No change was made. Check the protected operational or community
+          storage configuration, then try again. Private diagnostics are not
+          displayed here.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <button

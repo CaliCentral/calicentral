@@ -4,59 +4,55 @@ import { SessionProvider, signOut, useSession } from "next-auth/react";
 
 import { DesktopNavigation } from "@/components/layout/desktop-navigation";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
-import type { NavigationItem } from "@/types/content";
-
-type NavigationSessionIslandProps = {
-  readonly items: readonly NavigationItem[];
-};
 
 type NavigationPresentationProps = {
-  readonly items: readonly NavigationItem[];
   readonly isAuthenticated: boolean;
   readonly isSessionLoading: boolean;
+  readonly canSubmit: boolean;
   readonly canUseEditorialDesk: boolean;
+  readonly displayName: string;
   readonly onSignOut: () => Promise<void>;
 };
 
 function NavigationPresentation({
-  items,
   isAuthenticated,
   isSessionLoading,
+  canSubmit,
   canUseEditorialDesk,
+  displayName,
   onSignOut,
 }: NavigationPresentationProps) {
   return (
     <>
       <DesktopNavigation
-        items={items}
         isAuthenticated={isAuthenticated}
         isSessionLoading={isSessionLoading}
+        canSubmit={canSubmit}
         canUseEditorialDesk={canUseEditorialDesk}
+        displayName={displayName}
         onSignOut={onSignOut}
       />
       <MobileNavigation
-        items={items}
         isAuthenticated={isAuthenticated}
         isSessionLoading={isSessionLoading}
+        canSubmit={canSubmit}
         canUseEditorialDesk={canUseEditorialDesk}
+        displayName={displayName}
         onSignOut={onSignOut}
       />
     </>
   );
 }
 
-function SessionAwareNavigation({
-  items,
-}: {
-  readonly items: readonly NavigationItem[];
-}) {
+function SessionAwareNavigation() {
   const { data: session, status } = useSession();
   const user = session?.user;
   const isAuthenticated = status === "authenticated" && Boolean(user?.id);
+  const canSubmit = Boolean(isAuthenticated && user?.accessStatus === "active");
   const canUseEditorialDesk = Boolean(
     isAuthenticated &&
-      user?.accessStatus === "active" &&
-      (user.role === "editor" || user.role === "admin"),
+    user?.accessStatus === "active" &&
+    (user.role === "editor" || user.role === "admin"),
   );
 
   async function performSignOut() {
@@ -65,21 +61,20 @@ function SessionAwareNavigation({
 
   return (
     <NavigationPresentation
-      items={items}
       isAuthenticated={isAuthenticated}
       isSessionLoading={status === "loading"}
+      canSubmit={canSubmit}
       canUseEditorialDesk={canUseEditorialDesk}
+      displayName={user?.displayName || user?.name || "Cali Central member"}
       onSignOut={performSignOut}
     />
   );
 }
 
-export function NavigationSessionIsland({
-  items,
-}: NavigationSessionIslandProps) {
+export function NavigationSessionIsland() {
   return (
     <SessionProvider>
-      <SessionAwareNavigation items={items} />
+      <SessionAwareNavigation />
     </SessionProvider>
   );
 }

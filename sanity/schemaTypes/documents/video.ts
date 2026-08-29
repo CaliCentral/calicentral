@@ -244,6 +244,40 @@ export const video = defineType({
       validation: (Rule) => Rule.required().max(120),
     }),
     defineField({
+      name: "origin",
+      title: "Content origin",
+      type: "string",
+      group: "source",
+      description:
+        "Public provenance label. This is separate from ownership and hosting details.",
+      options: {
+        list: [
+          {title: "Cali Central Original", value: "cali-central-original"},
+          {title: "Community Submission", value: "community-submission"},
+          {title: "External Source", value: "external-source"},
+        ],
+        layout: "radio",
+      },
+      validation: (Rule) =>
+        Rule.required().custom((value, context) => {
+          if (
+            value === "cali-central-original" &&
+            context.document?.ownershipStatus !== "cali-central-original"
+          ) {
+            return "A Cali Central Original must use the matching ownership status."
+          }
+
+          if (
+            value === "external-source" &&
+            context.document?.ownershipStatus !== "third-party-attributed"
+          ) {
+            return "An External Source must use third-party attributed ownership."
+          }
+
+          return true
+        }),
+    }),
+    defineField({
       name: "ownershipStatus",
       title: "Ownership / attribution status",
       type: "string",
@@ -276,6 +310,14 @@ export const video = defineType({
           {title: "Website", value: "Website"},
         ],
       },
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          if (context.document?.origin === "external-source" && !value) {
+            return "An External Source requires a named source platform."
+          }
+
+          return true
+        }),
     }),
     defineField({
       name: "sourceAccount",
@@ -294,10 +336,11 @@ export const video = defineType({
         Rule.uri({allowRelative: false, scheme: ["http", "https"]}).custom(
           (value, context) => {
             if (
-              context.document?.ownershipStatus === "third-party-attributed" &&
+              (context.document?.ownershipStatus === "third-party-attributed" ||
+                context.document?.origin === "external-source") &&
               !value
             ) {
-              return "Third-party media requires its original public post URL."
+              return "Third-party and External Source media require the original public post URL."
             }
 
             return true

@@ -1,8 +1,10 @@
 # Architecture Documentation
 
-The production application is a full-stack Next.js App Router Worker. See the
-accepted [Cloudflare Workers decision](../decisions/0002-use-cloudflare-workers.md)
-and the [production deployment runbook](../production-deployment.md).
+The current application runtime is a full-stack Next.js App Router Worker. The
+accepted target is native Vercel plus Supabase, with R2 retained for media. See
+[ADR 0003](../decisions/0003-use-vercel-supabase-and-r2.md) and the
+[local migration workflow](../supabase-migration.md). ADR 0002 remains the
+rollback/runtime record until equivalence and cutover gates pass.
 
 Architecture subjects:
 
@@ -15,6 +17,8 @@ Architecture subjects:
 - Athlete profiles and rankings
 - Admin and moderation systems
 
-Cloudflare D1 and R2 are intentionally absent: Sanity owns current content and
-operational records, and no direct file-upload pipeline exists. Adding either
-service requires a concrete responsibility and architecture decision.
+Sanity currently owns editorial, canonical sporting, and existing operational
+records. Environment-isolated D1, private R2, and four rate-limit bindings
+support the feature-gated community layer. Production community/media flags
+remain off. Supabase equivalents must pass the documented gates before these
+legacy application-runtime paths are removed; the R2 object store remains.

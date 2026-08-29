@@ -18,6 +18,8 @@ import {
   approveSubmissionAction,
   archiveSubmissionAction,
   assignReviewerAction,
+  grantOrganizationClaimAccessAction,
+  grantAthleteClaimAccessAction,
   rejectSubmissionAction,
   requestRevisionAction,
   startReviewAction,
@@ -33,6 +35,7 @@ import {
   submissionStatusDescription,
   submissionTypeLabel,
 } from "@/lib/presentation/operations";
+import { studioIntentUrl } from "@/lib/site/studio";
 
 export const metadata: Metadata = {
   title: "Review submission",
@@ -46,7 +49,7 @@ export default async function AdminSubmissionDetailPage({
   params,
 }: AdminSubmissionDetailPageProps) {
   const { id } = await params;
-  await requireEditor(`/admin/submissions/${id}`);
+  const user = await requireEditor(`/admin/submissions/${id}`);
 
   if (!isValidRecordId(id)) {
     notFound();
@@ -77,6 +80,18 @@ export default async function AdminSubmissionDetailPage({
     "approved",
     "rejected",
   ].includes(submission.status);
+  const mayGrantOrganizationAccess =
+    user.role === "admin" &&
+    submission.status === "approved" &&
+    submission.submissionType === "organizationClaim" &&
+    submission.organizationClaimDetails.requestKind === "claim" &&
+    Boolean(submission.organizationClaimDetails.existingOrganizationId);
+  const mayGrantAthleteAccess =
+    user.role === "admin" &&
+    submission.status === "approved" &&
+    submission.submissionType === "athleteNomination" &&
+    submission.athleteNominationDetails.requestKind === "claim" &&
+    Boolean(submission.athleteNominationDetails.existingAthleteSlug);
 
   return (
     <OperationsPage
@@ -108,6 +123,40 @@ export default async function AdminSubmissionDetailPage({
           <OperationsPanel title="Complete submitted content">
             <SubmissionContent submission={submission} />
           </OperationsPanel>
+
+          {mayGrantOrganizationAccess ? (
+            <OperationsPanel
+              title="Grant reviewed organization access"
+              description="Administrator-only. This writes the approved capabilities to the private application database; it does not publish or verify organization claims. Repeating the action safely replaces the same member/organization grant."
+            >
+              <ActionForm
+                action={grantOrganizationClaimAccessAction}
+                submitLabel="Grant approved capabilities"
+                pendingLabel="Granting capabilities…"
+              >
+                <input
+                  type="hidden"
+                  name="submissionId"
+                  value={submission.id}
+                />
+              </ActionForm>
+            </OperationsPanel>
+          ) : null}
+
+          {mayGrantAthleteAccess ? (
+            <OperationsPanel
+              title="Grant reviewed athlete profile control"
+              description="Administrator-only. This links the claimant's private application identity to the existing canonical athlete. It does not alter rankings, results, verification, or source provenance."
+            >
+              <ActionForm
+                action={grantAthleteClaimAccessAction}
+                submitLabel="Grant athlete control"
+                pendingLabel="Granting control…"
+              >
+                <input type="hidden" name="submissionId" value={submission.id} />
+              </ActionForm>
+            </OperationsPanel>
+          ) : null}
 
           <OperationsPanel
             title="Contributor review context"
@@ -483,8 +532,8 @@ export default async function AdminSubmissionDetailPage({
               </ul>
             ) : (
               <p>
-                No editorial CMS record is linked. Automatic draft conversion
-                is intentionally omitted; accepted work remains unpublished.
+                No editorial CMS record is linked. Automatic draft conversion is
+                intentionally omitted; accepted work remains unpublished.
               </p>
             )}
           </OperationsNotice>
@@ -544,14 +593,9 @@ function StudioSubmissionLink({
   readonly label: string;
 }) {
   const safeId = /^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(id);
-  const safeType = type && /^[A-Za-z][A-Za-z0-9_-]{0,79}$/.test(type)
-    ? type
-    : undefined;
-  const intentPath = safeId
-    ? `/studio/intent/edit/id=${encodeURIComponent(id)}${
-        safeType ? `;type=${encodeURIComponent(safeType)}` : ""
-      }`
-    : "/studio";
+  const safeType =
+    type && /^[A-Za-z][A-Za-z0-9_-]{0,79}$/.test(type) ? type : undefined;
+  const intentPath = safeId ? studioIntentUrl(id, safeType) : "/studio";
 
   return (
     <Link

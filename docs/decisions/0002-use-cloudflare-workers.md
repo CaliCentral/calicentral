@@ -11,10 +11,11 @@ Draft Mode cookies, protected account/admin rendering, and server-side Sanity
 mutations. A static export or Pages-only adapter cannot preserve those
 behaviors.
 
-The application stores public and operational content in Sanity and has no
-relational application workload or direct file-upload pipeline. Introducing
-empty Cloudflare storage products would add permissions, cost, recovery, and
-operational complexity without owning data.
+The application stores public and existing operational content in Sanity and
+has no active direct file-upload pipeline. Community data has a D1-ready typed
+repository and additive migration, but no database resource or binding is
+configured. Introducing unprovisioned Cloudflare storage products would add
+permissions, cost, recovery, and operational complexity without active data.
 
 ## Decision
 
@@ -26,9 +27,14 @@ Deploy Next.js to Cloudflare Workers through the supported
   compatibility date.
 - Serve generated static assets through the Workers static-assets binding.
 - Use static-assets incremental cache interception for public static output.
-- Publish Sanity content through a reviewed rebuild-on-publish process.
-- Mount Sanity live/visual preview behavior only in authenticated Draft Mode so
-  drafts bypass public static caching.
+- Mount supported Sanity Live Content whenever Sanity is configured so
+  published updates invalidate tagged content reads without a hard refresh.
+- Keep draft presentation tooling limited to authenticated Draft Mode; no
+  browser token is configured.
+- Build and host Sanity Studio separately so its editor runtime and Vision do
+  not consume the public application Worker bundle. Keep only a noindex handoff
+  at `/studio`; Sanity data clients, Live Content, Draft Mode, and Visual
+  Editing remain in the application.
 - Use Sanity’s image CDN through an allowlisted custom Next image loader rather
   than requiring Cloudflare Images.
 - Keep D1, R2, KV, Durable Objects, Queues, and rate-limit bindings absent until
@@ -60,23 +66,25 @@ Viable if immediate published Sanity updates become a hard requirement, but it
 would increase Worker and Content Lake traffic. The launch architecture favors
 stable static output and controlled editorial releases.
 
-### D1 operational store
+### D1 for existing operational records
 
-Not selected. Contributor profiles, submissions, and audits already use guarded
-Sanity transactions. A future migration requires a separate data/authorization
-ADR and recovery plan.
+Not selected. Contributor profiles, submissions, and audits continue to use
+guarded Sanity transactions. The separate community repository and migration
+remain inactive until a reviewed D1 resource, binding, authorization plan, and
+recovery plan are configured.
 
 ## Consequences
 
 - OpenNext and Wrangler are required build/development dependencies.
 - A clean build may require network access for npm dependencies, fonts, and
   configured private Sanity reads.
-- Public published HTML, metadata, and sitemap change only after a reviewed
-  rebuild/deploy; the CMS publish action alone is not instant cache
-  invalidation.
-- Draft Mode, Auth.js, Studio, Server Actions, and images must be tested under
-  local workerd and on a temporary `workers.dev` deployment before domain
-  attachment.
+- Sanity Live Content handles published-content invalidation for reads made
+  through the repository's live query boundary. Code, static assets, and any
+  content outside that boundary still require a reviewed rebuild/deploy.
+- Draft Mode, Auth.js, the Studio handoff, Server Actions, and images must be
+  tested under local workerd and on a routed staging Worker before domain
+  attachment. The standalone Studio build, Presentation, and Vision are tested
+  separately.
 - Cloudflare account settings, secrets, OAuth callbacks, Sanity CORS, dataset
   privacy, and DNS remain explicit external launch work.
 - The unified Sanity production dataset must be private because it contains

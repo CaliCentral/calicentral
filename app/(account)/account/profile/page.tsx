@@ -2,18 +2,21 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { ProfileForm } from "@/components/operations/profile-form";
+import { PublicMemberProfileForm } from "@/components/members/public-member-profile-form";
 import {
   OperationsPage,
   OperationsPanel,
 } from "@/components/operations/page-shell";
 import { StatusLabel } from "@/components/operations/status-label";
 import { requireAuthenticatedUser } from "@/lib/auth";
+import { getCommunityRepository } from "@/lib/community/runtime";
+import { featureConfig } from "@/lib/features/config";
 import { updateContributorProfileAction } from "@/lib/operations/actions";
 import { getOwnContributorProfile } from "@/lib/operations/contributors";
 import { formatOperationsDate } from "@/lib/presentation/operations";
 
 export const metadata: Metadata = {
-  title: "Contributor profile",
+  title: "Account profiles",
 };
 
 export default async function ContributorProfilePage() {
@@ -29,11 +32,18 @@ export default async function ContributorProfilePage() {
     notFound();
   }
 
+  const communityRepository = featureConfig.community
+    ? await getCommunityRepository()
+    : null;
+  const memberProfile = communityRepository?.availability.writable
+    ? await communityRepository.getMemberProfileByPrincipalId(user.id)
+    : null;
+
   return (
     <OperationsPage
       eyebrow="Account / Profile"
-      title="Contributor profile"
-      description="Maintain the limited profile information used by the editorial desk. These details do not create or publish an athlete profile."
+      title="Account profiles"
+      description="Keep private contributor information separate from the optional public identity used in community conversations."
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(19rem,0.4fr)]">
         <OperationsPanel
@@ -87,6 +97,26 @@ export default async function ContributorProfilePage() {
           </dl>
         </OperationsPanel>
       </div>
+      {featureConfig.community ? (
+        <section id="public-member-profile" className="mt-10 scroll-mt-8">
+          <OperationsPanel
+            title="Public member profile"
+            description="This is an explicit public projection for community posts. Contributor biography, authenticated email, access, submissions, and private team intake are never copied into it automatically."
+          >
+            {communityRepository?.availability.writable ? (
+              <PublicMemberProfileForm
+                profile={memberProfile}
+                authenticatedDisplayName={user.displayName}
+              />
+            ) : (
+              <div className="border border-amber-300/30 bg-amber-300/8 p-5 text-sm leading-7 text-amber-100/85">
+                Community persistence is not configured. No public profile will
+                be created or falsely reported as saved.
+              </div>
+            )}
+          </OperationsPanel>
+        </section>
+      ) : null}
     </OperationsPage>
   );
 }

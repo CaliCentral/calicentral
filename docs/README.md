@@ -14,6 +14,18 @@ documentation for the Cali Central platform.
 
 ## Production operations
 
+- [P4 daily athlete utility readiness](p4-production-readiness.md)
+- [Athlete ranking system](athlete-ranking-system.md)
+- [Official Streetlifting import review](official-streetlifting-import.md)
+- [Reviewed competition import](reviewed-competition-import.md)
+- [Production data refresh](production-data-refresh.md)
+- [Approved data owner guide](approved-data-owner-guide.md)
+- [Team system](team-system.md)
+- [Community system](community-system.md)
+- [WCL rules engine](wcl-rules-engine.md)
+- [Data provenance](data-provenance.md)
+- [Community database](community-database.md)
+
 - [Production deployment](production-deployment.md) — Workers/OpenNext,
   workerd preview, manual deployment, custom domain, and Workers Builds
 - [Production environment](production-environment.md) — build variables,

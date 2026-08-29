@@ -18,9 +18,9 @@ export default function AdminError({
           The protected operation could not be loaded
         </h1>
         <p className="mt-4 text-sm leading-6 text-muted">
-          No mutation was attempted. Check the server-only operational
-          configuration or retry. Sensitive diagnostics are intentionally
-          omitted.
+          No mutation was attempted. Check the server-only operational or
+          community storage configuration, then retry. Sensitive diagnostics
+          are intentionally omitted.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <button

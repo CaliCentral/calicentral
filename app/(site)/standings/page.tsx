@@ -10,6 +10,8 @@ import { getCompetitions, getRankingCategories } from "@/lib/content";
 import { getVerifiedCompetitionResults } from "@/lib/standings/publication";
 import { createPublicMetadata } from "@/lib/site/metadata";
 
+export const dynamic = "force-dynamic";
+
 const description =
   "Published calisthenics competition standings, source-backed results, and clearly separated editorial selections from Cali Central.";
 

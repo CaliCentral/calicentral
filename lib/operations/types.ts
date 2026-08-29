@@ -18,7 +18,11 @@ export const SUBMISSION_TYPES = [
   "storyPitch",
   "athleteNomination",
   "competitionListing",
+  "teamApplication",
+  "organizationClaim",
+  "videoSubmission",
   "mediaPitch",
+  "productSubmission",
   "correctionRequest",
 ] as const;
 export type SubmissionType = (typeof SUBMISSION_TYPES)[number];
@@ -35,11 +39,7 @@ export const SUBMISSION_STATUSES = [
 ] as const;
 export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
 
-export const SUBMISSION_PRIORITIES = [
-  "normal",
-  "elevated",
-  "urgent",
-] as const;
+export const SUBMISSION_PRIORITIES = ["normal", "elevated", "urgent"] as const;
 export type SubmissionPriority = (typeof SUBMISSION_PRIORITIES)[number];
 
 export const AUDIT_EVENT_TYPES = [
@@ -208,7 +208,49 @@ export type CompetitionListingDetails = {
   readonly scheduleStatus: string;
 };
 
+export type TeamApplicationRosterEntry = {
+  readonly key: string;
+  readonly name: string;
+  readonly privateEmail: string;
+  readonly privatePhone: string;
+  readonly existingProfileSlug: string;
+  readonly relationshipToTeam: string;
+  readonly role: string;
+  readonly rosterStatus: string;
+  readonly specialty: string;
+  readonly consentStatus: string;
+};
+
+export type TeamApplicationDetails = {
+  readonly proposedTeamName: string;
+  readonly shortName: string;
+  readonly code: string;
+  readonly teamType: string;
+  readonly representedIdentity: string;
+  readonly country: string;
+  readonly administrativeArea: string;
+  readonly city: string;
+  readonly trainingBase: string;
+  readonly foundingYear: string;
+  readonly description: string;
+  readonly disciplines: readonly string[];
+  readonly competitionIntentions: string;
+  readonly website: string;
+  readonly socialLinks: readonly SupportingLink[];
+  readonly primaryColor: string;
+  readonly secondaryColor: string;
+  readonly accentColor: string;
+  readonly crestReferenceUrl: string;
+  readonly wordmarkReferenceUrl: string;
+  readonly brandingPermissionAcknowledged: boolean;
+  readonly proposedUniformDesign: string;
+  readonly proposedRoster: readonly TeamApplicationRosterEntry[];
+};
+
 export type MediaPitchDetails = {
+  readonly mediaKind: "photo" | "photo-series" | "mixed-media" | "other";
+  readonly submittingIdentityType: "member" | "organization";
+  readonly submittingIdentityId: string;
   readonly proposedTitle: string;
   readonly series: string;
   readonly format: string;
@@ -219,8 +261,62 @@ export type MediaPitchDetails = {
   readonly sourcePlatform: string;
   readonly sourceAccount: string;
   readonly originalPostUrl: string;
+  readonly creatorName: string;
+  readonly caption: string;
+  readonly altText: string;
   readonly mediaPermissionStatus: string;
   readonly publicReferenceLinks: readonly SupportingLink[];
+};
+
+export type OrganizationClaimDetails = {
+  readonly requestKind: "create" | "claim";
+  readonly existingOrganizationId: string;
+  readonly organizationName: string;
+  readonly organizationType: string;
+  readonly country: string;
+  readonly website: string;
+  readonly relationshipToOrganization: string;
+  readonly requestedCapabilities: readonly string[];
+  readonly evidenceLinks: readonly SupportingLink[];
+};
+
+export type VideoSubmissionDetails = {
+  readonly submittingIdentityType: "member" | "organization";
+  readonly submittingIdentityId: string;
+  readonly videoTitle: string;
+  readonly description: string;
+  readonly category: string;
+  readonly discipline: string;
+  readonly sourceHost: "youtube" | "instagram" | "tiktok" | "other-approved";
+  readonly originalPublicUrl: string;
+  readonly submitterRelationship: string;
+  readonly creatorName: string;
+  readonly creatorProfileUrl: string;
+  readonly featuredAthletes: readonly string[];
+  readonly featuredTeams: readonly string[];
+  readonly organizationId: string;
+  readonly competition: string;
+  readonly eventDate: string;
+  readonly location: string;
+  readonly thumbnailReferenceUrl: string;
+  readonly rightsDeclaration:
+    "submitter-owned" | "permission-confirmed" | "public-reference-only";
+  readonly ownershipSourceDeclaration: string;
+  readonly sourceAccount: string;
+  readonly editorialNote: string;
+  readonly contentWarnings: readonly string[];
+};
+
+export type ProductSubmissionDetails = {
+  readonly organizationId: string;
+  readonly productName: string;
+  readonly category: string;
+  readonly productSummary: string;
+  readonly standardProductUrl: string;
+  readonly affiliateUrl: string;
+  readonly affiliateRelationship: "none" | "pending" | "active";
+  readonly submitterRelationship: string;
+  readonly commercialDisclosure: string;
 };
 
 export type CorrectionRequestDetails = {
@@ -245,8 +341,24 @@ export type SubmissionDetails =
       readonly competitionListingDetails: CompetitionListingDetails;
     }
   | {
+      readonly submissionType: "teamApplication";
+      readonly teamApplicationDetails: TeamApplicationDetails;
+    }
+  | {
+      readonly submissionType: "organizationClaim";
+      readonly organizationClaimDetails: OrganizationClaimDetails;
+    }
+  | {
+      readonly submissionType: "videoSubmission";
+      readonly videoSubmissionDetails: VideoSubmissionDetails;
+    }
+  | {
       readonly submissionType: "mediaPitch";
       readonly mediaPitchDetails: MediaPitchDetails;
+    }
+  | {
+      readonly submissionType: "productSubmission";
+      readonly productSubmissionDetails: ProductSubmissionDetails;
     }
   | {
       readonly submissionType: "correctionRequest";
@@ -342,7 +454,13 @@ export type AdminSubmissionDetail = SubmissionBase & {
   readonly privateEditorialNotes: readonly PrivateEditorialNote[];
   readonly auditEvents: readonly AuditEvent[];
   readonly linkedDocuments: readonly {
-    readonly type: "story" | "athlete" | "competition" | "video";
+    readonly type:
+      | "story"
+      | "athlete"
+      | "competition"
+      | "video"
+      | "organization"
+      | "product";
     readonly id: string;
   }[];
   readonly createdDraftDocumentId?: string;
@@ -374,6 +492,8 @@ export type AdminDashboard = {
 
 export type OperationalActor = {
   readonly id: string;
+  /** Private authentication principal used only for server-side capability checks. */
+  readonly principalId?: string;
   readonly displayName: string;
   readonly role: ContributorRole;
   readonly accessStatus: AccessStatus;

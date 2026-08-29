@@ -16,8 +16,8 @@ publishes public content automatically.
   intents through this same Auth.js identity system.
 - The editorial operations area under `/admin` handles intake, assignment,
   moderation, access management, and audit history.
-- Sanity Studio at `/studio` remains the only full content editor and publishing
-  interface.
+- The separately hosted Sanity Studio remains the only full content editor and
+  publishing interface; `/studio` is a noindex application handoff.
 - Operational reads and writes use a separate server-only Sanity client. No
   Sanity token or mutation shape is sent to the browser.
 
@@ -348,11 +348,13 @@ server-managed and omitted from the custom Studio structure. Operational
 document creation, duplication, deletion, publishing, and field editing are
 suppressed in Studio so the guarded `/admin` workflows remain the mutation
 path. These UI restrictions complement—but do not replace—private-dataset
-access and server authorization. Editors use `/studio` for public editorial
-content.
+access and server authorization. Editors use the configured standalone Studio
+URL for public editorial content.
 
-Only effective editors/admins receive a portal link to the local embedded
-Studio. Sanity membership still independently controls Studio authentication.
+Only effective editors/admins receive a portal link to the standalone Studio.
+When no reviewed external URL is configured, that link falls back to the safe
+`/studio` handoff. Sanity membership still independently controls Studio
+authentication.
 
 ## Local review
 

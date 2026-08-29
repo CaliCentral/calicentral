@@ -57,9 +57,12 @@ export const countryOptions = countries.map(({code, name}) => ({
 
 export const disciplineCodeOptions = [
   {title: "Freestyle", value: "freestyle"},
+  {title: "Streetlifting", value: "streetlifting"},
+  {title: "Weighted calisthenics", value: "weighted-calisthenics"},
   {title: "Static strength", value: "static-strength"},
   {title: "Dynamic freestyle", value: "dynamic"},
   {title: "Endurance", value: "endurance"},
+  {title: "Skills", value: "skills"},
   {title: "Team", value: "team"},
   {title: "Mixed", value: "mixed"},
 ]

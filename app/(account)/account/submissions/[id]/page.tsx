@@ -15,6 +15,7 @@ import {
   type SubmissionFormInitial,
 } from "@/components/operations/submission-form";
 import { requireContributor } from "@/lib/auth";
+import { featureConfig } from "@/lib/features/config";
 import {
   resubmitSubmissionAction,
   submitSubmissionAction,
@@ -22,6 +23,10 @@ import {
   withdrawSubmissionAction,
 } from "@/lib/operations/actions";
 import { getSubmissionForContributor } from "@/lib/operations/submissions";
+import {
+  getAuthorizedMediaOrganizationIds,
+  getAuthorizedProductOrganizationIds,
+} from "@/lib/operations/submission-identities";
 import type { ContributorSubmissionDetail } from "@/lib/operations/types";
 import {
   isContributorEditableStatus,
@@ -58,7 +63,36 @@ export default async function ContributorSubmissionPage({
     notFound();
   }
 
-  const canEdit = isContributorEditableStatus(submission.status);
+  const [authorizedMediaOrganizationIds, authorizedProductOrganizationIds] =
+    await Promise.all([
+      featureConfig.videoSubmissions || featureConfig.mediaSubmissions
+        ? getAuthorizedMediaOrganizationIds(user.id)
+        : Promise.resolve([]),
+      featureConfig.productSubmissions
+        ? getAuthorizedProductOrganizationIds(user.id)
+        : Promise.resolve([]),
+    ]);
+  const mediaIdentityAuthorized =
+    submission.submissionType !== "videoSubmission" &&
+    submission.submissionType !== "mediaPitch"
+      ? true
+      : submission.submissionType === "videoSubmission"
+        ? submission.videoSubmissionDetails.submittingIdentityType ===
+            "member" ||
+          authorizedMediaOrganizationIds.includes(
+            submission.videoSubmissionDetails.submittingIdentityId,
+          )
+        : submission.mediaPitchDetails.submittingIdentityType === "member" ||
+          authorizedMediaOrganizationIds.includes(
+            submission.mediaPitchDetails.submittingIdentityId,
+          );
+  const canEdit =
+    isContributorEditableStatus(submission.status) &&
+    mediaIdentityAuthorized &&
+    (submission.submissionType !== "productSubmission" ||
+      authorizedProductOrganizationIds.includes(
+        submission.productSubmissionDetails.organizationId,
+      ));
   const canWithdraw = isContributorWithdrawableStatus(submission.status);
 
   return (
@@ -92,9 +126,18 @@ export default async function ContributorSubmissionPage({
             >
               <SubmissionForm
                 action={updateSubmissionAction}
+                authorizedMediaOrganizationIds={authorizedMediaOrganizationIds}
+                authorizedProductOrganizationIds={
+                  authorizedProductOrganizationIds
+                }
                 initialSubmission={editableSubmission(submission)}
+                mediaSubmissionsEnabled={featureConfig.mediaSubmissions}
                 mode="edit"
                 operationKey={crypto.randomUUID()}
+                organizationClaimsEnabled={featureConfig.organizationClaims}
+                productSubmissionsEnabled={featureConfig.productSubmissions}
+                teamApplicationsEnabled={featureConfig.teamApplications}
+                videoSubmissionsEnabled={featureConfig.videoSubmissions}
               />
             </OperationsPanel>
           ) : null}
@@ -260,8 +303,8 @@ function TermsCheckbox() {
         className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
       />
       <span>
-        I confirm this revision contains no intentional confidential
-        information and understand that review does not guarantee publication.
+        I confirm this revision contains no intentional confidential information
+        and understand that review does not guarantee publication.
       </span>
     </label>
   );
@@ -298,11 +341,35 @@ function editableSubmission(
         submissionType: "competitionListing",
         competitionListingDetails: submission.competitionListingDetails,
       };
+    case "teamApplication":
+      return {
+        ...common,
+        submissionType: "teamApplication",
+        teamApplicationDetails: submission.teamApplicationDetails,
+      };
+    case "organizationClaim":
+      return {
+        ...common,
+        submissionType: "organizationClaim",
+        organizationClaimDetails: submission.organizationClaimDetails,
+      };
+    case "videoSubmission":
+      return {
+        ...common,
+        submissionType: "videoSubmission",
+        videoSubmissionDetails: submission.videoSubmissionDetails,
+      };
     case "mediaPitch":
       return {
         ...common,
         submissionType: "mediaPitch",
         mediaPitchDetails: submission.mediaPitchDetails,
+      };
+    case "productSubmission":
+      return {
+        ...common,
+        submissionType: "productSubmission",
+        productSubmissionDetails: submission.productSubmissionDetails,
       };
     case "correctionRequest":
       return {

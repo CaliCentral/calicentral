@@ -265,6 +265,16 @@ export const athlete = defineType({
       validation: (Rule) => Rule.max(20),
     }),
     defineField({
+      name: "sportingMeasurements",
+      title: "Sourced sporting measurements",
+      type: "array",
+      group: "record",
+      description:
+        "Structured value, unit, date, and provenance. Unknown values remain absent rather than zero.",
+      of: [defineArrayMember({type: "sportingMeasurement"})],
+      validation: (Rule) => Rule.max(30),
+    }),
+    defineField({
       name: "achievements",
       title: "Achievements",
       type: "array",
@@ -373,8 +383,8 @@ export const athlete = defineType({
       type: "string",
       group: "metadata",
       options: {list: prototypeStatusOptions, layout: "radio"},
-      initialValue: "sample-record",
-      validation: (Rule) => Rule.required(),
+      description:
+        "Optional marker for fictional/sample content only. Leave empty for real internal athlete records; public eligibility is reviewed separately.",
     }),
     defineField({
       name: "seo",

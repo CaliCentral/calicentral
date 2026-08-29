@@ -13,8 +13,10 @@ import {
 } from "@/lib/search/contracts";
 import { createPublicMetadata } from "@/lib/site/metadata";
 
+export const dynamic = "force-dynamic";
+
 const description =
-  "Search published Cali Central stories, athletes, competitions, and videos without exposing private submissions or account records.";
+  "Search published Cali Central stories, athletes, teams, competitions, videos, members, organizations, and products without exposing private records.";
 
 export const metadata: Metadata = createPublicMetadata({
   path: "/search",
@@ -35,8 +37,12 @@ const filterLabels: Readonly<Record<PublicSearchFilter, string>> = {
   all: "All",
   stories: "Stories",
   athletes: "Athletes",
+  teams: "Teams",
   competitions: "Competitions",
   videos: "Videos",
+  members: "Members",
+  organizations: "Organizations",
+  products: "Products",
 };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
@@ -59,9 +65,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             Search the field
           </h1>
           <p className="mt-7 max-w-3xl text-base leading-8 text-muted sm:text-lg">
-            Search published stories, athlete profiles, competitions, and
-            videos. Private submissions, account records, editorial notes, and
-            draft content are excluded.
+            Search published stories, athlete profiles, teams, competitions,
+            videos, members, organizations, and products. Private submissions,
+            account records, editorial notes, and drafts are excluded.
           </p>
         </Container>
       </header>
@@ -137,8 +143,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <div className="mt-7 border border-white/15 bg-surface p-6 sm:p-8">
               <p className="max-w-2xl text-sm leading-7 text-muted">
                 Enter at least {MIN_PUBLIC_SEARCH_QUERY_LENGTH} characters. The
-                first version uses the existing bounded public content
-                repositories and does not require a separate search service.
+                Search covers public records only. Private account, moderation,
+                submission, and editorial-review data never appears.
               </p>
             </div>
           ) : !canSearch ? (
@@ -169,12 +175,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <p className="mt-4 line-clamp-3 text-sm leading-7 text-muted">
                     {result.description}
                   </p>
-                  <Link
-                    href={result.href}
-                    className="mt-5 inline-flex min-h-11 items-center font-mono text-xs font-bold uppercase tracking-[0.12em] text-accent underline decoration-accent/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    Open public record
-                  </Link>
+                  <span className="mt-5 block font-mono text-xs font-bold uppercase tracking-[0.12em] text-accent">
+                    Open public record →
+                  </span>
                 </li>
               ))}
             </ul>

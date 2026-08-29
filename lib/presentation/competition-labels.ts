@@ -39,9 +39,12 @@ export const competitionResultsStatusLabels = {
 
 export const competitionDisciplineLabels = {
   freestyle: "Freestyle",
+  streetlifting: "Streetlifting",
+  "weighted-calisthenics": "Weighted calisthenics",
   "static-strength": "Static strength",
   dynamic: "Dynamic",
   endurance: "Endurance",
+  skills: "Skills",
   team: "Team",
   mixed: "Mixed",
 } as const satisfies Record<CompetitionDiscipline, string>;

@@ -15,7 +15,11 @@ export const submissionTypeOptions = [
   {title: "Story pitch", value: "storyPitch"},
   {title: "Athlete nomination", value: "athleteNomination"},
   {title: "Competition listing", value: "competitionListing"},
-  {title: "Media pitch", value: "mediaPitch"},
+  {title: "Team application", value: "teamApplication"},
+  {title: "Organization claim", value: "organizationClaim"},
+  {title: "Video submission", value: "videoSubmission"},
+  {title: "Photo / media submission", value: "mediaPitch"},
+  {title: "Product submission", value: "productSubmission"},
   {title: "Correction request", value: "correctionRequest"},
 ]
 

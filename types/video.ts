@@ -41,6 +41,11 @@ export type VideoOwnershipStatus =
   | "third-party-attributed"
   | "source-unavailable";
 
+export type VideoOrigin =
+  | "cali-central-original"
+  | "community-submission"
+  | "external-source";
+
 export type VideoSourceAttribution = {
   readonly platform: VideoSourcePlatform;
   readonly account?: string;
@@ -104,6 +109,7 @@ export type VideoCredit = {
 };
 
 export type MediaFeature = {
+  readonly canonicalId: string;
   readonly slug: string;
   readonly title: string;
   readonly shortTitle: string;
@@ -113,6 +119,7 @@ export type MediaFeature = {
   readonly category: VideoCategory;
   readonly format: VideoFormat;
   readonly status: VideoStatus;
+  readonly origin: VideoOrigin;
   readonly duration: string;
   readonly durationSeconds: number;
   readonly publishedDate: string;

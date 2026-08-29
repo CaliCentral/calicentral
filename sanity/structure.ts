@@ -1,5 +1,7 @@
 import type {StructureResolver} from "sanity/structure"
 
+type Ordering = {field: string; direction: "asc" | "desc"}
+
 const singletonListItem = (
   S: Parameters<StructureResolver>[0],
   schemaType: string,
@@ -7,161 +9,90 @@ const singletonListItem = (
 ) =>
   S.listItem()
     .title(title)
-    .id(schemaType)
+    .id(`${schemaType}-singleton-item`)
     .child(
       S.document()
+        .id(`${schemaType}-singleton-document`)
         .schemaType(schemaType)
         .documentId(schemaType)
         .title(title),
     )
 
-const orderedDocumentList = (
+const documentListItem = (
   S: Parameters<StructureResolver>[0],
   schemaType: string,
   title: string,
-  orderings: Array<{field: string; direction: "asc" | "desc"}>,
+  orderings: Ordering[],
 ) =>
-  S.documentTypeList(schemaType)
+  S.listItem()
+    .id(`${schemaType}-list-item`)
     .title(title)
-    .defaultOrdering(orderings)
+    .schemaType(schemaType)
+    .child(
+      S.documentTypeList(schemaType)
+        .id(`${schemaType}-document-list`)
+        .title(title)
+        .defaultOrdering(orderings),
+    )
+
+const section = (
+  S: Parameters<StructureResolver>[0],
+  id: string,
+  title: string,
+  items: ReturnType<typeof documentListItem>[],
+) =>
+  S.listItem()
+    .id(`${id}-section-item`)
+    .title(title)
+    .child(
+      S.list()
+        .id(`${id}-section-list`)
+        .title(title)
+        .items(items),
+    )
 
 export const structure: StructureResolver = (S) =>
   S.list()
+    .id("cali-central-root")
     .title("Cali Central")
     .items([
-      S.listItem()
-        .title("Site")
-        .id("site")
-        .child(
-          S.list()
-            .title("Site")
-            .items([singletonListItem(S, "siteSettings", "Site settings")]),
-        ),
+      section(S, "site", "Site", [
+        singletonListItem(S, "siteSettings", "Site settings"),
+      ]),
       S.divider(),
-      S.listItem()
-        .title("Editorial")
-        .id("editorial")
-        .child(
-          S.list()
-            .title("Editorial")
-            .items([
-              S.listItem()
-                .title("Stories")
-                .schemaType("story")
-                .child(
-                  orderedDocumentList(S, "story", "Stories", [
-                    {field: "publishedAt", direction: "desc"},
-                  ]),
-                ),
-              S.listItem()
-                .title("Authors")
-                .schemaType("author")
-                .child(
-                  orderedDocumentList(S, "author", "Authors", [
-                    {field: "name", direction: "asc"},
-                  ]),
-                ),
-            ]),
-        ),
-      S.listItem()
-        .title("Editorial Operations")
-        .id("editorial-operations")
-        .child(
-          S.list()
-            .title("Editorial Operations")
-            .items([
-              S.listItem()
-                .title("Submissions")
-                .schemaType("submission")
-                .child(
-                  orderedDocumentList(S, "submission", "Submissions", [
-                    {field: "updatedAt", direction: "desc"},
-                  ]),
-                ),
-              S.listItem()
-                .title("Contributors")
-                .schemaType("contributorProfile")
-                .child(
-                  orderedDocumentList(
-                    S,
-                    "contributorProfile",
-                    "Contributors",
-                    [{field: "displayName", direction: "asc"}],
-                  ),
-                ),
-              S.listItem()
-                .title("Audit events")
-                .schemaType("auditEvent")
-                .child(
-                  orderedDocumentList(S, "auditEvent", "Audit events", [
-                    {field: "createdAt", direction: "desc"},
-                  ]),
-                ),
-            ]),
-        ),
-      S.listItem()
-        .title("Athletes")
-        .id("athletes-and-standings")
-        .child(
-          S.list()
-            .title("Athletes")
-            .items([
-              S.listItem()
-                .title("Athletes")
-                .schemaType("athlete")
-                .child(
-                  orderedDocumentList(S, "athlete", "Athletes", [
-                    {field: "name", direction: "asc"},
-                  ]),
-                ),
-              S.listItem()
-                .title("Standing categories")
-                .schemaType("rankingCategory")
-                .child(
-                  orderedDocumentList(
-                    S,
-                    "rankingCategory",
-                    "Standing categories",
-                    [
-                      {field: "displayOrder", direction: "asc"},
-                      {field: "title", direction: "asc"},
-                    ],
-                  ),
-                ),
-            ]),
-        ),
-      S.listItem()
-        .title("Competitions")
-        .schemaType("competition")
-        .child(
-          orderedDocumentList(S, "competition", "Competitions", [
-            {field: "startDate", direction: "asc"},
-          ]),
-        ),
-      S.listItem()
-        .title("Media")
-        .id("media")
-        .child(
-          S.list()
-            .title("Media")
-            .items([
-              S.listItem()
-                .title("Videos")
-                .schemaType("video")
-                .child(
-                  orderedDocumentList(S, "video", "Videos", [
-                    {field: "publishedAt", direction: "desc"},
-                  ]),
-                ),
-              S.listItem()
-                .title("Video series")
-                .schemaType("videoSeries")
-                .child(
-                  orderedDocumentList(S, "videoSeries", "Video series", [
-                    {field: "displayOrder", direction: "asc"},
-                    {field: "title", direction: "asc"},
-                  ]),
-                ),
-            ]),
-        ),
+      section(S, "editorial", "Editorial", [
+        documentListItem(S, "story", "Stories", [{field: "publishedAt", direction: "desc"}]),
+        documentListItem(S, "author", "Authors", [{field: "name", direction: "asc"}]),
+      ]),
+      section(S, "editorial-operations", "Editorial Operations", [
+        documentListItem(S, "submission", "Submissions", [{field: "updatedAt", direction: "desc"}]),
+        documentListItem(S, "contributorProfile", "Contributors", [{field: "displayName", direction: "asc"}]),
+        documentListItem(S, "auditEvent", "Audit events", [{field: "createdAt", direction: "desc"}]),
+      ]),
+      section(S, "athletes-rankings", "Athletes & Rankings", [
+        documentListItem(S, "athlete", "Athletes", [{field: "name", direction: "asc"}]),
+        documentListItem(S, "rankingCategory", "League standing categories", [{field: "displayOrder", direction: "asc"}]),
+        documentListItem(S, "rankingProvider", "Ranking providers", [{field: "name", direction: "asc"}]),
+        documentListItem(S, "rankingSystem", "Athlete ranking systems", [{field: "name", direction: "asc"}]),
+        documentListItem(S, "rankingSnapshot", "Athlete ranking snapshots", [{field: "rankingDate", direction: "desc"}]),
+        documentListItem(S, "externalAthleteIdentity", "External athlete identities (private)", [{field: "updatedAt", direction: "desc"}]),
+      ]),
+      section(S, "teams", "Teams", [
+        documentListItem(S, "team", "Public team records", [{field: "name", direction: "asc"}]),
+        documentListItem(S, "teamSeason", "Team seasons & rosters", [{field: "seasonLabel", direction: "desc"}]),
+      ]),
+      section(S, "competitions", "Competitions", [
+        documentListItem(S, "competition", "Competition editions", [{field: "startDate", direction: "asc"}]),
+        documentListItem(S, "externalCompetitionIdentity", "External competition identities (private)", [{field: "updatedAt", direction: "desc"}]),
+        documentListItem(S, "sportingResult", "Structured sporting results", [{field: "_updatedAt", direction: "desc"}]),
+      ]),
+      section(S, "organizations-commerce", "Organizations & Commerce", [
+        documentListItem(S, "organization", "Organizations", [{field: "name", direction: "asc"}]),
+        documentListItem(S, "product", "Curated products", [{field: "featured", direction: "desc"}, {field: "name", direction: "asc"}]),
+        documentListItem(S, "ruleset", "Ruleset metadata", [{field: "effectiveFrom", direction: "desc"}]),
+      ]),
+      section(S, "media", "Media", [
+        documentListItem(S, "video", "Videos", [{field: "publishedAt", direction: "desc"}]),
+        documentListItem(S, "videoSeries", "Video series", [{field: "displayOrder", direction: "asc"}]),
+      ]),
     ])

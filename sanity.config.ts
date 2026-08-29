@@ -69,6 +69,6 @@ export default defineConfig({
       resolve: presentationResolve,
       allowOrigins: [siteOrigin],
     }),
-    ...(process.env.NODE_ENV === "development" ? [visionTool()] : []),
+    visionTool(),
   ],
 })

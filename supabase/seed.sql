@@ -1,0 +1,2 @@
+-- Intentionally empty. Migration verification uses transaction-scoped test
+-- fixtures so `supabase db reset` never invents authoritative production data.

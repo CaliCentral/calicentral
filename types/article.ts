@@ -104,6 +104,7 @@ export type ArticlePortableTextBlock =
   | PortableTextEditorialImage;
 
 export type Article = {
+  readonly canonicalId: string;
   readonly slug: string;
   readonly title: string;
   readonly dek: string;

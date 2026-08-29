@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { videoStatusLabels } from "@/components/videos/video-labels";
+import { VideoOriginLabel } from "@/components/videos/video-origin-label";
 import { VideoVisual } from "@/components/videos/video-visual";
 import { formatPlatformMetric } from "@/lib/media/provenance";
 import type { MediaFeature } from "@/types/video";
@@ -12,8 +13,21 @@ type VideoCardProps = {
 export function VideoCard({ video }: VideoCardProps) {
   const sourceLabel = video.source
     ? [video.source.platform, video.source.account].filter(Boolean).join(" / ")
-    : "Attribution unavailable";
+    : video.origin === "cali-central-original"
+      ? "Cali Central"
+      : "Attribution unavailable";
   const platformMetric = video.platformMetrics?.[0];
+  const relationships = [
+    video.relatedAthleteSlugs.length > 0
+      ? `${video.relatedAthleteSlugs.length} athlete${video.relatedAthleteSlugs.length === 1 ? "" : "s"}`
+      : null,
+    video.relatedCompetitionSlugs.length > 0
+      ? `${video.relatedCompetitionSlugs.length} competition${video.relatedCompetitionSlugs.length === 1 ? "" : "s"}`
+      : null,
+    video.relatedStorySlugs.length > 0
+      ? `${video.relatedStorySlugs.length} stor${video.relatedStorySlugs.length === 1 ? "y" : "ies"}`
+      : null,
+  ].filter((relationship): relationship is string => Boolean(relationship));
 
   return (
     <article className="group relative flex h-full flex-col border border-white/15 bg-canvas transition-colors hover:border-accent/60">
@@ -53,7 +67,8 @@ export function VideoCard({ video }: VideoCardProps) {
         </p>
 
         <div className="mt-auto pt-6">
-          <div className="flex flex-wrap gap-2">
+          <VideoOriginLabel origin={video.origin} />
+          <div className="mt-3 flex flex-wrap gap-2">
             <span className="border border-white/15 px-2.5 py-1.5 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-ink/80">
               {video.category}
             </span>
@@ -61,12 +76,17 @@ export function VideoCard({ video }: VideoCardProps) {
               {video.format}
             </span>
           </div>
+          {relationships.length > 0 ? (
+            <p className="mt-4 font-mono text-[0.62rem] font-bold uppercase leading-5 tracking-[0.12em] text-muted">
+              Linked / {relationships.join(" · ")}
+            </p>
+          ) : null}
           <div className="mt-4 border-t border-white/12 pt-4 font-mono text-[0.62rem] font-bold uppercase leading-5 tracking-[0.12em] text-muted">
             <p>Source / {sourceLabel}</p>
             <p className="mt-1">
               {platformMetric
                 ? formatPlatformMetric(platformMetric)
-                : "External view count unavailable"}
+                : "Platform metric unavailable"}
             </p>
           </div>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/12 pt-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted">

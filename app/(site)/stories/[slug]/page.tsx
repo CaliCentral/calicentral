@@ -9,10 +9,8 @@ import { ArticleProgress } from "@/components/stories/article-progress";
 import { RelatedStories } from "@/components/stories/related-stories";
 import { RelatedStoryField } from "@/components/stories/related-story-field";
 import { Container } from "@/components/ui/container";
-import {
-  getStoryPage,
-  getStorySlugs,
-} from "@/lib/content";
+import { ContentDiscussion } from "@/components/community/content-discussion";
+import { getStoryPage } from "@/lib/content";
 import { isPublicSlug } from "@/lib/content/public-slug";
 import {
   createPublicMetadata,
@@ -23,14 +21,15 @@ type StoryPageProps = {
   readonly params: Promise<{
     slug: string;
   }>;
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateStaticParams() {
-  const slugs = await getStorySlugs();
+export const dynamic = "force-dynamic";
 
-  return [...new Set(slugs.filter(isPublicSlug))].map((slug) => ({
-    slug,
-  }));
+function commentOffset(value: string | string[] | undefined): number {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  const parsed = Number(candidate);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 10_000 ? parsed : 0;
 }
 
 export async function generateMetadata({
@@ -79,8 +78,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function StoryPage({ params }: StoryPageProps) {
-  const { slug } = await params;
+export default async function StoryPage({ params, searchParams }: StoryPageProps) {
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   const pageData = await getStoryPage(slug);
 
   if (!pageData || !isPublicSlug(pageData.story.slug)) {
@@ -122,6 +121,14 @@ export default async function StoryPage({ params }: StoryPageProps) {
             </div>
           </Container>
         </section>
+
+        <ContentDiscussion
+          targetType="story"
+          targetId={article.canonicalId}
+          title={article.title}
+          returnTo={`/stories/${article.slug}`}
+          commentsOffset={commentOffset(query.commentsOffset)}
+        />
 
         <RelatedStories articles={relatedArticles} />
         <RelatedStoryField

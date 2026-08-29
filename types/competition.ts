@@ -73,9 +73,12 @@ export type CompetitionActionLink = {
 
 export type CompetitionDiscipline =
   | "freestyle"
+  | "streetlifting"
+  | "weighted-calisthenics"
   | "static-strength"
   | "dynamic"
   | "endurance"
+  | "skills"
   | "team"
   | "mixed";
 
@@ -155,6 +158,7 @@ export type CompetitionNotice = {
 };
 
 export type Competition = {
+  readonly canonicalId: string;
   readonly slug: string;
   readonly name: string;
   readonly shortName: string;

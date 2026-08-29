@@ -10,7 +10,7 @@ const contentSecurityPolicyReportOnly = [
   "frame-src 'self'",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io https://avatars.githubusercontent.com https://lh3.googleusercontent.com",
+  "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "media-src 'self' blob: https://cdn.sanity.io",
   "connect-src 'self' https://*.api.sanity.io https://*.apicdn.sanity.io wss://*.api.sanity.io",
@@ -29,8 +29,7 @@ const baselineSecurityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value:
-      "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
+    value: "camera=(), geolocation=(), microphone=(), payment=(), usb=()",
   },
   {
     key: "Referrer-Policy",
@@ -58,7 +57,10 @@ const isProductionSiteStage =
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactCompiler: true,
-  serverExternalPackages: ["jose"],
+  // OpenNext performs the final Worker bundle. Keeping Zod external to each
+  // Turbopack route chunk lets that final bundle include one shared copy
+  // instead of repeating the same validation runtime across route groups.
+  serverExternalPackages: ["jose", "zod"],
   images: {
     loader: "custom",
     loaderFile: "./sanity-image-loader.ts",
@@ -67,6 +69,21 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.sanity.io",
         pathname: "/images/**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        pathname: "/vi/**",
       },
     ],
   },

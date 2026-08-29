@@ -11,13 +11,14 @@ Central-owned competitions.
 Cali Central is in early development. The current public prototype provides a
 branded, responsive homepage, a six-story editorial archive with dynamic
 article pages, an eight-profile athlete directory, dynamic athlete dossiers,
-four prototype ranking categories, a six-event competition directory with
+distinct provider-attributed athlete-ranking and competition-standings
+surfaces, a public team directory with fictional fallback records, a six-event competition directory with
 dynamic event records, and an eight-record static media archive with dynamic
 editorial detail pages. The public content layer is integrated with Sanity CMS;
 typed local sample data remains a centralized build-safe fallback when no
 Sanity project is configured.
 
-The repository includes structured schemas, an embedded Studio, typed GROQ,
+The repository includes structured schemas, a standalone Sanity Studio, typed GROQ,
 Portable Text and image rendering, protected Draft Mode, Visual Editing, and a
 guarded sample-content migration tool. It also includes build-safe Auth.js
 OAuth integration, a protected contributor portal, structured submission
@@ -31,23 +32,34 @@ otherwise.
 
 ## Technology stack
 
-The approved platform direction is:
+The approved target platform direction is:
 
 - Next.js with the App Router
 - React
 - TypeScript
 - Tailwind CSS
-- Cloudflare Workers
-- Sanity CMS
+- Vercel
+- Supabase PostgreSQL and Auth
+- Cloudflare R2 for large media objects
 - GitHub Actions
 
-Next.js, React, TypeScript, Tailwind CSS, Sanity, and the Cloudflare
-Workers/OpenNext build path are configured. D1 and R2 are intentionally absent:
-the current product has no relational-storage or direct-upload responsibility
-for them. No infrastructure is active until an owner performs the documented
-manual account-side steps.
+The repository is in a gated dual-provider migration. Next.js, React,
+TypeScript, Tailwind CSS, Sanity, and the Cloudflare Workers/OpenNext build path
+remain configured while the Supabase schema, RLS, offline import tooling,
+Supabase Auth boundary, standard R2 adapter, Upstash rate-limit adapter, and
+native Vercel configuration are validated. A typed community repository and
+additive D1 migrations now support a conditional community UI with feeds, member
+pages, discussions, reposts, private saves/collections, moderation, approved
+athlete-control links, organization follows, notification preferences,
+typed/audience-scoped posts, and mute controls. Production and preview D1
+and R2 resources are provisioned and isolated in Wrangler, and distributed
+rate-limit bindings are configured. Production community/media flags remain
+off; no production application infrastructure is active until a reviewed
+deployment and activation window.
 
-See [`docs/decisions`](docs/decisions) for accepted architecture decisions.
+See [`docs/decisions`](docs/decisions) and
+[`docs/supabase-migration.md`](docs/supabase-migration.md) for the accepted
+target and local workflow.
 Introducing a different framework, database, CMS, authentication provider, or
 paid dependency requires a documented architecture decision.
 
@@ -88,18 +100,22 @@ npm run dev
 Then open [http://localhost:3000](http://localhost:3000).
 
 Application routes live under `app/`. The current public routes are `/`,
-`/stories`, `/stories/[slug]`, `/athletes`, `/athletes/[slug]`, and
-`/standings`, `/standings/methodology`, `/competitions`,
+`/stories`, `/stories/[slug]`, `/athletes`, `/athletes/[slug]`, `/teams`,
+`/teams/[slug]`, `/rankings`, `/standings`, `/standings/methodology`, `/competitions`,
 `/competitions/calendar`, `/competitions/[slug]`, `/videos`,
 `/videos/archive`, `/videos/[slug]`, `/search`, `/join`, `/verification`,
 `/corrections`, `/editorial-standards`, `/privacy`, `/terms`, and
-`/accessibility`. `/rankings` permanently redirects to `/standings`. The embedded
-editorial interface is available at `/studio` after a Sanity project is
-configured. Changes made during development are reflected by the Next.js
-development server.
+`/accessibility`. Feature-gated community routes include `/community`,
+`/community/posts/[id]`, `/members/[handle]`, `/community-guidelines`,
+`/account/saved`, `/account/collections`, `/account/collections/[id]`,
+`/account/following`, `/account/notifications`, and the
+editor-only `/admin/community`. Version-aware `/wcl` and `/wcl/rules` routes
+remain behind their server feature flag. The editorial interface is built and
+hosted separately from the public Worker. `/studio` is a noindex handoff page,
+and editor-only navigation uses the configured standalone Studio URL.
 
 Public account entry begins at `/join` or `/sign-in`. The Join guide presents
-member, athlete, organizer, and contributor intents through the same Auth.js
+member, athlete, team manager, organizer, and contributor intents through the same Auth.js
 identity; selecting an intent does not grant a role, verification, or
 publication access. Authenticated contributors use `/account`; active editors
 and administrators use the separately protected `/admin` workspace. Protected
@@ -138,7 +154,14 @@ npm run sanity:types
 | `npm run sanity:schema` | Extract `schema.json` with required-field enforcement. |
 | `npm run sanity:typegen` | Generate `sanity.types.ts` from schemas and named queries. |
 | `npm run sanity:types` | Extract the schema, then generate types. |
+| `npm run studio:dev` | Start the standalone Sanity Studio locally. |
+| `npm run studio:build` | Build the standalone Studio under ignored `.sanity/dist`. |
 | `npm run sanity:seed` | Validate the deterministic fictional seed locally; no remote write. |
+| `npm run sanity:import:official-streetlifting` | Generate the reviewed Official Streetlifting manifest/import/cleanup dry run; no mutation by default. |
+| `npm run sanity:import:competitions` | Validate or dry-run provider-neutral reviewed competition manifests; no mutation by default. |
+| `npm run sanity:import:organizations` | Validate or dry-run reviewed canonical organization manifests; no mutation by default. |
+| `npm run test:source-registry` | Validate source approval statuses and required evidence without Sanity access. |
+| `npm run sanity:report:production-readiness` | Generate the read-only production composition, manifest eligibility, and remaining sample-content reports under `.tmp/`. |
 | `npm run cf-typegen` | Regenerate Worker binding types from Wrangler config. |
 | `npm run cf:build` | Build the OpenNext Cloudflare Worker artifact. |
 | `npm run preview` | Build and run the Worker locally under workerd; does not publish. |
@@ -156,12 +179,16 @@ must not be run as routine validation.
 ├── app/                  # Public, auth, account, admin, Studio, and API routes
 ├── components/
 │   ├── athletes/         # Athlete directory and profile presentation
+│   ├── account/          # Private saved-library and collection presentation
 │   ├── competitions/     # Competition directory and event records
+│   ├── community/        # Feed, discussion, repost, save, and share UI
 │   ├── home/             # Focused public homepage sections
 │   ├── layout/           # Shared header, navigation, and footer
 │   ├── operations/       # Contributor and editorial operations UI
+│   ├── members/          # Safe public member-profile presentation
+│   ├── teams/            # Public team directory and profile presentation
 │   ├── standings/        # Gated standings, verified results, methodology
-│   ├── rankings/         # Permanent compatibility redirect to /standings
+│   ├── rankings/         # Provider-attributed athlete ranking snapshots
 │   ├── stories/          # Story cards, article layouts, and artwork
 │   ├── videos/           # Static media archive and editorial records
 │   └── ui/               # Small reusable presentation primitives
@@ -176,8 +203,10 @@ must not be run as routine validation.
 ├── public/               # Static public assets
 ├── lib/
 │   ├── auth/             # Server-only identity, session, and role helpers
+│   ├── community/        # Fail-closed typed D1 repository and media boundary
 │   ├── content/          # Server-only repository, fallback, and CMS adapters
 │   ├── operations/       # Validation, workflow, repositories, and actions
+│   ├── wcl/              # Pure versioned WCL calculations and readiness
 │   └── presentation/     # Content-neutral display helpers
 ├── sanity/               # Schemas, queries, mappers, Studio, and preview config
 ├── scripts/              # Guarded deterministic migration tooling
@@ -215,7 +244,7 @@ The complete build/runtime/secret matrix is in
 ## Contributor portal and editorial operations
 
 The public `/join` experience uses a reusable non-privileged capability
-contract for member, athlete, organizer, and contributor onboarding. These
+contract for member, athlete, team manager, organizer, and contributor onboarding. These
 capabilities are deliberately separate from the trusted `contributor`,
 `editor`, and `admin` portal roles. The selected Join intent currently guides
 the post-authentication screen only; it is not persisted as a permission or
@@ -229,7 +258,7 @@ no provider configured, the public site and production build remain available,
 `/sign-in` shows setup guidance, and no development bypass or default
 administrator is created.
 
-The portal supports contributor profiles, five structured submission types,
+The portal supports contributor profiles, six structured submission types,
 draft/save/submit/revision/withdrawal workflows, contributor-visible feedback,
 an editor queue, reviewer assignment, private notes, access and role management,
 and server-authored audit records. “Approved” means approved for editorial
@@ -265,7 +294,7 @@ Never commit:
 ## Search, trust, and update preferences
 
 `/search` performs a bounded server-side search over published stories,
-athletes, competitions, and videos through the existing content repository.
+athletes, teams, competitions, and videos through the existing content repository.
 It explicitly excludes drafts, private submissions, account records, and
 moderation notes; no separate search service is required.
 
@@ -305,12 +334,16 @@ preview and a manual deploy command, but Milestone 8 does not publish a Worker,
 attach a domain, change DNS, upload secrets, alter OAuth/Sanity dashboards, or
 enable automatic deployment.
 
-Published Sanity content uses a deliberate rebuild-on-publish model; Draft Mode
-provides authenticated preview. The unified production Sanity dataset must be
+Published page queries mount the supported `SanityLive` listener for tag-based
+refresh without exposing a browser token; Draft Mode provides authenticated
+preview and visual editing. Metadata/sitemap release behavior still requires
+production review. The unified production Sanity dataset must be
 private because it also stores contributor and operational records.
 
 Production review:
 
+- [`docs/production-data-refresh.md`](docs/production-data-refresh.md)
+- [`docs/approved-data-owner-guide.md`](docs/approved-data-owner-guide.md)
 - [`docs/production-deployment.md`](docs/production-deployment.md)
 - [`docs/production-environment.md`](docs/production-environment.md)
 - [`docs/launch-checklist.md`](docs/launch-checklist.md)

@@ -521,6 +521,66 @@
   },
   {
     "type": "type",
+    "name": "organization.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "organization"
+    }
+  },
+  {
+    "type": "type",
+    "name": "product.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "product"
+    }
+  },
+  {
+    "type": "type",
     "name": "auditEvent.reference",
     "value": {
       "type": "object",
@@ -610,7 +670,23 @@
             },
             {
               "type": "string",
+              "value": "teamApplication"
+            },
+            {
+              "type": "string",
+              "value": "organizationClaim"
+            },
+            {
+              "type": "string",
+              "value": "videoSubmission"
+            },
+            {
+              "type": "string",
               "value": "mediaPitch"
+            },
+            {
+              "type": "string",
+              "value": "productSubmission"
             },
             {
               "type": "string",
@@ -699,6 +775,38 @@
         "value": {
           "type": "inline",
           "name": "mediaPitchDetails"
+        },
+        "optional": true
+      },
+      "organizationClaimDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organizationClaimDetails"
+        },
+        "optional": true
+      },
+      "videoSubmissionDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "videoSubmissionDetails"
+        },
+        "optional": true
+      },
+      "productSubmissionDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "productSubmissionDetails"
+        },
+        "optional": true
+      },
+      "teamApplicationDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "teamApplicationDetails"
         },
         "optional": true
       },
@@ -838,6 +946,22 @@
         "value": {
           "type": "inline",
           "name": "video.reference"
+        },
+        "optional": true
+      },
+      "linkedOrganization": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": true
+      },
+      "linkedProduct": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "product.reference"
         },
         "optional": true
       },
@@ -1017,6 +1141,2716 @@
     }
   },
   {
+    "name": "teamApplicationDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "teamApplicationDetails"
+          }
+        },
+        "proposedTeamName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "shortName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "code": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "teamType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "prospective-wcl-team"
+              },
+              {
+                "type": "string",
+                "value": "competitive-team"
+              },
+              {
+                "type": "string",
+                "value": "crew"
+              },
+              {
+                "type": "string",
+                "value": "club"
+              },
+              {
+                "type": "string",
+                "value": "gym-team"
+              },
+              {
+                "type": "string",
+                "value": "national-team"
+              },
+              {
+                "type": "string",
+                "value": "other"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "representedIdentity": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "country": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "Andorra"
+              },
+              {
+                "type": "string",
+                "value": "United Arab Emirates"
+              },
+              {
+                "type": "string",
+                "value": "Afghanistan"
+              },
+              {
+                "type": "string",
+                "value": "Antigua & Barbuda"
+              },
+              {
+                "type": "string",
+                "value": "Anguilla"
+              },
+              {
+                "type": "string",
+                "value": "Albania"
+              },
+              {
+                "type": "string",
+                "value": "Armenia"
+              },
+              {
+                "type": "string",
+                "value": "Angola"
+              },
+              {
+                "type": "string",
+                "value": "Antarctica"
+              },
+              {
+                "type": "string",
+                "value": "Argentina"
+              },
+              {
+                "type": "string",
+                "value": "American Samoa"
+              },
+              {
+                "type": "string",
+                "value": "Austria"
+              },
+              {
+                "type": "string",
+                "value": "Australia"
+              },
+              {
+                "type": "string",
+                "value": "Aruba"
+              },
+              {
+                "type": "string",
+                "value": "Åland Islands"
+              },
+              {
+                "type": "string",
+                "value": "Azerbaijan"
+              },
+              {
+                "type": "string",
+                "value": "Bosnia & Herzegovina"
+              },
+              {
+                "type": "string",
+                "value": "Barbados"
+              },
+              {
+                "type": "string",
+                "value": "Bangladesh"
+              },
+              {
+                "type": "string",
+                "value": "Belgium"
+              },
+              {
+                "type": "string",
+                "value": "Burkina Faso"
+              },
+              {
+                "type": "string",
+                "value": "Bulgaria"
+              },
+              {
+                "type": "string",
+                "value": "Bahrain"
+              },
+              {
+                "type": "string",
+                "value": "Burundi"
+              },
+              {
+                "type": "string",
+                "value": "Benin"
+              },
+              {
+                "type": "string",
+                "value": "St. Barthélemy"
+              },
+              {
+                "type": "string",
+                "value": "Bermuda"
+              },
+              {
+                "type": "string",
+                "value": "Brunei"
+              },
+              {
+                "type": "string",
+                "value": "Bolivia"
+              },
+              {
+                "type": "string",
+                "value": "Caribbean Netherlands"
+              },
+              {
+                "type": "string",
+                "value": "Brazil"
+              },
+              {
+                "type": "string",
+                "value": "Bahamas"
+              },
+              {
+                "type": "string",
+                "value": "Bhutan"
+              },
+              {
+                "type": "string",
+                "value": "Bouvet Island"
+              },
+              {
+                "type": "string",
+                "value": "Botswana"
+              },
+              {
+                "type": "string",
+                "value": "Belarus"
+              },
+              {
+                "type": "string",
+                "value": "Belize"
+              },
+              {
+                "type": "string",
+                "value": "Canada"
+              },
+              {
+                "type": "string",
+                "value": "Cocos (Keeling) Islands"
+              },
+              {
+                "type": "string",
+                "value": "Congo - Kinshasa"
+              },
+              {
+                "type": "string",
+                "value": "Central African Republic"
+              },
+              {
+                "type": "string",
+                "value": "Congo - Brazzaville"
+              },
+              {
+                "type": "string",
+                "value": "Switzerland"
+              },
+              {
+                "type": "string",
+                "value": "Côte d’Ivoire"
+              },
+              {
+                "type": "string",
+                "value": "Cook Islands"
+              },
+              {
+                "type": "string",
+                "value": "Chile"
+              },
+              {
+                "type": "string",
+                "value": "Cameroon"
+              },
+              {
+                "type": "string",
+                "value": "China"
+              },
+              {
+                "type": "string",
+                "value": "Colombia"
+              },
+              {
+                "type": "string",
+                "value": "Costa Rica"
+              },
+              {
+                "type": "string",
+                "value": "Cuba"
+              },
+              {
+                "type": "string",
+                "value": "Cape Verde"
+              },
+              {
+                "type": "string",
+                "value": "Curaçao"
+              },
+              {
+                "type": "string",
+                "value": "Christmas Island"
+              },
+              {
+                "type": "string",
+                "value": "Cyprus"
+              },
+              {
+                "type": "string",
+                "value": "Czechia"
+              },
+              {
+                "type": "string",
+                "value": "Germany"
+              },
+              {
+                "type": "string",
+                "value": "Djibouti"
+              },
+              {
+                "type": "string",
+                "value": "Denmark"
+              },
+              {
+                "type": "string",
+                "value": "Dominica"
+              },
+              {
+                "type": "string",
+                "value": "Dominican Republic"
+              },
+              {
+                "type": "string",
+                "value": "Algeria"
+              },
+              {
+                "type": "string",
+                "value": "Ecuador"
+              },
+              {
+                "type": "string",
+                "value": "Estonia"
+              },
+              {
+                "type": "string",
+                "value": "Egypt"
+              },
+              {
+                "type": "string",
+                "value": "Western Sahara"
+              },
+              {
+                "type": "string",
+                "value": "Eritrea"
+              },
+              {
+                "type": "string",
+                "value": "Spain"
+              },
+              {
+                "type": "string",
+                "value": "Ethiopia"
+              },
+              {
+                "type": "string",
+                "value": "Finland"
+              },
+              {
+                "type": "string",
+                "value": "Fiji"
+              },
+              {
+                "type": "string",
+                "value": "Falkland Islands"
+              },
+              {
+                "type": "string",
+                "value": "Micronesia"
+              },
+              {
+                "type": "string",
+                "value": "Faroe Islands"
+              },
+              {
+                "type": "string",
+                "value": "France"
+              },
+              {
+                "type": "string",
+                "value": "Gabon"
+              },
+              {
+                "type": "string",
+                "value": "United Kingdom"
+              },
+              {
+                "type": "string",
+                "value": "Grenada"
+              },
+              {
+                "type": "string",
+                "value": "Georgia"
+              },
+              {
+                "type": "string",
+                "value": "French Guiana"
+              },
+              {
+                "type": "string",
+                "value": "Guernsey"
+              },
+              {
+                "type": "string",
+                "value": "Ghana"
+              },
+              {
+                "type": "string",
+                "value": "Gibraltar"
+              },
+              {
+                "type": "string",
+                "value": "Greenland"
+              },
+              {
+                "type": "string",
+                "value": "Gambia"
+              },
+              {
+                "type": "string",
+                "value": "Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Guadeloupe"
+              },
+              {
+                "type": "string",
+                "value": "Equatorial Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Greece"
+              },
+              {
+                "type": "string",
+                "value": "South Georgia & South Sandwich Islands"
+              },
+              {
+                "type": "string",
+                "value": "Guatemala"
+              },
+              {
+                "type": "string",
+                "value": "Guam"
+              },
+              {
+                "type": "string",
+                "value": "Guinea-Bissau"
+              },
+              {
+                "type": "string",
+                "value": "Guyana"
+              },
+              {
+                "type": "string",
+                "value": "Hong Kong SAR China"
+              },
+              {
+                "type": "string",
+                "value": "Heard & McDonald Islands"
+              },
+              {
+                "type": "string",
+                "value": "Honduras"
+              },
+              {
+                "type": "string",
+                "value": "Croatia"
+              },
+              {
+                "type": "string",
+                "value": "Haiti"
+              },
+              {
+                "type": "string",
+                "value": "Hungary"
+              },
+              {
+                "type": "string",
+                "value": "Indonesia"
+              },
+              {
+                "type": "string",
+                "value": "Ireland"
+              },
+              {
+                "type": "string",
+                "value": "Israel"
+              },
+              {
+                "type": "string",
+                "value": "Isle of Man"
+              },
+              {
+                "type": "string",
+                "value": "India"
+              },
+              {
+                "type": "string",
+                "value": "British Indian Ocean Territory"
+              },
+              {
+                "type": "string",
+                "value": "Iraq"
+              },
+              {
+                "type": "string",
+                "value": "Iran"
+              },
+              {
+                "type": "string",
+                "value": "Iceland"
+              },
+              {
+                "type": "string",
+                "value": "Italy"
+              },
+              {
+                "type": "string",
+                "value": "Jersey"
+              },
+              {
+                "type": "string",
+                "value": "Jamaica"
+              },
+              {
+                "type": "string",
+                "value": "Jordan"
+              },
+              {
+                "type": "string",
+                "value": "Japan"
+              },
+              {
+                "type": "string",
+                "value": "Kenya"
+              },
+              {
+                "type": "string",
+                "value": "Kyrgyzstan"
+              },
+              {
+                "type": "string",
+                "value": "Cambodia"
+              },
+              {
+                "type": "string",
+                "value": "Kiribati"
+              },
+              {
+                "type": "string",
+                "value": "Comoros"
+              },
+              {
+                "type": "string",
+                "value": "St. Kitts & Nevis"
+              },
+              {
+                "type": "string",
+                "value": "North Korea"
+              },
+              {
+                "type": "string",
+                "value": "South Korea"
+              },
+              {
+                "type": "string",
+                "value": "Kuwait"
+              },
+              {
+                "type": "string",
+                "value": "Cayman Islands"
+              },
+              {
+                "type": "string",
+                "value": "Kazakhstan"
+              },
+              {
+                "type": "string",
+                "value": "Laos"
+              },
+              {
+                "type": "string",
+                "value": "Lebanon"
+              },
+              {
+                "type": "string",
+                "value": "St. Lucia"
+              },
+              {
+                "type": "string",
+                "value": "Liechtenstein"
+              },
+              {
+                "type": "string",
+                "value": "Sri Lanka"
+              },
+              {
+                "type": "string",
+                "value": "Liberia"
+              },
+              {
+                "type": "string",
+                "value": "Lesotho"
+              },
+              {
+                "type": "string",
+                "value": "Lithuania"
+              },
+              {
+                "type": "string",
+                "value": "Luxembourg"
+              },
+              {
+                "type": "string",
+                "value": "Latvia"
+              },
+              {
+                "type": "string",
+                "value": "Libya"
+              },
+              {
+                "type": "string",
+                "value": "Morocco"
+              },
+              {
+                "type": "string",
+                "value": "Monaco"
+              },
+              {
+                "type": "string",
+                "value": "Moldova"
+              },
+              {
+                "type": "string",
+                "value": "Montenegro"
+              },
+              {
+                "type": "string",
+                "value": "St. Martin"
+              },
+              {
+                "type": "string",
+                "value": "Madagascar"
+              },
+              {
+                "type": "string",
+                "value": "Marshall Islands"
+              },
+              {
+                "type": "string",
+                "value": "North Macedonia"
+              },
+              {
+                "type": "string",
+                "value": "Mali"
+              },
+              {
+                "type": "string",
+                "value": "Myanmar (Burma)"
+              },
+              {
+                "type": "string",
+                "value": "Mongolia"
+              },
+              {
+                "type": "string",
+                "value": "Macao SAR China"
+              },
+              {
+                "type": "string",
+                "value": "Northern Mariana Islands"
+              },
+              {
+                "type": "string",
+                "value": "Martinique"
+              },
+              {
+                "type": "string",
+                "value": "Mauritania"
+              },
+              {
+                "type": "string",
+                "value": "Montserrat"
+              },
+              {
+                "type": "string",
+                "value": "Malta"
+              },
+              {
+                "type": "string",
+                "value": "Mauritius"
+              },
+              {
+                "type": "string",
+                "value": "Maldives"
+              },
+              {
+                "type": "string",
+                "value": "Malawi"
+              },
+              {
+                "type": "string",
+                "value": "Mexico"
+              },
+              {
+                "type": "string",
+                "value": "Malaysia"
+              },
+              {
+                "type": "string",
+                "value": "Mozambique"
+              },
+              {
+                "type": "string",
+                "value": "Namibia"
+              },
+              {
+                "type": "string",
+                "value": "New Caledonia"
+              },
+              {
+                "type": "string",
+                "value": "Niger"
+              },
+              {
+                "type": "string",
+                "value": "Norfolk Island"
+              },
+              {
+                "type": "string",
+                "value": "Nigeria"
+              },
+              {
+                "type": "string",
+                "value": "Nicaragua"
+              },
+              {
+                "type": "string",
+                "value": "Netherlands"
+              },
+              {
+                "type": "string",
+                "value": "Norway"
+              },
+              {
+                "type": "string",
+                "value": "Nepal"
+              },
+              {
+                "type": "string",
+                "value": "Nauru"
+              },
+              {
+                "type": "string",
+                "value": "Niue"
+              },
+              {
+                "type": "string",
+                "value": "New Zealand"
+              },
+              {
+                "type": "string",
+                "value": "Oman"
+              },
+              {
+                "type": "string",
+                "value": "Panama"
+              },
+              {
+                "type": "string",
+                "value": "Peru"
+              },
+              {
+                "type": "string",
+                "value": "French Polynesia"
+              },
+              {
+                "type": "string",
+                "value": "Papua New Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Philippines"
+              },
+              {
+                "type": "string",
+                "value": "Pakistan"
+              },
+              {
+                "type": "string",
+                "value": "Poland"
+              },
+              {
+                "type": "string",
+                "value": "St. Pierre & Miquelon"
+              },
+              {
+                "type": "string",
+                "value": "Pitcairn Islands"
+              },
+              {
+                "type": "string",
+                "value": "Puerto Rico"
+              },
+              {
+                "type": "string",
+                "value": "Palestinian Territories"
+              },
+              {
+                "type": "string",
+                "value": "Portugal"
+              },
+              {
+                "type": "string",
+                "value": "Palau"
+              },
+              {
+                "type": "string",
+                "value": "Paraguay"
+              },
+              {
+                "type": "string",
+                "value": "Qatar"
+              },
+              {
+                "type": "string",
+                "value": "Réunion"
+              },
+              {
+                "type": "string",
+                "value": "Romania"
+              },
+              {
+                "type": "string",
+                "value": "Serbia"
+              },
+              {
+                "type": "string",
+                "value": "Russia"
+              },
+              {
+                "type": "string",
+                "value": "Rwanda"
+              },
+              {
+                "type": "string",
+                "value": "Saudi Arabia"
+              },
+              {
+                "type": "string",
+                "value": "Solomon Islands"
+              },
+              {
+                "type": "string",
+                "value": "Seychelles"
+              },
+              {
+                "type": "string",
+                "value": "Sudan"
+              },
+              {
+                "type": "string",
+                "value": "Sweden"
+              },
+              {
+                "type": "string",
+                "value": "Singapore"
+              },
+              {
+                "type": "string",
+                "value": "St. Helena"
+              },
+              {
+                "type": "string",
+                "value": "Slovenia"
+              },
+              {
+                "type": "string",
+                "value": "Svalbard & Jan Mayen"
+              },
+              {
+                "type": "string",
+                "value": "Slovakia"
+              },
+              {
+                "type": "string",
+                "value": "Sierra Leone"
+              },
+              {
+                "type": "string",
+                "value": "San Marino"
+              },
+              {
+                "type": "string",
+                "value": "Senegal"
+              },
+              {
+                "type": "string",
+                "value": "Somalia"
+              },
+              {
+                "type": "string",
+                "value": "Suriname"
+              },
+              {
+                "type": "string",
+                "value": "South Sudan"
+              },
+              {
+                "type": "string",
+                "value": "São Tomé & Príncipe"
+              },
+              {
+                "type": "string",
+                "value": "El Salvador"
+              },
+              {
+                "type": "string",
+                "value": "Sint Maarten"
+              },
+              {
+                "type": "string",
+                "value": "Syria"
+              },
+              {
+                "type": "string",
+                "value": "Eswatini"
+              },
+              {
+                "type": "string",
+                "value": "Turks & Caicos Islands"
+              },
+              {
+                "type": "string",
+                "value": "Chad"
+              },
+              {
+                "type": "string",
+                "value": "French Southern Territories"
+              },
+              {
+                "type": "string",
+                "value": "Togo"
+              },
+              {
+                "type": "string",
+                "value": "Thailand"
+              },
+              {
+                "type": "string",
+                "value": "Tajikistan"
+              },
+              {
+                "type": "string",
+                "value": "Tokelau"
+              },
+              {
+                "type": "string",
+                "value": "Timor-Leste"
+              },
+              {
+                "type": "string",
+                "value": "Turkmenistan"
+              },
+              {
+                "type": "string",
+                "value": "Tunisia"
+              },
+              {
+                "type": "string",
+                "value": "Tonga"
+              },
+              {
+                "type": "string",
+                "value": "Türkiye"
+              },
+              {
+                "type": "string",
+                "value": "Trinidad & Tobago"
+              },
+              {
+                "type": "string",
+                "value": "Tuvalu"
+              },
+              {
+                "type": "string",
+                "value": "Taiwan"
+              },
+              {
+                "type": "string",
+                "value": "Tanzania"
+              },
+              {
+                "type": "string",
+                "value": "Ukraine"
+              },
+              {
+                "type": "string",
+                "value": "Uganda"
+              },
+              {
+                "type": "string",
+                "value": "U.S. Outlying Islands"
+              },
+              {
+                "type": "string",
+                "value": "United States"
+              },
+              {
+                "type": "string",
+                "value": "Uruguay"
+              },
+              {
+                "type": "string",
+                "value": "Uzbekistan"
+              },
+              {
+                "type": "string",
+                "value": "Vatican City"
+              },
+              {
+                "type": "string",
+                "value": "St. Vincent & Grenadines"
+              },
+              {
+                "type": "string",
+                "value": "Venezuela"
+              },
+              {
+                "type": "string",
+                "value": "British Virgin Islands"
+              },
+              {
+                "type": "string",
+                "value": "U.S. Virgin Islands"
+              },
+              {
+                "type": "string",
+                "value": "Vietnam"
+              },
+              {
+                "type": "string",
+                "value": "Vanuatu"
+              },
+              {
+                "type": "string",
+                "value": "Wallis & Futuna"
+              },
+              {
+                "type": "string",
+                "value": "Samoa"
+              },
+              {
+                "type": "string",
+                "value": "Yemen"
+              },
+              {
+                "type": "string",
+                "value": "Mayotte"
+              },
+              {
+                "type": "string",
+                "value": "South Africa"
+              },
+              {
+                "type": "string",
+                "value": "Zambia"
+              },
+              {
+                "type": "string",
+                "value": "Zimbabwe"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "administrativeArea": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "city": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "trainingBase": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "foundingYear": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "description": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "disciplines": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "competitionIntentions": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "website": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "socialLinks": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "supportingLink"
+              }
+            }
+          },
+          "optional": true
+        },
+        "primaryColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "secondaryColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "accentColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "crestReferenceUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "wordmarkReferenceUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "brandingPermissionAcknowledged": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": false
+        },
+        "proposedUniformDesign": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "proposedRoster": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "teamApplicationRosterEntry"
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "productSubmissionDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "productSubmissionDetails"
+          }
+        },
+        "organizationId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "productName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "category": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "productSummary": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "standardProductUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "affiliateUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "affiliateRelationship": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "none"
+              },
+              {
+                "type": "string",
+                "value": "pending"
+              },
+              {
+                "type": "string",
+                "value": "active"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "submitterRelationship": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "commercialDisclosure": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "videoSubmissionDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "videoSubmissionDetails"
+          }
+        },
+        "submittingIdentityType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "member"
+              },
+              {
+                "type": "string",
+                "value": "organization"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "submittingIdentityId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "videoTitle": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "description": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "category": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "discipline": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "sourceHost": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "youtube"
+              },
+              {
+                "type": "string",
+                "value": "instagram"
+              },
+              {
+                "type": "string",
+                "value": "tiktok"
+              },
+              {
+                "type": "string",
+                "value": "other-approved"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "originalPublicUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "submitterRelationship": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "creatorName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "creatorProfileUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "featuredAthletes": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "featuredTeams": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "organizationId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "competition": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "eventDate": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "location": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "thumbnailReferenceUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "rightsDeclaration": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "submitter-owned"
+              },
+              {
+                "type": "string",
+                "value": "permission-confirmed"
+              },
+              {
+                "type": "string",
+                "value": "public-reference-only"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "ownershipSourceDeclaration": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "sourceAccount": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "editorialNote": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "contentWarnings": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "organizationClaimDetails",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "organizationClaimDetails"
+          }
+        },
+        "requestKind": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "create"
+              },
+              {
+                "type": "string",
+                "value": "claim"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "existingOrganizationId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "organizationName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "organizationType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "federation"
+              },
+              {
+                "type": "string",
+                "value": "league"
+              },
+              {
+                "type": "string",
+                "value": "competition-organizer"
+              },
+              {
+                "type": "string",
+                "value": "gym"
+              },
+              {
+                "type": "string",
+                "value": "training-facility"
+              },
+              {
+                "type": "string",
+                "value": "team-operator"
+              },
+              {
+                "type": "string",
+                "value": "brand"
+              },
+              {
+                "type": "string",
+                "value": "retailer"
+              },
+              {
+                "type": "string",
+                "value": "media-company"
+              },
+              {
+                "type": "string",
+                "value": "community-organization"
+              },
+              {
+                "type": "string",
+                "value": "other"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "country": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "Andorra"
+              },
+              {
+                "type": "string",
+                "value": "United Arab Emirates"
+              },
+              {
+                "type": "string",
+                "value": "Afghanistan"
+              },
+              {
+                "type": "string",
+                "value": "Antigua & Barbuda"
+              },
+              {
+                "type": "string",
+                "value": "Anguilla"
+              },
+              {
+                "type": "string",
+                "value": "Albania"
+              },
+              {
+                "type": "string",
+                "value": "Armenia"
+              },
+              {
+                "type": "string",
+                "value": "Angola"
+              },
+              {
+                "type": "string",
+                "value": "Antarctica"
+              },
+              {
+                "type": "string",
+                "value": "Argentina"
+              },
+              {
+                "type": "string",
+                "value": "American Samoa"
+              },
+              {
+                "type": "string",
+                "value": "Austria"
+              },
+              {
+                "type": "string",
+                "value": "Australia"
+              },
+              {
+                "type": "string",
+                "value": "Aruba"
+              },
+              {
+                "type": "string",
+                "value": "Åland Islands"
+              },
+              {
+                "type": "string",
+                "value": "Azerbaijan"
+              },
+              {
+                "type": "string",
+                "value": "Bosnia & Herzegovina"
+              },
+              {
+                "type": "string",
+                "value": "Barbados"
+              },
+              {
+                "type": "string",
+                "value": "Bangladesh"
+              },
+              {
+                "type": "string",
+                "value": "Belgium"
+              },
+              {
+                "type": "string",
+                "value": "Burkina Faso"
+              },
+              {
+                "type": "string",
+                "value": "Bulgaria"
+              },
+              {
+                "type": "string",
+                "value": "Bahrain"
+              },
+              {
+                "type": "string",
+                "value": "Burundi"
+              },
+              {
+                "type": "string",
+                "value": "Benin"
+              },
+              {
+                "type": "string",
+                "value": "St. Barthélemy"
+              },
+              {
+                "type": "string",
+                "value": "Bermuda"
+              },
+              {
+                "type": "string",
+                "value": "Brunei"
+              },
+              {
+                "type": "string",
+                "value": "Bolivia"
+              },
+              {
+                "type": "string",
+                "value": "Caribbean Netherlands"
+              },
+              {
+                "type": "string",
+                "value": "Brazil"
+              },
+              {
+                "type": "string",
+                "value": "Bahamas"
+              },
+              {
+                "type": "string",
+                "value": "Bhutan"
+              },
+              {
+                "type": "string",
+                "value": "Bouvet Island"
+              },
+              {
+                "type": "string",
+                "value": "Botswana"
+              },
+              {
+                "type": "string",
+                "value": "Belarus"
+              },
+              {
+                "type": "string",
+                "value": "Belize"
+              },
+              {
+                "type": "string",
+                "value": "Canada"
+              },
+              {
+                "type": "string",
+                "value": "Cocos (Keeling) Islands"
+              },
+              {
+                "type": "string",
+                "value": "Congo - Kinshasa"
+              },
+              {
+                "type": "string",
+                "value": "Central African Republic"
+              },
+              {
+                "type": "string",
+                "value": "Congo - Brazzaville"
+              },
+              {
+                "type": "string",
+                "value": "Switzerland"
+              },
+              {
+                "type": "string",
+                "value": "Côte d’Ivoire"
+              },
+              {
+                "type": "string",
+                "value": "Cook Islands"
+              },
+              {
+                "type": "string",
+                "value": "Chile"
+              },
+              {
+                "type": "string",
+                "value": "Cameroon"
+              },
+              {
+                "type": "string",
+                "value": "China"
+              },
+              {
+                "type": "string",
+                "value": "Colombia"
+              },
+              {
+                "type": "string",
+                "value": "Costa Rica"
+              },
+              {
+                "type": "string",
+                "value": "Cuba"
+              },
+              {
+                "type": "string",
+                "value": "Cape Verde"
+              },
+              {
+                "type": "string",
+                "value": "Curaçao"
+              },
+              {
+                "type": "string",
+                "value": "Christmas Island"
+              },
+              {
+                "type": "string",
+                "value": "Cyprus"
+              },
+              {
+                "type": "string",
+                "value": "Czechia"
+              },
+              {
+                "type": "string",
+                "value": "Germany"
+              },
+              {
+                "type": "string",
+                "value": "Djibouti"
+              },
+              {
+                "type": "string",
+                "value": "Denmark"
+              },
+              {
+                "type": "string",
+                "value": "Dominica"
+              },
+              {
+                "type": "string",
+                "value": "Dominican Republic"
+              },
+              {
+                "type": "string",
+                "value": "Algeria"
+              },
+              {
+                "type": "string",
+                "value": "Ecuador"
+              },
+              {
+                "type": "string",
+                "value": "Estonia"
+              },
+              {
+                "type": "string",
+                "value": "Egypt"
+              },
+              {
+                "type": "string",
+                "value": "Western Sahara"
+              },
+              {
+                "type": "string",
+                "value": "Eritrea"
+              },
+              {
+                "type": "string",
+                "value": "Spain"
+              },
+              {
+                "type": "string",
+                "value": "Ethiopia"
+              },
+              {
+                "type": "string",
+                "value": "Finland"
+              },
+              {
+                "type": "string",
+                "value": "Fiji"
+              },
+              {
+                "type": "string",
+                "value": "Falkland Islands"
+              },
+              {
+                "type": "string",
+                "value": "Micronesia"
+              },
+              {
+                "type": "string",
+                "value": "Faroe Islands"
+              },
+              {
+                "type": "string",
+                "value": "France"
+              },
+              {
+                "type": "string",
+                "value": "Gabon"
+              },
+              {
+                "type": "string",
+                "value": "United Kingdom"
+              },
+              {
+                "type": "string",
+                "value": "Grenada"
+              },
+              {
+                "type": "string",
+                "value": "Georgia"
+              },
+              {
+                "type": "string",
+                "value": "French Guiana"
+              },
+              {
+                "type": "string",
+                "value": "Guernsey"
+              },
+              {
+                "type": "string",
+                "value": "Ghana"
+              },
+              {
+                "type": "string",
+                "value": "Gibraltar"
+              },
+              {
+                "type": "string",
+                "value": "Greenland"
+              },
+              {
+                "type": "string",
+                "value": "Gambia"
+              },
+              {
+                "type": "string",
+                "value": "Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Guadeloupe"
+              },
+              {
+                "type": "string",
+                "value": "Equatorial Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Greece"
+              },
+              {
+                "type": "string",
+                "value": "South Georgia & South Sandwich Islands"
+              },
+              {
+                "type": "string",
+                "value": "Guatemala"
+              },
+              {
+                "type": "string",
+                "value": "Guam"
+              },
+              {
+                "type": "string",
+                "value": "Guinea-Bissau"
+              },
+              {
+                "type": "string",
+                "value": "Guyana"
+              },
+              {
+                "type": "string",
+                "value": "Hong Kong SAR China"
+              },
+              {
+                "type": "string",
+                "value": "Heard & McDonald Islands"
+              },
+              {
+                "type": "string",
+                "value": "Honduras"
+              },
+              {
+                "type": "string",
+                "value": "Croatia"
+              },
+              {
+                "type": "string",
+                "value": "Haiti"
+              },
+              {
+                "type": "string",
+                "value": "Hungary"
+              },
+              {
+                "type": "string",
+                "value": "Indonesia"
+              },
+              {
+                "type": "string",
+                "value": "Ireland"
+              },
+              {
+                "type": "string",
+                "value": "Israel"
+              },
+              {
+                "type": "string",
+                "value": "Isle of Man"
+              },
+              {
+                "type": "string",
+                "value": "India"
+              },
+              {
+                "type": "string",
+                "value": "British Indian Ocean Territory"
+              },
+              {
+                "type": "string",
+                "value": "Iraq"
+              },
+              {
+                "type": "string",
+                "value": "Iran"
+              },
+              {
+                "type": "string",
+                "value": "Iceland"
+              },
+              {
+                "type": "string",
+                "value": "Italy"
+              },
+              {
+                "type": "string",
+                "value": "Jersey"
+              },
+              {
+                "type": "string",
+                "value": "Jamaica"
+              },
+              {
+                "type": "string",
+                "value": "Jordan"
+              },
+              {
+                "type": "string",
+                "value": "Japan"
+              },
+              {
+                "type": "string",
+                "value": "Kenya"
+              },
+              {
+                "type": "string",
+                "value": "Kyrgyzstan"
+              },
+              {
+                "type": "string",
+                "value": "Cambodia"
+              },
+              {
+                "type": "string",
+                "value": "Kiribati"
+              },
+              {
+                "type": "string",
+                "value": "Comoros"
+              },
+              {
+                "type": "string",
+                "value": "St. Kitts & Nevis"
+              },
+              {
+                "type": "string",
+                "value": "North Korea"
+              },
+              {
+                "type": "string",
+                "value": "South Korea"
+              },
+              {
+                "type": "string",
+                "value": "Kuwait"
+              },
+              {
+                "type": "string",
+                "value": "Cayman Islands"
+              },
+              {
+                "type": "string",
+                "value": "Kazakhstan"
+              },
+              {
+                "type": "string",
+                "value": "Laos"
+              },
+              {
+                "type": "string",
+                "value": "Lebanon"
+              },
+              {
+                "type": "string",
+                "value": "St. Lucia"
+              },
+              {
+                "type": "string",
+                "value": "Liechtenstein"
+              },
+              {
+                "type": "string",
+                "value": "Sri Lanka"
+              },
+              {
+                "type": "string",
+                "value": "Liberia"
+              },
+              {
+                "type": "string",
+                "value": "Lesotho"
+              },
+              {
+                "type": "string",
+                "value": "Lithuania"
+              },
+              {
+                "type": "string",
+                "value": "Luxembourg"
+              },
+              {
+                "type": "string",
+                "value": "Latvia"
+              },
+              {
+                "type": "string",
+                "value": "Libya"
+              },
+              {
+                "type": "string",
+                "value": "Morocco"
+              },
+              {
+                "type": "string",
+                "value": "Monaco"
+              },
+              {
+                "type": "string",
+                "value": "Moldova"
+              },
+              {
+                "type": "string",
+                "value": "Montenegro"
+              },
+              {
+                "type": "string",
+                "value": "St. Martin"
+              },
+              {
+                "type": "string",
+                "value": "Madagascar"
+              },
+              {
+                "type": "string",
+                "value": "Marshall Islands"
+              },
+              {
+                "type": "string",
+                "value": "North Macedonia"
+              },
+              {
+                "type": "string",
+                "value": "Mali"
+              },
+              {
+                "type": "string",
+                "value": "Myanmar (Burma)"
+              },
+              {
+                "type": "string",
+                "value": "Mongolia"
+              },
+              {
+                "type": "string",
+                "value": "Macao SAR China"
+              },
+              {
+                "type": "string",
+                "value": "Northern Mariana Islands"
+              },
+              {
+                "type": "string",
+                "value": "Martinique"
+              },
+              {
+                "type": "string",
+                "value": "Mauritania"
+              },
+              {
+                "type": "string",
+                "value": "Montserrat"
+              },
+              {
+                "type": "string",
+                "value": "Malta"
+              },
+              {
+                "type": "string",
+                "value": "Mauritius"
+              },
+              {
+                "type": "string",
+                "value": "Maldives"
+              },
+              {
+                "type": "string",
+                "value": "Malawi"
+              },
+              {
+                "type": "string",
+                "value": "Mexico"
+              },
+              {
+                "type": "string",
+                "value": "Malaysia"
+              },
+              {
+                "type": "string",
+                "value": "Mozambique"
+              },
+              {
+                "type": "string",
+                "value": "Namibia"
+              },
+              {
+                "type": "string",
+                "value": "New Caledonia"
+              },
+              {
+                "type": "string",
+                "value": "Niger"
+              },
+              {
+                "type": "string",
+                "value": "Norfolk Island"
+              },
+              {
+                "type": "string",
+                "value": "Nigeria"
+              },
+              {
+                "type": "string",
+                "value": "Nicaragua"
+              },
+              {
+                "type": "string",
+                "value": "Netherlands"
+              },
+              {
+                "type": "string",
+                "value": "Norway"
+              },
+              {
+                "type": "string",
+                "value": "Nepal"
+              },
+              {
+                "type": "string",
+                "value": "Nauru"
+              },
+              {
+                "type": "string",
+                "value": "Niue"
+              },
+              {
+                "type": "string",
+                "value": "New Zealand"
+              },
+              {
+                "type": "string",
+                "value": "Oman"
+              },
+              {
+                "type": "string",
+                "value": "Panama"
+              },
+              {
+                "type": "string",
+                "value": "Peru"
+              },
+              {
+                "type": "string",
+                "value": "French Polynesia"
+              },
+              {
+                "type": "string",
+                "value": "Papua New Guinea"
+              },
+              {
+                "type": "string",
+                "value": "Philippines"
+              },
+              {
+                "type": "string",
+                "value": "Pakistan"
+              },
+              {
+                "type": "string",
+                "value": "Poland"
+              },
+              {
+                "type": "string",
+                "value": "St. Pierre & Miquelon"
+              },
+              {
+                "type": "string",
+                "value": "Pitcairn Islands"
+              },
+              {
+                "type": "string",
+                "value": "Puerto Rico"
+              },
+              {
+                "type": "string",
+                "value": "Palestinian Territories"
+              },
+              {
+                "type": "string",
+                "value": "Portugal"
+              },
+              {
+                "type": "string",
+                "value": "Palau"
+              },
+              {
+                "type": "string",
+                "value": "Paraguay"
+              },
+              {
+                "type": "string",
+                "value": "Qatar"
+              },
+              {
+                "type": "string",
+                "value": "Réunion"
+              },
+              {
+                "type": "string",
+                "value": "Romania"
+              },
+              {
+                "type": "string",
+                "value": "Serbia"
+              },
+              {
+                "type": "string",
+                "value": "Russia"
+              },
+              {
+                "type": "string",
+                "value": "Rwanda"
+              },
+              {
+                "type": "string",
+                "value": "Saudi Arabia"
+              },
+              {
+                "type": "string",
+                "value": "Solomon Islands"
+              },
+              {
+                "type": "string",
+                "value": "Seychelles"
+              },
+              {
+                "type": "string",
+                "value": "Sudan"
+              },
+              {
+                "type": "string",
+                "value": "Sweden"
+              },
+              {
+                "type": "string",
+                "value": "Singapore"
+              },
+              {
+                "type": "string",
+                "value": "St. Helena"
+              },
+              {
+                "type": "string",
+                "value": "Slovenia"
+              },
+              {
+                "type": "string",
+                "value": "Svalbard & Jan Mayen"
+              },
+              {
+                "type": "string",
+                "value": "Slovakia"
+              },
+              {
+                "type": "string",
+                "value": "Sierra Leone"
+              },
+              {
+                "type": "string",
+                "value": "San Marino"
+              },
+              {
+                "type": "string",
+                "value": "Senegal"
+              },
+              {
+                "type": "string",
+                "value": "Somalia"
+              },
+              {
+                "type": "string",
+                "value": "Suriname"
+              },
+              {
+                "type": "string",
+                "value": "South Sudan"
+              },
+              {
+                "type": "string",
+                "value": "São Tomé & Príncipe"
+              },
+              {
+                "type": "string",
+                "value": "El Salvador"
+              },
+              {
+                "type": "string",
+                "value": "Sint Maarten"
+              },
+              {
+                "type": "string",
+                "value": "Syria"
+              },
+              {
+                "type": "string",
+                "value": "Eswatini"
+              },
+              {
+                "type": "string",
+                "value": "Turks & Caicos Islands"
+              },
+              {
+                "type": "string",
+                "value": "Chad"
+              },
+              {
+                "type": "string",
+                "value": "French Southern Territories"
+              },
+              {
+                "type": "string",
+                "value": "Togo"
+              },
+              {
+                "type": "string",
+                "value": "Thailand"
+              },
+              {
+                "type": "string",
+                "value": "Tajikistan"
+              },
+              {
+                "type": "string",
+                "value": "Tokelau"
+              },
+              {
+                "type": "string",
+                "value": "Timor-Leste"
+              },
+              {
+                "type": "string",
+                "value": "Turkmenistan"
+              },
+              {
+                "type": "string",
+                "value": "Tunisia"
+              },
+              {
+                "type": "string",
+                "value": "Tonga"
+              },
+              {
+                "type": "string",
+                "value": "Türkiye"
+              },
+              {
+                "type": "string",
+                "value": "Trinidad & Tobago"
+              },
+              {
+                "type": "string",
+                "value": "Tuvalu"
+              },
+              {
+                "type": "string",
+                "value": "Taiwan"
+              },
+              {
+                "type": "string",
+                "value": "Tanzania"
+              },
+              {
+                "type": "string",
+                "value": "Ukraine"
+              },
+              {
+                "type": "string",
+                "value": "Uganda"
+              },
+              {
+                "type": "string",
+                "value": "U.S. Outlying Islands"
+              },
+              {
+                "type": "string",
+                "value": "United States"
+              },
+              {
+                "type": "string",
+                "value": "Uruguay"
+              },
+              {
+                "type": "string",
+                "value": "Uzbekistan"
+              },
+              {
+                "type": "string",
+                "value": "Vatican City"
+              },
+              {
+                "type": "string",
+                "value": "St. Vincent & Grenadines"
+              },
+              {
+                "type": "string",
+                "value": "Venezuela"
+              },
+              {
+                "type": "string",
+                "value": "British Virgin Islands"
+              },
+              {
+                "type": "string",
+                "value": "U.S. Virgin Islands"
+              },
+              {
+                "type": "string",
+                "value": "Vietnam"
+              },
+              {
+                "type": "string",
+                "value": "Vanuatu"
+              },
+              {
+                "type": "string",
+                "value": "Wallis & Futuna"
+              },
+              {
+                "type": "string",
+                "value": "Samoa"
+              },
+              {
+                "type": "string",
+                "value": "Yemen"
+              },
+              {
+                "type": "string",
+                "value": "Mayotte"
+              },
+              {
+                "type": "string",
+                "value": "South Africa"
+              },
+              {
+                "type": "string",
+                "value": "Zambia"
+              },
+              {
+                "type": "string",
+                "value": "Zimbabwe"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "website": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "relationshipToOrganization": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "requestedCapabilities": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "string"
+            }
+          },
+          "optional": true
+        },
+        "evidenceLinks": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "array",
+            "of": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rest": {
+                "type": "inline",
+                "name": "supportingLink"
+              }
+            }
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
     "name": "mediaPitchDetails",
     "type": "type",
     "value": {
@@ -1028,6 +3862,55 @@
             "type": "string",
             "value": "mediaPitchDetails"
           }
+        },
+        "mediaKind": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "photo"
+              },
+              {
+                "type": "string",
+                "value": "photo-series"
+              },
+              {
+                "type": "string",
+                "value": "mixed-media"
+              },
+              {
+                "type": "string",
+                "value": "other"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "submittingIdentityType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "member"
+              },
+              {
+                "type": "string",
+                "value": "organization"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "submittingIdentityId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
         },
         "proposedTitle": {
           "type": "objectAttribute",
@@ -1127,6 +4010,27 @@
           "optional": true
         },
         "originalPostUrl": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "creatorName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "caption": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "altText": {
           "type": "objectAttribute",
           "value": {
             "type": "string"
@@ -2776,6 +5680,3368 @@
   },
   {
     "type": "type",
+    "name": "team.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "team"
+    }
+  },
+  {
+    "type": "type",
+    "name": "ruleset.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "ruleset"
+    }
+  },
+  {
+    "type": "type",
+    "name": "sportingResult.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "sportingResult"
+    }
+  },
+  {
+    "name": "sportingResult",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "sportingResult"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "competition": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "competition.reference"
+        },
+        "optional": false
+      },
+      "athlete": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "athlete.reference"
+        },
+        "optional": true
+      },
+      "team": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "team.reference"
+        },
+        "optional": true
+      },
+      "ruleset": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "ruleset.reference"
+        },
+        "optional": true
+      },
+      "division": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "event": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "placement": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "performances": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "resultPerformance"
+            }
+          }
+        },
+        "optional": true
+      },
+      "penalties": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "resultStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "imported"
+            },
+            {
+              "type": "string",
+              "value": "submitted"
+            },
+            {
+              "type": "string",
+              "value": "provisional"
+            },
+            {
+              "type": "string",
+              "value": "source-confirmed"
+            },
+            {
+              "type": "string",
+              "value": "official"
+            },
+            {
+              "type": "string",
+              "value": "corrected"
+            },
+            {
+              "type": "string",
+              "value": "disputed"
+            },
+            {
+              "type": "string",
+              "value": "disqualified"
+            },
+            {
+              "type": "string",
+              "value": "withdrawn"
+            },
+            {
+              "type": "string",
+              "value": "superseded"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "source": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "provenanceSource"
+        },
+        "optional": false
+      },
+      "equipmentCompliance": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "wclEquipmentCompliance"
+        },
+        "optional": true
+      },
+      "supersedes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "sportingResult.reference"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "name": "wclEquipmentCompliance",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "wclEquipmentCompliance"
+          }
+        },
+        "inspectionStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "not-inspected"
+              },
+              {
+                "type": "string",
+                "value": "pending"
+              },
+              {
+                "type": "string",
+                "value": "compliant"
+              },
+              {
+                "type": "string",
+                "value": "non-compliant"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "specificationVersion": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "calibrationStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "scaleStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "apparatusCompliant": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        },
+        "safetyEquipmentCompliant": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        },
+        "notes": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "type": "type",
+    "name": "rankingProvider.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "rankingProvider"
+    }
+  },
+  {
+    "name": "provenanceSource",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "provenanceSource"
+          }
+        },
+        "provider": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "rankingProvider.reference"
+          },
+          "optional": true
+        },
+        "sourceTitle": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "sourceType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "official-results-page"
+              },
+              {
+                "type": "string",
+                "value": "organization-ranking-page"
+              },
+              {
+                "type": "string",
+                "value": "official-result-sheet"
+              },
+              {
+                "type": "string",
+                "value": "organizer-source"
+              },
+              {
+                "type": "string",
+                "value": "athlete-submitted"
+              },
+              {
+                "type": "string",
+                "value": "editor-confirmed"
+              },
+              {
+                "type": "string",
+                "value": "other"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "url": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "externalRecordId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "publishedAt": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "checkedAt": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "verificationStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "unverified"
+              },
+              {
+                "type": "string",
+                "value": "submitted"
+              },
+              {
+                "type": "string",
+                "value": "source-confirmed"
+              },
+              {
+                "type": "string",
+                "value": "official"
+              },
+              {
+                "type": "string",
+                "value": "disputed"
+              },
+              {
+                "type": "string",
+                "value": "superseded"
+              }
+            ]
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "type": "type",
+    "name": "teamSeason.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "teamSeason"
+    }
+  },
+  {
+    "name": "team",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "team"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": false
+      },
+      "shortName": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "code": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "teamType": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "wcl-franchise"
+            },
+            {
+              "type": "string",
+              "value": "prospective-wcl-team"
+            },
+            {
+              "type": "string",
+              "value": "competitive-team"
+            },
+            {
+              "type": "string",
+              "value": "crew"
+            },
+            {
+              "type": "string",
+              "value": "club"
+            },
+            {
+              "type": "string",
+              "value": "gym-team"
+            },
+            {
+              "type": "string",
+              "value": "national-team"
+            },
+            {
+              "type": "string",
+              "value": "other"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "publicStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "approved-prospective"
+            },
+            {
+              "type": "string",
+              "value": "official"
+            },
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "inactive"
+            },
+            {
+              "type": "string",
+              "value": "archived"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "leagueAdmissionStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "not-applicable"
+            },
+            {
+              "type": "string",
+              "value": "prospective"
+            },
+            {
+              "type": "string",
+              "value": "candidate"
+            },
+            {
+              "type": "string",
+              "value": "official-franchise"
+            },
+            {
+              "type": "string",
+              "value": "active-season-franchise"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "country": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "Andorra"
+            },
+            {
+              "type": "string",
+              "value": "United Arab Emirates"
+            },
+            {
+              "type": "string",
+              "value": "Afghanistan"
+            },
+            {
+              "type": "string",
+              "value": "Antigua & Barbuda"
+            },
+            {
+              "type": "string",
+              "value": "Anguilla"
+            },
+            {
+              "type": "string",
+              "value": "Albania"
+            },
+            {
+              "type": "string",
+              "value": "Armenia"
+            },
+            {
+              "type": "string",
+              "value": "Angola"
+            },
+            {
+              "type": "string",
+              "value": "Antarctica"
+            },
+            {
+              "type": "string",
+              "value": "Argentina"
+            },
+            {
+              "type": "string",
+              "value": "American Samoa"
+            },
+            {
+              "type": "string",
+              "value": "Austria"
+            },
+            {
+              "type": "string",
+              "value": "Australia"
+            },
+            {
+              "type": "string",
+              "value": "Aruba"
+            },
+            {
+              "type": "string",
+              "value": "Åland Islands"
+            },
+            {
+              "type": "string",
+              "value": "Azerbaijan"
+            },
+            {
+              "type": "string",
+              "value": "Bosnia & Herzegovina"
+            },
+            {
+              "type": "string",
+              "value": "Barbados"
+            },
+            {
+              "type": "string",
+              "value": "Bangladesh"
+            },
+            {
+              "type": "string",
+              "value": "Belgium"
+            },
+            {
+              "type": "string",
+              "value": "Burkina Faso"
+            },
+            {
+              "type": "string",
+              "value": "Bulgaria"
+            },
+            {
+              "type": "string",
+              "value": "Bahrain"
+            },
+            {
+              "type": "string",
+              "value": "Burundi"
+            },
+            {
+              "type": "string",
+              "value": "Benin"
+            },
+            {
+              "type": "string",
+              "value": "St. Barthélemy"
+            },
+            {
+              "type": "string",
+              "value": "Bermuda"
+            },
+            {
+              "type": "string",
+              "value": "Brunei"
+            },
+            {
+              "type": "string",
+              "value": "Bolivia"
+            },
+            {
+              "type": "string",
+              "value": "Caribbean Netherlands"
+            },
+            {
+              "type": "string",
+              "value": "Brazil"
+            },
+            {
+              "type": "string",
+              "value": "Bahamas"
+            },
+            {
+              "type": "string",
+              "value": "Bhutan"
+            },
+            {
+              "type": "string",
+              "value": "Bouvet Island"
+            },
+            {
+              "type": "string",
+              "value": "Botswana"
+            },
+            {
+              "type": "string",
+              "value": "Belarus"
+            },
+            {
+              "type": "string",
+              "value": "Belize"
+            },
+            {
+              "type": "string",
+              "value": "Canada"
+            },
+            {
+              "type": "string",
+              "value": "Cocos (Keeling) Islands"
+            },
+            {
+              "type": "string",
+              "value": "Congo - Kinshasa"
+            },
+            {
+              "type": "string",
+              "value": "Central African Republic"
+            },
+            {
+              "type": "string",
+              "value": "Congo - Brazzaville"
+            },
+            {
+              "type": "string",
+              "value": "Switzerland"
+            },
+            {
+              "type": "string",
+              "value": "Côte d’Ivoire"
+            },
+            {
+              "type": "string",
+              "value": "Cook Islands"
+            },
+            {
+              "type": "string",
+              "value": "Chile"
+            },
+            {
+              "type": "string",
+              "value": "Cameroon"
+            },
+            {
+              "type": "string",
+              "value": "China"
+            },
+            {
+              "type": "string",
+              "value": "Colombia"
+            },
+            {
+              "type": "string",
+              "value": "Costa Rica"
+            },
+            {
+              "type": "string",
+              "value": "Cuba"
+            },
+            {
+              "type": "string",
+              "value": "Cape Verde"
+            },
+            {
+              "type": "string",
+              "value": "Curaçao"
+            },
+            {
+              "type": "string",
+              "value": "Christmas Island"
+            },
+            {
+              "type": "string",
+              "value": "Cyprus"
+            },
+            {
+              "type": "string",
+              "value": "Czechia"
+            },
+            {
+              "type": "string",
+              "value": "Germany"
+            },
+            {
+              "type": "string",
+              "value": "Djibouti"
+            },
+            {
+              "type": "string",
+              "value": "Denmark"
+            },
+            {
+              "type": "string",
+              "value": "Dominica"
+            },
+            {
+              "type": "string",
+              "value": "Dominican Republic"
+            },
+            {
+              "type": "string",
+              "value": "Algeria"
+            },
+            {
+              "type": "string",
+              "value": "Ecuador"
+            },
+            {
+              "type": "string",
+              "value": "Estonia"
+            },
+            {
+              "type": "string",
+              "value": "Egypt"
+            },
+            {
+              "type": "string",
+              "value": "Western Sahara"
+            },
+            {
+              "type": "string",
+              "value": "Eritrea"
+            },
+            {
+              "type": "string",
+              "value": "Spain"
+            },
+            {
+              "type": "string",
+              "value": "Ethiopia"
+            },
+            {
+              "type": "string",
+              "value": "Finland"
+            },
+            {
+              "type": "string",
+              "value": "Fiji"
+            },
+            {
+              "type": "string",
+              "value": "Falkland Islands"
+            },
+            {
+              "type": "string",
+              "value": "Micronesia"
+            },
+            {
+              "type": "string",
+              "value": "Faroe Islands"
+            },
+            {
+              "type": "string",
+              "value": "France"
+            },
+            {
+              "type": "string",
+              "value": "Gabon"
+            },
+            {
+              "type": "string",
+              "value": "United Kingdom"
+            },
+            {
+              "type": "string",
+              "value": "Grenada"
+            },
+            {
+              "type": "string",
+              "value": "Georgia"
+            },
+            {
+              "type": "string",
+              "value": "French Guiana"
+            },
+            {
+              "type": "string",
+              "value": "Guernsey"
+            },
+            {
+              "type": "string",
+              "value": "Ghana"
+            },
+            {
+              "type": "string",
+              "value": "Gibraltar"
+            },
+            {
+              "type": "string",
+              "value": "Greenland"
+            },
+            {
+              "type": "string",
+              "value": "Gambia"
+            },
+            {
+              "type": "string",
+              "value": "Guinea"
+            },
+            {
+              "type": "string",
+              "value": "Guadeloupe"
+            },
+            {
+              "type": "string",
+              "value": "Equatorial Guinea"
+            },
+            {
+              "type": "string",
+              "value": "Greece"
+            },
+            {
+              "type": "string",
+              "value": "South Georgia & South Sandwich Islands"
+            },
+            {
+              "type": "string",
+              "value": "Guatemala"
+            },
+            {
+              "type": "string",
+              "value": "Guam"
+            },
+            {
+              "type": "string",
+              "value": "Guinea-Bissau"
+            },
+            {
+              "type": "string",
+              "value": "Guyana"
+            },
+            {
+              "type": "string",
+              "value": "Hong Kong SAR China"
+            },
+            {
+              "type": "string",
+              "value": "Heard & McDonald Islands"
+            },
+            {
+              "type": "string",
+              "value": "Honduras"
+            },
+            {
+              "type": "string",
+              "value": "Croatia"
+            },
+            {
+              "type": "string",
+              "value": "Haiti"
+            },
+            {
+              "type": "string",
+              "value": "Hungary"
+            },
+            {
+              "type": "string",
+              "value": "Indonesia"
+            },
+            {
+              "type": "string",
+              "value": "Ireland"
+            },
+            {
+              "type": "string",
+              "value": "Israel"
+            },
+            {
+              "type": "string",
+              "value": "Isle of Man"
+            },
+            {
+              "type": "string",
+              "value": "India"
+            },
+            {
+              "type": "string",
+              "value": "British Indian Ocean Territory"
+            },
+            {
+              "type": "string",
+              "value": "Iraq"
+            },
+            {
+              "type": "string",
+              "value": "Iran"
+            },
+            {
+              "type": "string",
+              "value": "Iceland"
+            },
+            {
+              "type": "string",
+              "value": "Italy"
+            },
+            {
+              "type": "string",
+              "value": "Jersey"
+            },
+            {
+              "type": "string",
+              "value": "Jamaica"
+            },
+            {
+              "type": "string",
+              "value": "Jordan"
+            },
+            {
+              "type": "string",
+              "value": "Japan"
+            },
+            {
+              "type": "string",
+              "value": "Kenya"
+            },
+            {
+              "type": "string",
+              "value": "Kyrgyzstan"
+            },
+            {
+              "type": "string",
+              "value": "Cambodia"
+            },
+            {
+              "type": "string",
+              "value": "Kiribati"
+            },
+            {
+              "type": "string",
+              "value": "Comoros"
+            },
+            {
+              "type": "string",
+              "value": "St. Kitts & Nevis"
+            },
+            {
+              "type": "string",
+              "value": "North Korea"
+            },
+            {
+              "type": "string",
+              "value": "South Korea"
+            },
+            {
+              "type": "string",
+              "value": "Kuwait"
+            },
+            {
+              "type": "string",
+              "value": "Cayman Islands"
+            },
+            {
+              "type": "string",
+              "value": "Kazakhstan"
+            },
+            {
+              "type": "string",
+              "value": "Laos"
+            },
+            {
+              "type": "string",
+              "value": "Lebanon"
+            },
+            {
+              "type": "string",
+              "value": "St. Lucia"
+            },
+            {
+              "type": "string",
+              "value": "Liechtenstein"
+            },
+            {
+              "type": "string",
+              "value": "Sri Lanka"
+            },
+            {
+              "type": "string",
+              "value": "Liberia"
+            },
+            {
+              "type": "string",
+              "value": "Lesotho"
+            },
+            {
+              "type": "string",
+              "value": "Lithuania"
+            },
+            {
+              "type": "string",
+              "value": "Luxembourg"
+            },
+            {
+              "type": "string",
+              "value": "Latvia"
+            },
+            {
+              "type": "string",
+              "value": "Libya"
+            },
+            {
+              "type": "string",
+              "value": "Morocco"
+            },
+            {
+              "type": "string",
+              "value": "Monaco"
+            },
+            {
+              "type": "string",
+              "value": "Moldova"
+            },
+            {
+              "type": "string",
+              "value": "Montenegro"
+            },
+            {
+              "type": "string",
+              "value": "St. Martin"
+            },
+            {
+              "type": "string",
+              "value": "Madagascar"
+            },
+            {
+              "type": "string",
+              "value": "Marshall Islands"
+            },
+            {
+              "type": "string",
+              "value": "North Macedonia"
+            },
+            {
+              "type": "string",
+              "value": "Mali"
+            },
+            {
+              "type": "string",
+              "value": "Myanmar (Burma)"
+            },
+            {
+              "type": "string",
+              "value": "Mongolia"
+            },
+            {
+              "type": "string",
+              "value": "Macao SAR China"
+            },
+            {
+              "type": "string",
+              "value": "Northern Mariana Islands"
+            },
+            {
+              "type": "string",
+              "value": "Martinique"
+            },
+            {
+              "type": "string",
+              "value": "Mauritania"
+            },
+            {
+              "type": "string",
+              "value": "Montserrat"
+            },
+            {
+              "type": "string",
+              "value": "Malta"
+            },
+            {
+              "type": "string",
+              "value": "Mauritius"
+            },
+            {
+              "type": "string",
+              "value": "Maldives"
+            },
+            {
+              "type": "string",
+              "value": "Malawi"
+            },
+            {
+              "type": "string",
+              "value": "Mexico"
+            },
+            {
+              "type": "string",
+              "value": "Malaysia"
+            },
+            {
+              "type": "string",
+              "value": "Mozambique"
+            },
+            {
+              "type": "string",
+              "value": "Namibia"
+            },
+            {
+              "type": "string",
+              "value": "New Caledonia"
+            },
+            {
+              "type": "string",
+              "value": "Niger"
+            },
+            {
+              "type": "string",
+              "value": "Norfolk Island"
+            },
+            {
+              "type": "string",
+              "value": "Nigeria"
+            },
+            {
+              "type": "string",
+              "value": "Nicaragua"
+            },
+            {
+              "type": "string",
+              "value": "Netherlands"
+            },
+            {
+              "type": "string",
+              "value": "Norway"
+            },
+            {
+              "type": "string",
+              "value": "Nepal"
+            },
+            {
+              "type": "string",
+              "value": "Nauru"
+            },
+            {
+              "type": "string",
+              "value": "Niue"
+            },
+            {
+              "type": "string",
+              "value": "New Zealand"
+            },
+            {
+              "type": "string",
+              "value": "Oman"
+            },
+            {
+              "type": "string",
+              "value": "Panama"
+            },
+            {
+              "type": "string",
+              "value": "Peru"
+            },
+            {
+              "type": "string",
+              "value": "French Polynesia"
+            },
+            {
+              "type": "string",
+              "value": "Papua New Guinea"
+            },
+            {
+              "type": "string",
+              "value": "Philippines"
+            },
+            {
+              "type": "string",
+              "value": "Pakistan"
+            },
+            {
+              "type": "string",
+              "value": "Poland"
+            },
+            {
+              "type": "string",
+              "value": "St. Pierre & Miquelon"
+            },
+            {
+              "type": "string",
+              "value": "Pitcairn Islands"
+            },
+            {
+              "type": "string",
+              "value": "Puerto Rico"
+            },
+            {
+              "type": "string",
+              "value": "Palestinian Territories"
+            },
+            {
+              "type": "string",
+              "value": "Portugal"
+            },
+            {
+              "type": "string",
+              "value": "Palau"
+            },
+            {
+              "type": "string",
+              "value": "Paraguay"
+            },
+            {
+              "type": "string",
+              "value": "Qatar"
+            },
+            {
+              "type": "string",
+              "value": "Réunion"
+            },
+            {
+              "type": "string",
+              "value": "Romania"
+            },
+            {
+              "type": "string",
+              "value": "Serbia"
+            },
+            {
+              "type": "string",
+              "value": "Russia"
+            },
+            {
+              "type": "string",
+              "value": "Rwanda"
+            },
+            {
+              "type": "string",
+              "value": "Saudi Arabia"
+            },
+            {
+              "type": "string",
+              "value": "Solomon Islands"
+            },
+            {
+              "type": "string",
+              "value": "Seychelles"
+            },
+            {
+              "type": "string",
+              "value": "Sudan"
+            },
+            {
+              "type": "string",
+              "value": "Sweden"
+            },
+            {
+              "type": "string",
+              "value": "Singapore"
+            },
+            {
+              "type": "string",
+              "value": "St. Helena"
+            },
+            {
+              "type": "string",
+              "value": "Slovenia"
+            },
+            {
+              "type": "string",
+              "value": "Svalbard & Jan Mayen"
+            },
+            {
+              "type": "string",
+              "value": "Slovakia"
+            },
+            {
+              "type": "string",
+              "value": "Sierra Leone"
+            },
+            {
+              "type": "string",
+              "value": "San Marino"
+            },
+            {
+              "type": "string",
+              "value": "Senegal"
+            },
+            {
+              "type": "string",
+              "value": "Somalia"
+            },
+            {
+              "type": "string",
+              "value": "Suriname"
+            },
+            {
+              "type": "string",
+              "value": "South Sudan"
+            },
+            {
+              "type": "string",
+              "value": "São Tomé & Príncipe"
+            },
+            {
+              "type": "string",
+              "value": "El Salvador"
+            },
+            {
+              "type": "string",
+              "value": "Sint Maarten"
+            },
+            {
+              "type": "string",
+              "value": "Syria"
+            },
+            {
+              "type": "string",
+              "value": "Eswatini"
+            },
+            {
+              "type": "string",
+              "value": "Turks & Caicos Islands"
+            },
+            {
+              "type": "string",
+              "value": "Chad"
+            },
+            {
+              "type": "string",
+              "value": "French Southern Territories"
+            },
+            {
+              "type": "string",
+              "value": "Togo"
+            },
+            {
+              "type": "string",
+              "value": "Thailand"
+            },
+            {
+              "type": "string",
+              "value": "Tajikistan"
+            },
+            {
+              "type": "string",
+              "value": "Tokelau"
+            },
+            {
+              "type": "string",
+              "value": "Timor-Leste"
+            },
+            {
+              "type": "string",
+              "value": "Turkmenistan"
+            },
+            {
+              "type": "string",
+              "value": "Tunisia"
+            },
+            {
+              "type": "string",
+              "value": "Tonga"
+            },
+            {
+              "type": "string",
+              "value": "Türkiye"
+            },
+            {
+              "type": "string",
+              "value": "Trinidad & Tobago"
+            },
+            {
+              "type": "string",
+              "value": "Tuvalu"
+            },
+            {
+              "type": "string",
+              "value": "Taiwan"
+            },
+            {
+              "type": "string",
+              "value": "Tanzania"
+            },
+            {
+              "type": "string",
+              "value": "Ukraine"
+            },
+            {
+              "type": "string",
+              "value": "Uganda"
+            },
+            {
+              "type": "string",
+              "value": "U.S. Outlying Islands"
+            },
+            {
+              "type": "string",
+              "value": "United States"
+            },
+            {
+              "type": "string",
+              "value": "Uruguay"
+            },
+            {
+              "type": "string",
+              "value": "Uzbekistan"
+            },
+            {
+              "type": "string",
+              "value": "Vatican City"
+            },
+            {
+              "type": "string",
+              "value": "St. Vincent & Grenadines"
+            },
+            {
+              "type": "string",
+              "value": "Venezuela"
+            },
+            {
+              "type": "string",
+              "value": "British Virgin Islands"
+            },
+            {
+              "type": "string",
+              "value": "U.S. Virgin Islands"
+            },
+            {
+              "type": "string",
+              "value": "Vietnam"
+            },
+            {
+              "type": "string",
+              "value": "Vanuatu"
+            },
+            {
+              "type": "string",
+              "value": "Wallis & Futuna"
+            },
+            {
+              "type": "string",
+              "value": "Samoa"
+            },
+            {
+              "type": "string",
+              "value": "Yemen"
+            },
+            {
+              "type": "string",
+              "value": "Mayotte"
+            },
+            {
+              "type": "string",
+              "value": "South Africa"
+            },
+            {
+              "type": "string",
+              "value": "Zambia"
+            },
+            {
+              "type": "string",
+              "value": "Zimbabwe"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "administrativeArea": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "city": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "trainingBase": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "foundingYear": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "number"
+        },
+        "optional": true
+      },
+      "description": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "disciplines": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "branding": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "teamBranding"
+        },
+        "optional": false
+      },
+      "socialLinks": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "teamSocialLink"
+            }
+          }
+        },
+        "optional": true
+      },
+      "featured": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
+      "currentSeason": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "teamSeason.reference"
+        },
+        "optional": true
+      },
+      "prototypeStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "fictional-prototype"
+            },
+            {
+              "type": "string",
+              "value": "sample-record"
+            },
+            {
+              "type": "string",
+              "value": "not-official"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "seo": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "seo"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "name": "seo",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "seo"
+          }
+        },
+        "metaTitle": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "metaDescription": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "socialImage": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "accessibleImage"
+          },
+          "optional": true
+        },
+        "noIndex": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "teamSeason",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "teamSeason"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "team": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "team.reference"
+        },
+        "optional": false
+      },
+      "seasonLabel": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "ruleset": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "ruleset.reference"
+        },
+        "optional": true
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "prospective"
+            },
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "completed"
+            },
+            {
+              "type": "string",
+              "value": "archived"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "members": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "teamSeasonMember"
+            }
+          }
+        },
+        "optional": true
+      },
+      "uniformApprovalStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "not-submitted"
+            },
+            {
+              "type": "string",
+              "value": "in-review"
+            },
+            {
+              "type": "string",
+              "value": "approved"
+            },
+            {
+              "type": "string",
+              "value": "changes-required"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "registrationStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "not-registered"
+            },
+            {
+              "type": "string",
+              "value": "pending"
+            },
+            {
+              "type": "string",
+              "value": "registered"
+            },
+            {
+              "type": "string",
+              "value": "withdrawn"
+            }
+          ]
+        },
+        "optional": false
+      }
+    }
+  },
+  {
+    "name": "teamBranding",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "teamBranding"
+          }
+        },
+        "primaryColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "secondaryColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "accentColor": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "crest": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "accessibleImage"
+          },
+          "optional": true
+        },
+        "wordmark": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "accessibleImage"
+          },
+          "optional": true
+        },
+        "uniformNotes": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "approvalStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "not-reviewed"
+              },
+              {
+                "type": "string",
+                "value": "in-review"
+              },
+              {
+                "type": "string",
+                "value": "approved"
+              }
+            ]
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "slug",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "slug"
+          }
+        },
+        "current": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "source": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "externalCompetitionIdentity",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "externalCompetitionIdentity"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "competition": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "competition.reference"
+        },
+        "optional": true
+      },
+      "provider": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "rankingProvider.reference"
+        },
+        "optional": false
+      },
+      "providerCompetitionId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "providerCompetitionUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "providerDisplayName": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "matchingStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "unmatched"
+            },
+            {
+              "type": "string",
+              "value": "candidate"
+            },
+            {
+              "type": "string",
+              "value": "confirmed"
+            },
+            {
+              "type": "string",
+              "value": "rejected"
+            },
+            {
+              "type": "string",
+              "value": "manually-linked"
+            },
+            {
+              "type": "string",
+              "value": "do-not-auto-match"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "reviewStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "not-reviewed"
+            },
+            {
+              "type": "string",
+              "value": "in-review"
+            },
+            {
+              "type": "string",
+              "value": "reviewed"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "privateReviewNotes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      }
+    }
+  },
+  {
+    "name": "externalAthleteIdentity",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "externalAthleteIdentity"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "athlete": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "athlete.reference"
+        },
+        "optional": true
+      },
+      "provider": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "rankingProvider.reference"
+        },
+        "optional": false
+      },
+      "providerAthleteId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "providerAthleteUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "providerDisplayName": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "aliases": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "externalAlias"
+            }
+          }
+        },
+        "optional": true
+      },
+      "matchingStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "unmatched"
+            },
+            {
+              "type": "string",
+              "value": "candidate"
+            },
+            {
+              "type": "string",
+              "value": "confirmed"
+            },
+            {
+              "type": "string",
+              "value": "rejected"
+            },
+            {
+              "type": "string",
+              "value": "manually-linked"
+            },
+            {
+              "type": "string",
+              "value": "do-not-auto-match"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "reviewStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "not-reviewed"
+            },
+            {
+              "type": "string",
+              "value": "in-review"
+            },
+            {
+              "type": "string",
+              "value": "reviewed"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "privateReviewNotes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      }
+    }
+  },
+  {
+    "type": "type",
+    "name": "rankingSystem.reference",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_ref": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          }
+        },
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "reference"
+          }
+        },
+        "_weak": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        }
+      },
+      "dereferencesTo": "rankingSystem"
+    }
+  },
+  {
+    "name": "rankingSnapshot",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "rankingSnapshot"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "rankingSystem": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "rankingSystem.reference"
+        },
+        "optional": false
+      },
+      "sourceCompetitions": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "competition.reference"
+            }
+          }
+        },
+        "optional": true
+      },
+      "rankingDate": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "sourcePublishedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "checkedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "season": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "methodologyVersion": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "entries": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "rankingSnapshotEntry"
+            }
+          }
+        },
+        "optional": false
+      },
+      "source": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "provenanceSource"
+        },
+        "optional": false
+      },
+      "notes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "publicationStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "published"
+            },
+            {
+              "type": "string",
+              "value": "superseded"
+            },
+            {
+              "type": "string",
+              "value": "archived"
+            }
+          ]
+        },
+        "optional": false
+      }
+    }
+  },
+  {
+    "name": "rankingSystem",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "rankingSystem"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": false
+      },
+      "provider": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "rankingProvider.reference"
+        },
+        "optional": false
+      },
+      "rankingKind": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "ordinal-position"
+            },
+            {
+              "type": "string",
+              "value": "points"
+            },
+            {
+              "type": "string",
+              "value": "rating"
+            },
+            {
+              "type": "string",
+              "value": "season-standings"
+            },
+            {
+              "type": "string",
+              "value": "qualification-ranking"
+            },
+            {
+              "type": "string",
+              "value": "record-leaderboard"
+            },
+            {
+              "type": "string",
+              "value": "relative-strength"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "discipline": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "movement": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "category": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "division": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "weightClass": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "sexDivision": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "ageGroup": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "geographicScope": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "methodologyVersion": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "methodologyNotes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "inactive"
+            }
+          ]
+        },
+        "optional": false
+      }
+    }
+  },
+  {
+    "name": "ruleset",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "ruleset"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "organization": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": false
+      },
+      "version": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "current"
+            },
+            {
+              "type": "string",
+              "value": "historical"
+            },
+            {
+              "type": "string",
+              "value": "proposed"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "effectiveFrom": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "effectiveTo": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "implementationNotes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "source": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "provenanceSource"
+        },
+        "optional": false
+      },
+      "matchSequence": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "name": "product",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "product"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": false
+      },
+      "brand": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": false
+      },
+      "retailer": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": true
+      },
+      "category": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "equipment"
+            },
+            {
+              "type": "string",
+              "value": "apparel"
+            },
+            {
+              "type": "string",
+              "value": "training-content-accessories"
+            },
+            {
+              "type": "string",
+              "value": "nutrition-recovery"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "subcategory": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "images": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "accessibleImage"
+            }
+          }
+        },
+        "optional": true
+      },
+      "shortDescription": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "editorialSummary": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "useCases": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "disciplines": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "trainingLevel": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "environments": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "indoor"
+              },
+              {
+                "type": "string",
+                "value": "outdoor"
+              }
+            ]
+          }
+        },
+        "optional": true
+      },
+      "portable": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": false
+      },
+      "priceDisplay": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "currency": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "standardProductUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "affiliateUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "affiliateNetwork": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "affiliateStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "none"
+            },
+            {
+              "type": "string",
+              "value": "pending"
+            },
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "paused"
+            },
+            {
+              "type": "string",
+              "value": "ended"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "commercialRelationship": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "none"
+            },
+            {
+              "type": "string",
+              "value": "affiliate"
+            },
+            {
+              "type": "string",
+              "value": "sponsored"
+            },
+            {
+              "type": "string",
+              "value": "advertising"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "sponsored": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": false
+      },
+      "disclosure": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "countryAvailability": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "lastCheckedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "availabilityNote": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "featured": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": false
+      },
+      "editorPick": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": false
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "published"
+            },
+            {
+              "type": "string",
+              "value": "archived"
+            },
+            {
+              "type": "string",
+              "value": "discontinued"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "prototypeStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "fictional-prototype"
+            },
+            {
+              "type": "string",
+              "value": "sample-record"
+            },
+            {
+              "type": "string",
+              "value": "not-official"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "seo": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "seo"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "type": "type",
     "name": "rankingCategory.reference",
     "value": {
       "type": "object",
@@ -2963,51 +9229,6 @@
           ]
         },
         "optional": false
-      }
-    }
-  },
-  {
-    "name": "seo",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "seo"
-          }
-        },
-        "metaTitle": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "metaDescription": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        },
-        "socialImage": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "inline",
-            "name": "accessibleImage"
-          },
-          "optional": true
-        },
-        "noIndex": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "boolean"
-          },
-          "optional": true
-        }
       }
     }
   },
@@ -3251,36 +9472,6 @@
           "name": "seo"
         },
         "optional": true
-      }
-    }
-  },
-  {
-    "name": "slug",
-    "type": "type",
-    "value": {
-      "type": "object",
-      "attributes": {
-        "_type": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string",
-            "value": "slug"
-          }
-        },
-        "current": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": false
-        },
-        "source": {
-          "type": "objectAttribute",
-          "value": {
-            "type": "string"
-          },
-          "optional": true
-        }
       }
     }
   },
@@ -3704,6 +9895,27 @@
         "type": "objectAttribute",
         "value": {
           "type": "string"
+        },
+        "optional": false
+      },
+      "origin": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "cali-central-original"
+            },
+            {
+              "type": "string",
+              "value": "community-submission"
+            },
+            {
+              "type": "string",
+              "value": "external-source"
+            }
+          ]
         },
         "optional": false
       },
@@ -4405,6 +10617,169 @@
           ]
         },
         "optional": false
+      }
+    }
+  },
+  {
+    "name": "teamApplicationRosterEntry",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "teamApplicationRosterEntry"
+          }
+        },
+        "name": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "privateEmail": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "privatePhone": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "existingProfileSlug": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "relationshipToTeam": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "role": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "captain"
+              },
+              {
+                "type": "string",
+                "value": "athlete"
+              },
+              {
+                "type": "string",
+                "value": "reserve"
+              },
+              {
+                "type": "string",
+                "value": "coach"
+              },
+              {
+                "type": "string",
+                "value": "manager"
+              },
+              {
+                "type": "string",
+                "value": "administrator"
+              },
+              {
+                "type": "string",
+                "value": "media-manager"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "rosterStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "proposed"
+              },
+              {
+                "type": "string",
+                "value": "invited"
+              },
+              {
+                "type": "string",
+                "value": "accepted"
+              },
+              {
+                "type": "string",
+                "value": "declined"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "specialty": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "strength"
+              },
+              {
+                "type": "string",
+                "value": "control"
+              },
+              {
+                "type": "string",
+                "value": "endurance"
+              },
+              {
+                "type": "string",
+                "value": "freestyle"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "consentStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "not-contacted"
+              },
+              {
+                "type": "string",
+                "value": "pending"
+              },
+              {
+                "type": "string",
+                "value": "accepted"
+              },
+              {
+                "type": "string",
+                "value": "declined"
+              }
+            ]
+          },
+          "optional": false
+        }
       }
     }
   },
@@ -5568,6 +11943,615 @@
     }
   },
   {
+    "name": "externalAlias",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "externalAlias"
+          }
+        },
+        "name": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "source": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "provenanceSource"
+          },
+          "optional": true
+        }
+      }
+    }
+  },
+  {
+    "name": "teamSeasonMember",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "teamSeasonMember"
+          }
+        },
+        "athlete": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "athlete.reference"
+          },
+          "optional": false
+        },
+        "role": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "starter"
+              },
+              {
+                "type": "string",
+                "value": "reserve"
+              },
+              {
+                "type": "string",
+                "value": "coach"
+              },
+              {
+                "type": "string",
+                "value": "manager"
+              },
+              {
+                "type": "string",
+                "value": "administrator"
+              },
+              {
+                "type": "string",
+                "value": "media-manager"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "specialty": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "strength"
+              },
+              {
+                "type": "string",
+                "value": "control"
+              },
+              {
+                "type": "string",
+                "value": "endurance"
+              },
+              {
+                "type": "string",
+                "value": "freestyle"
+              }
+            ]
+          },
+          "optional": true
+        },
+        "athleteNumber": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "captain": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "boolean"
+          },
+          "optional": true
+        },
+        "joinedAt": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "leftAt": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "membershipStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "proposed"
+              },
+              {
+                "type": "string",
+                "value": "active"
+              },
+              {
+                "type": "string",
+                "value": "inactive"
+              },
+              {
+                "type": "string",
+                "value": "transferred"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "consentStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "pending"
+              },
+              {
+                "type": "string",
+                "value": "accepted"
+              },
+              {
+                "type": "string",
+                "value": "declined"
+              },
+              {
+                "type": "string",
+                "value": "revoked"
+              }
+            ]
+          },
+          "optional": false
+        },
+        "verificationStatus": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "unverified"
+              },
+              {
+                "type": "string",
+                "value": "editor-confirmed"
+              },
+              {
+                "type": "string",
+                "value": "league-confirmed"
+              }
+            ]
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "teamSocialLink",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "teamSocialLink"
+          }
+        },
+        "label": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "url": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "resultPerformance",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "resultPerformance"
+          }
+        },
+        "metric": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "value": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "unit": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "status": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "completed"
+              },
+              {
+                "type": "string",
+                "value": "dns"
+              },
+              {
+                "type": "string",
+                "value": "disqualified"
+              },
+              {
+                "type": "string",
+                "value": "withdrawn"
+              }
+            ]
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "sportingMeasurement",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "sportingMeasurement"
+          }
+        },
+        "measurementType": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "value": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": false
+        },
+        "unit": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "measuredAt": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "source": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "provenanceSource"
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "rankingSnapshotEntry",
+    "type": "type",
+    "value": {
+      "type": "object",
+      "attributes": {
+        "_type": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string",
+            "value": "rankingSnapshotEntry"
+          }
+        },
+        "athlete": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "inline",
+            "name": "athlete.reference"
+          },
+          "optional": true
+        },
+        "sourceDisplayName": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": false
+        },
+        "providerAthleteId": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "string"
+          },
+          "optional": true
+        },
+        "position": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "points": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "rating": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "previousPosition": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "number"
+          },
+          "optional": true
+        },
+        "status": {
+          "type": "objectAttribute",
+          "value": {
+            "type": "union",
+            "of": [
+              {
+                "type": "string",
+                "value": "ranked"
+              },
+              {
+                "type": "string",
+                "value": "provisional"
+              },
+              {
+                "type": "string",
+                "value": "inactive"
+              },
+              {
+                "type": "string",
+                "value": "unmatched"
+              }
+            ]
+          },
+          "optional": false
+        }
+      }
+    }
+  },
+  {
+    "name": "rankingProvider",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "rankingProvider"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": false
+      },
+      "organization": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": true
+      },
+      "website": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "description": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "inactive"
+            },
+            {
+              "type": "string",
+              "value": "under-review"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "disciplines": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "geographicScope": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "integrationMethod": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "manual"
+            },
+            {
+              "type": "string",
+              "value": "editorial"
+            },
+            {
+              "type": "string",
+              "value": "structured-import"
+            },
+            {
+              "type": "string",
+              "value": "authorized-api"
+            },
+            {
+              "type": "string",
+              "value": "licensed-feed"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "attributionRequirement": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "sourcePolicyNotes": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "lastReviewedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
     "name": "rankingEntry",
     "type": "type",
     "value": {
@@ -6546,6 +13530,14 @@
               },
               {
                 "type": "string",
+                "value": "streetlifting"
+              },
+              {
+                "type": "string",
+                "value": "weighted-calisthenics"
+              },
+              {
+                "type": "string",
                 "value": "static-strength"
               },
               {
@@ -6555,6 +13547,10 @@
               {
                 "type": "string",
                 "value": "endurance"
+              },
+              {
+                "type": "string",
+                "value": "skills"
               },
               {
                 "type": "string",
@@ -7988,6 +14984,28 @@
         },
         "optional": true
       },
+      "sportingMeasurements": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "_key": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "rest": {
+              "type": "inline",
+              "name": "sportingMeasurement"
+            }
+          }
+        },
+        "optional": true
+      },
       "achievements": {
         "type": "objectAttribute",
         "value": {
@@ -8198,7 +15216,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "seo": {
         "type": "objectAttribute",
@@ -8456,6 +15474,14 @@
               },
               {
                 "type": "string",
+                "value": "streetlifting"
+              },
+              {
+                "type": "string",
+                "value": "weighted-calisthenics"
+              },
+              {
+                "type": "string",
                 "value": "static-strength"
               },
               {
@@ -8465,6 +15491,10 @@
               {
                 "type": "string",
                 "value": "endurance"
+              },
+              {
+                "type": "string",
+                "value": "skills"
               },
               {
                 "type": "string",
@@ -9863,7 +16893,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "slug": {
         "type": "objectAttribute",
@@ -9878,7 +16908,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "status": {
         "type": "objectAttribute",
@@ -9907,7 +16937,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "startDate": {
         "type": "objectAttribute",
@@ -9928,7 +16958,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "state": {
         "type": "objectAttribute",
@@ -9949,7 +16979,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "region": {
         "type": "objectAttribute",
@@ -9963,7 +16993,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "venueType": {
         "type": "objectAttribute",
@@ -9977,7 +17007,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "description": {
         "type": "objectAttribute",
@@ -9985,7 +17015,7 @@
           "type": "inline",
           "name": "portableText"
         },
-        "optional": false
+        "optional": true
       },
       "disciplines": {
         "type": "objectAttribute",
@@ -9997,6 +17027,14 @@
               {
                 "type": "string",
                 "value": "freestyle"
+              },
+              {
+                "type": "string",
+                "value": "streetlifting"
+              },
+              {
+                "type": "string",
+                "value": "weighted-calisthenics"
               },
               {
                 "type": "string",
@@ -10012,6 +17050,10 @@
               },
               {
                 "type": "string",
+                "value": "skills"
+              },
+              {
+                "type": "string",
                 "value": "team"
               },
               {
@@ -10021,7 +17063,7 @@
             ]
           }
         },
-        "optional": false
+        "optional": true
       },
       "primaryDiscipline": {
         "type": "objectAttribute",
@@ -10031,6 +17073,14 @@
             {
               "type": "string",
               "value": "freestyle"
+            },
+            {
+              "type": "string",
+              "value": "streetlifting"
+            },
+            {
+              "type": "string",
+              "value": "weighted-calisthenics"
             },
             {
               "type": "string",
@@ -10046,6 +17096,10 @@
             },
             {
               "type": "string",
+              "value": "skills"
+            },
+            {
+              "type": "string",
               "value": "team"
             },
             {
@@ -10054,7 +17108,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "divisions": {
         "type": "objectAttribute",
@@ -10076,7 +17130,51 @@
             }
           }
         },
-        "optional": false
+        "optional": true
+      },
+      "eventSeries": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "editorialPriority": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "world-championship"
+            },
+            {
+              "type": "string",
+              "value": "continental-championship"
+            },
+            {
+              "type": "string",
+              "value": "national-championship"
+            },
+            {
+              "type": "string",
+              "value": "major-open"
+            },
+            {
+              "type": "string",
+              "value": "qualifier"
+            },
+            {
+              "type": "string",
+              "value": "major-event"
+            },
+            {
+              "type": "string",
+              "value": "standard"
+            }
+          ]
+        },
+        "optional": true
       },
       "featured": {
         "type": "objectAttribute",
@@ -10116,7 +17214,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "registrationDeadline": {
         "type": "objectAttribute",
@@ -10148,7 +17246,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "resultsStatus": {
         "type": "objectAttribute",
@@ -10173,7 +17271,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "capacityLabel": {
         "type": "objectAttribute",
@@ -10187,7 +17285,37 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
+      },
+      "organization": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "organization.reference"
+        },
+        "optional": true
+      },
+      "source": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "provenanceSource"
+        },
+        "optional": true
+      },
+      "externalProviderId": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "externalProviderUrl": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
       },
       "organizerVerificationStatus": {
         "type": "objectAttribute",
@@ -10212,7 +17340,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "actionLinks": {
         "type": "objectAttribute",
@@ -10241,7 +17369,7 @@
         "value": {
           "type": "string"
         },
-        "optional": false
+        "optional": true
       },
       "schedule": {
         "type": "objectAttribute",
@@ -10380,7 +17508,7 @@
             }
           ]
         },
-        "optional": false
+        "optional": true
       },
       "relatedStories": {
         "type": "objectAttribute",
@@ -10468,6 +17596,315 @@
             {
               "type": "string",
               "value": "not-official"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "publicStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "published"
+            },
+            {
+              "type": "string",
+              "value": "archived"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "prototypeStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "fictional-prototype"
+            },
+            {
+              "type": "string",
+              "value": "sample-record"
+            },
+            {
+              "type": "string",
+              "value": "not-official"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "seo": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "seo"
+        },
+        "optional": true
+      }
+    }
+  },
+  {
+    "name": "organization",
+    "type": "document",
+    "attributes": {
+      "_id": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_type": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string",
+          "value": "organization"
+        }
+      },
+      "_createdAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_updatedAt": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "_rev": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "slug": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "slug"
+        },
+        "optional": false
+      },
+      "organizationType": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "federation"
+            },
+            {
+              "type": "string",
+              "value": "league"
+            },
+            {
+              "type": "string",
+              "value": "competition-organizer"
+            },
+            {
+              "type": "string",
+              "value": "gym"
+            },
+            {
+              "type": "string",
+              "value": "training-facility"
+            },
+            {
+              "type": "string",
+              "value": "team-operator"
+            },
+            {
+              "type": "string",
+              "value": "brand"
+            },
+            {
+              "type": "string",
+              "value": "retailer"
+            },
+            {
+              "type": "string",
+              "value": "media-company"
+            },
+            {
+              "type": "string",
+              "value": "community-organization"
+            },
+            {
+              "type": "string",
+              "value": "other"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "logo": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "accessibleImage"
+        },
+        "optional": true
+      },
+      "description": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": false
+      },
+      "country": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "administrativeArea": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "city": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "geographicScope": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "disciplines": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "string"
+          }
+        },
+        "optional": true
+      },
+      "website": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
+      "source": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "provenanceSource"
+        },
+        "optional": true
+      },
+      "socialLinks": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "array",
+          "of": {
+            "type": "object",
+            "attributes": {
+              "label": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": false
+              },
+              "url": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string"
+                },
+                "optional": false
+              },
+              "_type": {
+                "type": "objectAttribute",
+                "value": {
+                  "type": "string",
+                  "value": "organizationSocialLink"
+                }
+              }
+            },
+            "rest": {
+              "type": "object",
+              "attributes": {
+                "_key": {
+                  "type": "objectAttribute",
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "optional": true
+      },
+      "status": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "active"
+            },
+            {
+              "type": "string",
+              "value": "inactive"
+            },
+            {
+              "type": "string",
+              "value": "historical"
+            }
+          ]
+        },
+        "optional": false
+      },
+      "publicStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "draft"
+            },
+            {
+              "type": "string",
+              "value": "published"
+            },
+            {
+              "type": "string",
+              "value": "archived"
             }
           ]
         },

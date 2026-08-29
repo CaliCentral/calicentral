@@ -172,7 +172,8 @@ Check in this order:
 7. Session cookie is Secure on HTTPS and sign-out clears access.
 8. Unauthenticated `/account` and `/admin` do not leak protected content.
 9. Suspended and non-admin accounts remain denied appropriately.
-10. `/studio`, Presentation, Draft Mode, and Sanity images work.
+10. `/studio` safely hands off to the reviewed standalone Studio URL, and
+    Presentation, Draft Mode, Vision, and Sanity images work.
 11. One reversible contributor/editorial mutation produces one expected audit.
 12. Worker logs contain only safe categories; rate-limit rules are not blocking
     normal callbacks.

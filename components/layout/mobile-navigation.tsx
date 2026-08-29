@@ -4,27 +4,94 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   type KeyboardEvent as ReactKeyboardEvent,
+  type Ref,
   useEffect,
   useId,
   useRef,
   useState,
 } from "react";
 
-import type { NavigationItem } from "@/types/content";
+import {
+  baseProfileItems,
+  contributorCreateItems,
+  contributorProfileItems,
+  editorialProfileItems,
+  memberCreateItems,
+  moreNavigationItems,
+  type NavigationDestination,
+  primaryNavigationItems,
+} from "@/components/layout/navigation-items";
 
 type MobileNavigationProps = {
-  readonly items: readonly NavigationItem[];
   readonly isAuthenticated: boolean;
   readonly isSessionLoading: boolean;
+  readonly canSubmit: boolean;
   readonly canUseEditorialDesk: boolean;
+  readonly displayName: string;
   readonly onSignOut: () => Promise<void>;
 };
 
-export function MobileNavigation({
+function isActiveRoute(href: string, pathname: string) {
+  const hrefPath = href.split(/[?#]/, 1)[0] ?? href;
+  return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
+}
+
+function SectionLinks({
   items,
+  pathname,
+  onNavigate,
+}: {
+  readonly items: readonly NavigationDestination[];
+  readonly pathname: string;
+  readonly onNavigate: () => void;
+}) {
+  return (
+    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+      {items.map((item) => {
+        const active = isActiveRoute(item.href, pathname);
+
+        return (
+          <li key={`${item.label}-${item.href}`}>
+            <Link
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              onClick={onNavigate}
+              className={`group flex min-h-14 items-start justify-between gap-4 border px-4 py-3 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                active
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-ink/20 text-ink hover:border-accent hover:text-accent"
+              }`}
+            >
+              <span>
+                <span className="block text-sm font-black uppercase tracking-[0.04em]">
+                  {item.label}
+                </span>
+                {item.description ? (
+                  <span className="mt-1 block text-xs normal-case leading-5 tracking-normal text-muted">
+                    {item.description}
+                  </span>
+                ) : null}
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-accent transition-transform group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export function MobileNavigation({
   isAuthenticated,
   isSessionLoading,
+  canSubmit,
   canUseEditorialDesk,
+  displayName,
   onSignOut,
 }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,11 +101,18 @@ export function MobileNavigation({
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const panelId = useId();
   const panelTitleId = useId();
+  const createItems = [
+    ...memberCreateItems,
+    ...(canSubmit ? contributorCreateItems : []),
+  ];
+  const profileItems = [
+    ...baseProfileItems,
+    ...(canSubmit ? contributorProfileItems : []),
+    ...(canUseEditorialDesk ? editorialProfileItems : []),
+  ];
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
 
     const previousBodyOverflow = document.body.style.overflow;
     const previousRootOverflow = document.documentElement.style.overflow;
@@ -77,17 +151,13 @@ export function MobileNavigation({
   }
 
   function trapMenuFocus(event: ReactKeyboardEvent<HTMLDivElement>) {
-    if (!isOpen || event.key !== "Tab") {
-      return;
-    }
+    if (!isOpen || event.key !== "Tab") return;
 
     const focusableElements = panelRef.current?.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), a[href]'
+      "button:not([disabled]), a[href]",
     );
 
-    if (!focusableElements?.length) {
-      return;
-    }
+    if (!focusableElements?.length) return;
 
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
@@ -152,7 +222,7 @@ export function MobileNavigation({
 
         <div className="relative mx-auto flex min-h-full w-full max-w-[86rem] flex-col px-5 pb-8 pt-6 sm:px-8">
           <div className="flex items-center justify-between gap-4 border-b border-ink/15 pb-4 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-            <span id={panelTitleId}>Signal / Navigation</span>
+            <span id={panelTitleId}>Cali Central / Navigation</span>
             <button
               type="button"
               onClick={closeMenuAndRestoreFocus}
@@ -167,25 +237,22 @@ export function MobileNavigation({
 
           <nav aria-label="Mobile primary navigation">
             <ul className="divide-y divide-ink/10">
-              {items.map((item, index) => {
-                const isActive =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : !item.href.includes("#") &&
-                      (pathname === item.href ||
-                        pathname.startsWith(`${item.href}/`));
+              {primaryNavigationItems.map((item, index) => {
+                const isActive = isActiveRoute(item.href, pathname);
 
                 return (
                   <li key={item.href}>
                     <Link
-                      ref={index === 0 ? firstLinkRef : undefined}
+                      ref={
+                        (index === 0
+                          ? firstLinkRef
+                          : undefined) as Ref<HTMLAnchorElement>
+                      }
                       href={item.href}
                       aria-current={isActive ? "page" : undefined}
                       onClick={closeMenuAndRestoreFocus}
                       className={`group relative grid min-h-16 grid-cols-[2.5rem_1fr_auto] items-center gap-3 py-3 text-xl font-black uppercase tracking-[-0.035em] transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-accent sm:min-h-[4.5rem] sm:text-2xl ${
-                        isActive
-                          ? "text-accent"
-                          : "text-ink hover:text-accent"
+                        isActive ? "text-accent" : "text-ink hover:text-accent"
                       }`}
                     >
                       <span
@@ -214,92 +281,127 @@ export function MobileNavigation({
             </ul>
           </nav>
 
+          <div className="mt-5 grid gap-3 border-y border-ink/15 py-5 sm:grid-cols-2">
+            <Link
+              href="/search"
+              onClick={closeMenuAndRestoreFocus}
+              className="inline-flex min-h-14 items-center justify-between border border-ink/20 px-4 text-sm font-black uppercase tracking-[0.08em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              Search Cali Central <span aria-hidden="true">⌕</span>
+            </Link>
+            {isAuthenticated ? (
+              <a
+                href="#mobile-create"
+                className="clip-corner inline-flex min-h-14 items-center justify-between bg-accent px-4 text-sm font-black uppercase tracking-[0.08em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                + Create <span aria-hidden="true">↓</span>
+              </a>
+            ) : !isSessionLoading ? (
+              <Link
+                href="/join"
+                onClick={closeMenuAndRestoreFocus}
+                className="clip-corner inline-flex min-h-14 items-center justify-between bg-accent px-4 text-sm font-black uppercase tracking-[0.08em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                Join Cali Central <span aria-hidden="true">→</span>
+              </Link>
+            ) : null}
+          </div>
+
           {isAuthenticated ? (
-            <nav
-              aria-label="Account navigation"
-              className="mt-5 border-t border-ink/15 pt-5"
+            <section
+              id="mobile-create"
+              aria-labelledby="mobile-create-heading"
+              className="scroll-mt-6 border-b border-ink/15 py-6"
             >
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted">
-                Account session
+              <p
+                id="mobile-create-heading"
+                className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-accent"
+              >
+                + Create
               </p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                <li>
-                  <Link
-                    href="/account"
-                    onClick={closeMenuAndRestoreFocus}
-                    className="inline-flex min-h-12 w-full items-center justify-between border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    Account
-                    <span aria-hidden="true" className="text-accent">
-                      →
-                    </span>
-                  </Link>
-                </li>
-                {canUseEditorialDesk ? (
-                  <li>
-                    <Link
-                      href="/admin"
-                      onClick={closeMenuAndRestoreFocus}
-                      className="inline-flex min-h-12 w-full items-center justify-between border border-accent/45 px-4 text-sm font-bold uppercase tracking-[0.1em] text-accent transition-colors hover:bg-accent hover:text-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                    >
-                      Editorial desk
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  </li>
-                ) : null}
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      closeMenu();
-                      void onSignOut();
-                    }}
-                    className="inline-flex min-h-12 w-full items-center border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-muted transition-colors hover:border-accent hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    Sign out
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          ) : !isSessionLoading ? (
-            <nav
-              aria-label="Account access"
-              className="mt-5 border-t border-ink/15 pt-5"
+              <SectionLinks
+                items={createItems}
+                pathname={pathname}
+                onNavigate={closeMenuAndRestoreFocus}
+              />
+              {!canSubmit ? (
+                <p className="mt-3 text-xs leading-5 text-muted">
+                  Editorial submission options appear after existing account
+                  access checks allow them.
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+
+          <section
+            aria-labelledby="mobile-more-heading"
+            className="border-b border-ink/15 py-6"
+          >
+            <p
+              id="mobile-more-heading"
+              className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted"
             >
+              More
+            </p>
+            <SectionLinks
+              items={moreNavigationItems}
+              pathname={pathname}
+              onNavigate={closeMenuAndRestoreFocus}
+            />
+          </section>
+
+          {isAuthenticated ? (
+            <section aria-labelledby="mobile-profile-heading" className="py-6">
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <p
+                  id="mobile-profile-heading"
+                  className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted"
+                >
+                  Profile
+                </p>
+                <p className="max-w-full truncate text-xs text-muted">
+                  {displayName}
+                </p>
+              </div>
+              <SectionLinks
+                items={profileItems}
+                pathname={pathname}
+                onNavigate={closeMenuAndRestoreFocus}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  closeMenu();
+                  void onSignOut();
+                }}
+                className="mt-3 inline-flex min-h-12 w-full items-center justify-between border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-muted transition-colors hover:border-accent hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-auto"
+              >
+                Sign out <span aria-hidden="true">→</span>
+              </button>
+            </section>
+          ) : !isSessionLoading ? (
+            <nav aria-label="Account access" className="py-6">
               <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-muted">
                 Account access
               </p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                <li>
-                  <Link
-                    href="/sign-in"
-                    onClick={closeMenuAndRestoreFocus}
-                    className="inline-flex min-h-12 w-full items-center justify-between border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    Sign in
-                    <span aria-hidden="true" className="text-accent">
-                      →
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/join"
-                    onClick={closeMenuAndRestoreFocus}
-                    className="inline-flex min-h-12 w-full items-center justify-between bg-accent px-4 text-sm font-bold uppercase tracking-[0.1em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    Join
-                    <span aria-hidden="true">→</span>
-                  </Link>
-                </li>
-              </ul>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <Link
+                  href="/sign-in"
+                  onClick={closeMenuAndRestoreFocus}
+                  className="inline-flex min-h-12 items-center justify-between border border-ink/20 px-4 text-sm font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  Sign in <span aria-hidden="true">→</span>
+                </Link>
+                <Link
+                  href="/join"
+                  onClick={closeMenuAndRestoreFocus}
+                  className="clip-corner inline-flex min-h-12 items-center justify-between bg-accent px-4 text-sm font-bold uppercase tracking-[0.1em] text-canvas transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  Join <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </nav>
           ) : null}
-
-          <div className="mt-auto flex flex-col gap-2 border-t border-ink/15 pt-5 font-mono text-xs uppercase tracking-[0.16em] text-muted sm:flex-row sm:items-center sm:justify-between">
-            <span>Independent desk</span>
-            <span>Worldwide field</span>
-          </div>
         </div>
       </div>
     </div>

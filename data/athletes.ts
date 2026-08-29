@@ -2,6 +2,7 @@ import type { Athlete } from "@/types/athlete";
 
 export const athletes = [
   {
+    canonicalId: "sample.athlete.maya-calder",
     slug: "maya-calder",
     name: "Maya Calder",
     initials: "MC",
@@ -116,6 +117,7 @@ export const athletes = [
     disciplineCode: "FRS / STC",
   },
   {
+    canonicalId: "sample.athlete.jalen-reyes",
     slug: "jalen-reyes",
     name: "Jalen Reyes",
     initials: "JR",
@@ -221,6 +223,7 @@ export const athletes = [
     disciplineCode: "FRS / 01",
   },
   {
+    canonicalId: "sample.athlete.noa-bennett",
     slug: "noa-bennett",
     name: "Noa Bennett",
     initials: "NB",
@@ -319,6 +322,7 @@ export const athletes = [
     disciplineCode: "STC / 01",
   },
   {
+    canonicalId: "sample.athlete.elian-park",
     slug: "elian-park",
     name: "Elian Park",
     initials: "EP",
@@ -427,6 +431,7 @@ export const athletes = [
     disciplineCode: "FRS / TMP",
   },
   {
+    canonicalId: "sample.athlete.tessa-marin",
     slug: "tessa-marin",
     name: "Tessa Marín",
     initials: "TM",
@@ -536,6 +541,7 @@ export const athletes = [
     disciplineCode: "FRS / END",
   },
   {
+    canonicalId: "sample.athlete.micah-vale",
     slug: "micah-vale",
     name: "Micah Vale",
     initials: "MV",
@@ -641,6 +647,7 @@ export const athletes = [
     disciplineCode: "STR / FDN",
   },
   {
+    canonicalId: "sample.athlete.amara-west",
     slug: "amara-west",
     name: "Amara West",
     initials: "AW",
@@ -749,6 +756,7 @@ export const athletes = [
     disciplineCode: "DYN / SIG",
   },
   {
+    canonicalId: "sample.athlete.rowan-kim",
     slug: "rowan-kim",
     name: "Rowan Kim",
     initials: "RK",

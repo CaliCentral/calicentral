@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 type ContentEmptyStateProps = {
   readonly title: string;
   readonly description: string;
   readonly eyebrow?: string;
   readonly headingId?: string;
   readonly className?: string;
+  readonly action?: ReactNode;
 };
 
 export function ContentEmptyState({
@@ -12,6 +15,7 @@ export function ContentEmptyState({
   eyebrow = "Content desk / Awaiting publication",
   headingId,
   className = "",
+  action,
 }: ContentEmptyStateProps) {
   return (
     <div
@@ -29,6 +33,7 @@ export function ContentEmptyState({
       <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-muted sm:text-base">
         {description}
       </p>
+      {action ? <div className="mt-6 flex justify-center">{action}</div> : null}
     </div>
   );
 }

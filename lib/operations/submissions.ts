@@ -22,7 +22,7 @@ import {
   normalizedSubmissionType,
 } from "@/lib/operations/normalize";
 import { SUBMISSION_MUTATION_TARGET_PROJECTION } from "@/lib/operations/projections";
-import { SUBMISSION_STATUSES } from "@/lib/operations/types";
+import { SUBMISSION_STATUSES, SUBMISSION_TYPES } from "@/lib/operations/types";
 import type {
   AdminDashboard,
   AdminSubmissionDetail,
@@ -147,7 +147,82 @@ const SUBMISSION_CONTENT_PROJECTION = `{
     "publicReferenceLinks": publicReferenceLinks[]${SUPPORTING_LINK_PROJECTION},
     scheduleStatus
   },
+  teamApplicationDetails {
+    proposedTeamName,
+    shortName,
+    code,
+    teamType,
+    representedIdentity,
+    country,
+    administrativeArea,
+    city,
+    trainingBase,
+    foundingYear,
+    description,
+    disciplines,
+    competitionIntentions,
+    website,
+    "socialLinks": socialLinks[]${SUPPORTING_LINK_PROJECTION},
+    primaryColor,
+    secondaryColor,
+    accentColor,
+    crestReferenceUrl,
+    wordmarkReferenceUrl,
+    brandingPermissionAcknowledged,
+    proposedUniformDesign,
+    "proposedRoster": proposedRoster[]{
+      "key": _key,
+      name,
+      privateEmail,
+      privatePhone,
+      existingProfileSlug,
+      relationshipToTeam,
+      role,
+      rosterStatus,
+      specialty,
+      consentStatus
+    }
+  },
+  organizationClaimDetails {
+    requestKind,
+    existingOrganizationId,
+    organizationName,
+    organizationType,
+    country,
+    website,
+    relationshipToOrganization,
+    requestedCapabilities,
+    "evidenceLinks": evidenceLinks[]${SUPPORTING_LINK_PROJECTION}
+  },
+  videoSubmissionDetails {
+    submittingIdentityType,
+    submittingIdentityId,
+    videoTitle,
+    description,
+    category,
+    discipline,
+    sourceHost,
+    originalPublicUrl,
+    submitterRelationship,
+    creatorName,
+    creatorProfileUrl,
+    featuredAthletes,
+    featuredTeams,
+    organizationId,
+    competition,
+    eventDate,
+    location,
+    thumbnailReferenceUrl,
+    rightsDeclaration,
+    ownershipSourceDeclaration,
+    sourceAccount,
+    editorialNote,
+    contentWarnings
+  },
   mediaPitchDetails {
+    mediaKind,
+    submittingIdentityType,
+    submittingIdentityId,
     proposedTitle,
     series,
     format,
@@ -158,8 +233,22 @@ const SUBMISSION_CONTENT_PROJECTION = `{
     sourcePlatform,
     sourceAccount,
     originalPostUrl,
+    creatorName,
+    caption,
+    altText,
     mediaPermissionStatus,
     "publicReferenceLinks": publicReferenceLinks[]${SUPPORTING_LINK_PROJECTION}
+  },
+  productSubmissionDetails {
+    organizationId,
+    productName,
+    category,
+    productSummary,
+    standardProductUrl,
+    affiliateUrl,
+    affiliateRelationship,
+    submitterRelationship,
+    commercialDisclosure
   },
   correctionRequestDetails {
     affectedUrl,
@@ -243,9 +332,7 @@ function isMutationConflict(error: unknown): boolean {
   );
 }
 
-function createSupportingLinkDocuments(
-  links: readonly SupportingLinkInput[],
-) {
+function createSupportingLinkDocuments(links: readonly SupportingLinkInput[]) {
   return links.map((link) => ({
     _key: randomUUID(),
     _type: "supportingLink",
@@ -260,6 +347,16 @@ function createAthleteCompetitionHistoryDocuments(
   return entries.map((entry) => ({
     _key: randomUUID(),
     _type: "athleteCompetitionHistorySubmission",
+    ...compactRecord(entry),
+  }));
+}
+
+function createTeamApplicationRosterDocuments(
+  entries: readonly Record<string, unknown>[],
+) {
+  return entries.map((entry) => ({
+    _key: randomUUID(),
+    _type: "teamApplicationRosterEntry",
     ...compactRecord(entry),
   }));
 }
@@ -321,6 +418,39 @@ function submissionContentPatch(input: SubmissionWriteInput) {
           ),
         }),
       };
+    case "teamApplication":
+      return {
+        ...common,
+        teamApplicationDetails: compactRecord({
+          _type: "teamApplicationDetails",
+          ...input.teamApplicationDetails,
+          socialLinks: createSupportingLinkDocuments(
+            input.teamApplicationDetails.socialLinks ?? [],
+          ),
+          proposedRoster: createTeamApplicationRosterDocuments(
+            input.teamApplicationDetails.proposedRoster ?? [],
+          ),
+        }),
+      };
+    case "organizationClaim":
+      return {
+        ...common,
+        organizationClaimDetails: compactRecord({
+          _type: "organizationClaimDetails",
+          ...input.organizationClaimDetails,
+          evidenceLinks: createSupportingLinkDocuments(
+            input.organizationClaimDetails.evidenceLinks ?? [],
+          ),
+        }),
+      };
+    case "videoSubmission":
+      return {
+        ...common,
+        videoSubmissionDetails: compactRecord({
+          _type: "videoSubmissionDetails",
+          ...input.videoSubmissionDetails,
+        }),
+      };
     case "mediaPitch":
       return {
         ...common,
@@ -330,6 +460,14 @@ function submissionContentPatch(input: SubmissionWriteInput) {
           publicReferenceLinks: createSupportingLinkDocuments(
             input.mediaPitchDetails.publicReferenceLinks ?? [],
           ),
+        }),
+      };
+    case "productSubmission":
+      return {
+        ...common,
+        productSubmissionDetails: compactRecord({
+          _type: "productSubmissionDetails",
+          ...input.productSubmissionDetails,
         }),
       };
     case "correctionRequest":
@@ -410,17 +548,16 @@ function transitionEvent(
     submitted: null,
   } satisfies Record<
     SubmissionStatus,
-    | {
-        eventType:
-          | "reviewStarted"
-          | "revisionRequested"
-          | "submissionApproved"
-          | "submissionRejected"
-          | "submissionWithdrawn"
-          | "submissionArchived";
-        summary: string;
-      }
-    | null
+    {
+      eventType:
+        | "reviewStarted"
+        | "revisionRequested"
+        | "submissionApproved"
+        | "submissionRejected"
+        | "submissionWithdrawn"
+        | "submissionArchived";
+      summary: string;
+    } | null
   >;
 
   return byStatus[nextStatus];
@@ -620,9 +757,7 @@ export async function getAdminSubmissionQueue(): Promise<
 
 export async function countAdminSubmissions(): Promise<number> {
   const client = requireOperationsClient();
-  const count = await client.fetch<number>(
-    `count(*[_type == "submission"])`,
-  );
+  const count = await client.fetch<number>(`count(*[_type == "submission"])`);
   return Number.isFinite(count) ? Math.max(0, count) : 0;
 }
 
@@ -649,7 +784,9 @@ export async function getSubmissionForReview(
           select(defined(linkedStory) => {"type": "story", "id": linkedStory._ref}),
           select(defined(linkedAthlete) => {"type": "athlete", "id": linkedAthlete._ref}),
           select(defined(linkedCompetition) => {"type": "competition", "id": linkedCompetition._ref}),
-          select(defined(linkedVideo) => {"type": "video", "id": linkedVideo._ref})
+          select(defined(linkedVideo) => {"type": "video", "id": linkedVideo._ref}),
+          select(defined(linkedOrganization) => {"type": "organization", "id": linkedOrganization._ref}),
+          select(defined(linkedProduct) => {"type": "product", "id": linkedProduct._ref})
         ],
         createdDraftDocumentId
       }`,
@@ -689,6 +826,40 @@ export async function getContributorAuditEvents(
   return result.flatMap((value) => {
     const normalized = normalizeAuditEvent(value);
     return normalized ? [normalized] : [];
+  });
+}
+
+export type AdminActionableSubmissionCount = {
+  readonly submissionType: SubmissionType;
+  readonly count: number;
+};
+
+export async function getAdminActionableSubmissionCounts(): Promise<
+  readonly AdminActionableSubmissionCount[]
+> {
+  const client = requireOperationsClient();
+  const countFields = SUBMISSION_TYPES.map(
+    (submissionType) =>
+      `"${submissionType}": count(*[
+        _type == "submission" &&
+        submissionType == "${submissionType}" &&
+        status in ["submitted", "inReview"]
+      ])`,
+  ).join(",\n");
+  const result = await client.fetch<Partial<Record<SubmissionType, unknown>>>(
+    `{${countFields}}`,
+  );
+
+  return SUBMISSION_TYPES.map((submissionType) => {
+    const value = result[submissionType];
+
+    return {
+      submissionType,
+      count:
+        typeof value === "number" && Number.isFinite(value)
+          ? Math.max(0, value)
+          : 0,
+    };
   });
 }
 
@@ -823,9 +994,7 @@ async function getCreatedSubmissionResult(
     persisted.id !== submissionId ||
     persisted.submitterId !== contributorId ||
     typeof persisted.submissionNumber !== "string" ||
-    !SUBMISSION_STATUSES.includes(
-      persisted.status as SubmissionStatus,
-    )
+    !SUBMISSION_STATUSES.includes(persisted.status as SubmissionStatus)
   ) {
     throw new OperationalError(
       "operation_failed",
@@ -1067,8 +1236,7 @@ export async function createSubmissionRecord(input: {
           contributorId: input.actor.id,
           previousStatus: "draft",
           nextStatus: "submitted",
-          summary:
-            "Contributor submitted the new record for editorial review.",
+          summary: "Contributor submitted the new record for editorial review.",
         },
         identifiers.submittedAuditId,
       )
@@ -1202,7 +1370,8 @@ export async function updateSubmissionRecord(input: {
     },
     identifiers.auditId,
   );
-  const transaction = client.transaction()
+  const transaction = client
+    .transaction()
     .patch(input.target.id, (patch) => {
       let nextPatch = patch.ifRevisionId(input.target.revisionId).set({
         ...submissionContentPatch(input.content),
@@ -1402,7 +1571,8 @@ export async function addPrivateEditorialNoteRecord(input: {
     },
     identifiers.auditId,
   );
-  const transaction = client.transaction()
+  const transaction = client
+    .transaction()
     .patch(input.target.id, (patch) =>
       patch
         .ifRevisionId(input.target.revisionId)

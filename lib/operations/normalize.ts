@@ -20,14 +20,18 @@ import type {
   CorrectionRequestDetails,
   EditorContributorSummary,
   MediaPitchDetails,
+  OrganizationClaimDetails,
   OwnContributorProfile,
   PrivateEditorialNote,
+  ProductSubmissionDetails,
   SubmissionBase,
   SubmissionPriority,
   SubmissionStatus,
   SubmissionType,
   StoryPitchDetails,
   SupportingLink,
+  TeamApplicationDetails,
+  VideoSubmissionDetails,
 } from "@/lib/operations/types";
 import {
   ACCESS_STATUSES,
@@ -104,7 +108,8 @@ export function normalizeSupportingLinks(value: unknown): SupportingLink[] {
 
     return [
       {
-        key: optionalString(item.key) ?? optionalString(item._key) ?? `${index}`,
+        key:
+          optionalString(item.key) ?? optionalString(item._key) ?? `${index}`,
         label: optionalString(item.label),
         url: parsedUrl.data,
         domain: new URL(parsedUrl.data).hostname.toLowerCase(),
@@ -340,9 +345,74 @@ function normalizeCompetitionListingDetails(
   };
 }
 
+function normalizeTeamApplicationDetails(
+  value: unknown,
+): TeamApplicationDetails {
+  const source = isRecord(value) ? value : {};
+  const proposedRoster = Array.isArray(source.proposedRoster)
+    ? source.proposedRoster.flatMap((item, index) => {
+        if (!isRecord(item)) return [];
+        return [
+          {
+            key:
+              optionalString(item.key) ??
+              optionalString(item._key) ??
+              `${index}`,
+            name: stringValue(item.name),
+            privateEmail: stringValue(item.privateEmail),
+            privatePhone: stringValue(item.privatePhone),
+            existingProfileSlug: stringValue(item.existingProfileSlug),
+            relationshipToTeam: stringValue(item.relationshipToTeam),
+            role: stringValue(item.role),
+            rosterStatus: stringValue(item.rosterStatus),
+            specialty: stringValue(item.specialty),
+            consentStatus: stringValue(item.consentStatus),
+          },
+        ];
+      })
+    : [];
+  return {
+    proposedTeamName: stringValue(source.proposedTeamName),
+    shortName: stringValue(source.shortName),
+    code: stringValue(source.code),
+    teamType: stringValue(source.teamType),
+    representedIdentity: stringValue(source.representedIdentity),
+    country: countryNameFor(stringValue(source.country)),
+    administrativeArea: stringValue(source.administrativeArea),
+    city: stringValue(source.city),
+    trainingBase: stringValue(source.trainingBase),
+    foundingYear: stringValue(source.foundingYear),
+    description: stringValue(source.description),
+    disciplines: stringArray(source.disciplines),
+    competitionIntentions: stringValue(source.competitionIntentions),
+    website: safeOptionalUrl(source.website),
+    socialLinks: normalizeSupportingLinks(source.socialLinks),
+    primaryColor: stringValue(source.primaryColor),
+    secondaryColor: stringValue(source.secondaryColor),
+    accentColor: stringValue(source.accentColor),
+    crestReferenceUrl: safeOptionalUrl(source.crestReferenceUrl),
+    wordmarkReferenceUrl: safeOptionalUrl(source.wordmarkReferenceUrl),
+    brandingPermissionAcknowledged:
+      source.brandingPermissionAcknowledged === true,
+    proposedUniformDesign: stringValue(source.proposedUniformDesign),
+    proposedRoster,
+  };
+}
+
 function normalizeMediaPitchDetails(value: unknown): MediaPitchDetails {
   const source = isRecord(value) ? value : {};
   return {
+    mediaKind: enumValue(
+      source.mediaKind,
+      ["photo", "photo-series", "mixed-media", "other"] as const,
+      "photo",
+    ),
+    submittingIdentityType: enumValue(
+      source.submittingIdentityType,
+      ["member", "organization"] as const,
+      "member",
+    ),
+    submittingIdentityId: stringValue(source.submittingIdentityId),
     proposedTitle: stringValue(source.proposedTitle),
     series: stringValue(source.series),
     format: stringValue(source.format),
@@ -352,9 +422,101 @@ function normalizeMediaPitchDetails(value: unknown): MediaPitchDetails {
     estimatedDuration: stringValue(source.estimatedDuration),
     sourcePlatform: stringValue(source.sourcePlatform),
     sourceAccount: stringValue(source.sourceAccount),
-    originalPostUrl: stringValue(source.originalPostUrl),
+    originalPostUrl: safeOptionalUrl(source.originalPostUrl),
+    creatorName: stringValue(source.creatorName),
+    caption: stringValue(source.caption),
+    altText: stringValue(source.altText),
     mediaPermissionStatus: stringValue(source.mediaPermissionStatus),
     publicReferenceLinks: normalizeSupportingLinks(source.publicReferenceLinks),
+  };
+}
+
+function normalizeOrganizationClaimDetails(
+  value: unknown,
+): OrganizationClaimDetails {
+  const source = isRecord(value) ? value : {};
+  return {
+    requestKind: enumValue(
+      source.requestKind,
+      ["create", "claim"] as const,
+      "claim",
+    ),
+    existingOrganizationId: stringValue(source.existingOrganizationId),
+    organizationName: stringValue(source.organizationName),
+    organizationType: stringValue(source.organizationType),
+    country: countryNameFor(stringValue(source.country)),
+    website: safeOptionalUrl(source.website),
+    relationshipToOrganization: stringValue(source.relationshipToOrganization),
+    requestedCapabilities: stringArray(source.requestedCapabilities),
+    evidenceLinks: normalizeSupportingLinks(source.evidenceLinks),
+  };
+}
+
+function normalizeVideoSubmissionDetails(
+  value: unknown,
+): VideoSubmissionDetails {
+  const source = isRecord(value) ? value : {};
+  return {
+    submittingIdentityType: enumValue(
+      source.submittingIdentityType,
+      ["member", "organization"] as const,
+      "member",
+    ),
+    submittingIdentityId: stringValue(source.submittingIdentityId),
+    videoTitle: stringValue(source.videoTitle),
+    description: stringValue(source.description),
+    category: stringValue(source.category),
+    discipline: stringValue(source.discipline),
+    sourceHost: enumValue(
+      source.sourceHost,
+      ["youtube", "instagram", "tiktok", "other-approved"] as const,
+      "other-approved",
+    ),
+    originalPublicUrl: safeOptionalUrl(source.originalPublicUrl),
+    submitterRelationship: stringValue(source.submitterRelationship),
+    creatorName: stringValue(source.creatorName),
+    creatorProfileUrl: safeOptionalUrl(source.creatorProfileUrl),
+    featuredAthletes: stringArray(source.featuredAthletes),
+    featuredTeams: stringArray(source.featuredTeams),
+    organizationId: stringValue(source.organizationId),
+    competition: stringValue(source.competition),
+    eventDate: stringValue(source.eventDate),
+    location: stringValue(source.location),
+    thumbnailReferenceUrl: safeOptionalUrl(source.thumbnailReferenceUrl),
+    rightsDeclaration: enumValue(
+      source.rightsDeclaration,
+      [
+        "submitter-owned",
+        "permission-confirmed",
+        "public-reference-only",
+      ] as const,
+      "public-reference-only",
+    ),
+    ownershipSourceDeclaration: stringValue(source.ownershipSourceDeclaration),
+    sourceAccount: stringValue(source.sourceAccount),
+    editorialNote: stringValue(source.editorialNote),
+    contentWarnings: stringArray(source.contentWarnings),
+  };
+}
+
+function normalizeProductSubmissionDetails(
+  value: unknown,
+): ProductSubmissionDetails {
+  const source = isRecord(value) ? value : {};
+  return {
+    organizationId: stringValue(source.organizationId),
+    productName: stringValue(source.productName),
+    category: stringValue(source.category),
+    productSummary: stringValue(source.productSummary),
+    standardProductUrl: safeOptionalUrl(source.standardProductUrl),
+    affiliateUrl: safeOptionalUrl(source.affiliateUrl),
+    affiliateRelationship: enumValue(
+      source.affiliateRelationship,
+      ["none", "pending", "active"] as const,
+      "none",
+    ),
+    submitterRelationship: stringValue(source.submitterRelationship),
+    commercialDisclosure: stringValue(source.commercialDisclosure),
   };
 }
 
@@ -402,9 +564,7 @@ function normalizeSubmissionDetails(
     resolvedAt: optionalString(source.resolvedAt),
     supportingLinks: normalizeSupportingLinks(source.supportingLinks),
     contributorNote: stringValue(source.contributorNote),
-    contributorVisibleFeedback: stringValue(
-      source.contributorVisibleFeedback,
-    ),
+    contributorVisibleFeedback: stringValue(source.contributorVisibleFeedback),
   };
 
   switch (submissionType) {
@@ -430,11 +590,43 @@ function normalizeSubmissionDetails(
           source.competitionListingDetails,
         ),
       };
+    case "teamApplication":
+      return {
+        ...common,
+        submissionType,
+        teamApplicationDetails: normalizeTeamApplicationDetails(
+          source.teamApplicationDetails,
+        ),
+      };
+    case "organizationClaim":
+      return {
+        ...common,
+        submissionType,
+        organizationClaimDetails: normalizeOrganizationClaimDetails(
+          source.organizationClaimDetails,
+        ),
+      };
+    case "videoSubmission":
+      return {
+        ...common,
+        submissionType,
+        videoSubmissionDetails: normalizeVideoSubmissionDetails(
+          source.videoSubmissionDetails,
+        ),
+      };
     case "mediaPitch":
       return {
         ...common,
         submissionType,
         mediaPitchDetails: normalizeMediaPitchDetails(source.mediaPitchDetails),
+      };
+    case "productSubmission":
+      return {
+        ...common,
+        submissionType,
+        productSubmissionDetails: normalizeProductSubmissionDetails(
+          source.productSubmissionDetails,
+        ),
       };
     case "correctionRequest":
       return {
@@ -485,11 +677,15 @@ export function normalizeContributorSubmissionSummary(
   };
 }
 
-function normalizeLinkedDocument(
-  value: unknown,
-):
+function normalizeLinkedDocument(value: unknown):
   | {
-      type: "story" | "athlete" | "competition" | "video";
+      type:
+        | "story"
+        | "athlete"
+        | "competition"
+        | "video"
+        | "organization"
+        | "product";
       id: string;
     }
   | undefined {
@@ -500,7 +696,14 @@ function normalizeLinkedDocument(
   const id = optionalString(value.id);
   const type = enumValue(
     value.type,
-    ["story", "athlete", "competition", "video"] as const,
+    [
+      "story",
+      "athlete",
+      "competition",
+      "video",
+      "organization",
+      "product",
+    ] as const,
     null,
   );
 
@@ -701,9 +904,7 @@ export function normalizedSubmissionStatus(
   return enumValue(value, SUBMISSION_STATUSES, null);
 }
 
-export function normalizedContributorRole(
-  value: unknown,
-): ContributorRole {
+export function normalizedContributorRole(value: unknown): ContributorRole {
   return enumValue(value, CONTRIBUTOR_ROLES, "contributor");
 }
 

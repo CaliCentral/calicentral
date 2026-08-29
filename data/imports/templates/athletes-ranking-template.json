@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "replace-with-registered-source-id",
+  "collectionMethod": "manual-editorial",
+  "provider": {
+    "canonicalId": "rankingProvider.replace-with-reviewed-provider",
+    "slug": "replace-with-reviewed-provider",
+    "name": "Replace with source-supported provider name",
+    "website": "https://replace-with-official-source.example/",
+    "integrationMethod": "manual",
+    "status": "under-review"
+  },
+  "sourceRights": {
+    "reviewStatus": "review-pending",
+    "automatedCollectionAllowed": false,
+    "notes": "Approval is recorded in data/imports/source-registry.json; do not claim approval here without evidence."
+  },
+  "rankingSystem": {
+    "canonicalId": "rankingSystem.replace-with-deterministic-reviewed-dimensions",
+    "slug": "replace-with-deterministic-reviewed-dimensions",
+    "name": "Replace with source-supported ranking name",
+    "rankingKind": "ordinal-position",
+    "discipline": "Streetlifting",
+    "category": "Replace with source-supported category",
+    "sexDivision": "Replace with source-supported division",
+    "weightClass": "Replace with source-supported class",
+    "geographicScope": "Replace with source-supported scope",
+    "status": "draft"
+  },
+  "snapshot": {
+    "rankingDate": "YYYY-MM-DD",
+    "checkedAt": "YYYY-MM-DDTHH:mm:ssZ",
+    "coverage": "complete",
+    "selection": "Describe exactly which source rows are represented",
+    "sourceTitle": "Replace with source page title",
+    "sourceType": "organization-ranking-page",
+    "sourceUrl": "https://replace-with-reviewed-source.example/",
+    "verificationStatus": "source-confirmed",
+    "entries": [
+      {
+        "providerAthleteId": "replace-with-source-athlete-id",
+        "providerAthleteUrl": "https://replace-with-source-athlete-url.example/",
+        "providerDisplayName": "Replace with source display name",
+        "countryCode": "Replace with sourced ISO code",
+        "country": "Replace with sourced country",
+        "position": 1
+      }
+    ]
+  }
+}

@@ -17,10 +17,21 @@ export const mainDocuments = defineDocuments([
   documentWithSlug("story", "/stories/:slug"),
   documentWithSlug("athlete", "/athletes/:slug"),
   documentWithSlug("competition", "/competitions/:slug"),
+  documentWithSlug("team", "/teams/:slug"),
   documentWithSlug("video", "/videos/:slug"),
+  documentWithSlug("organization", "/organizations/:slug"),
+  documentWithSlug("product", "/shop/:slug"),
   {
     route: "/standings",
     filter: `_type == "rankingCategory"`,
+  },
+  {
+    route: "/rankings",
+    filter: `_type in ["rankingProvider", "rankingSystem", "rankingSnapshot"]`,
+  },
+  {
+    route: "/wcl/rules",
+    filter: `_type == "ruleset"`,
   },
 ])
 
@@ -82,6 +93,35 @@ export const videoLocations = defineLocations({
   }),
 })
 
+export const teamLocations = defineLocations({
+  select: {title: "name", slug: "slug.current"},
+  resolve: (document) => ({
+    locations: [
+      {title: "Teams", href: "/teams"},
+      ...(document?.slug ? [{title: document.title || "Team", href: `/teams/${document.slug}`}] : []),
+    ],
+  }),
+})
+
+export const organizationLocations = defineLocations({
+  select: {title: "name", slug: "slug.current"},
+  resolve: (document) => ({
+    locations: document?.slug
+      ? [{title: document.title || "Organization", href: `/organizations/${document.slug}`}]
+      : [],
+  }),
+})
+
+export const productLocations = defineLocations({
+  select: {title: "name", slug: "slug.current"},
+  resolve: (document) => ({
+    locations: [
+      {title: "Shop", href: "/shop"},
+      ...(document?.slug ? [{title: document.title || "Product", href: `/shop/${document.slug}`}] : []),
+    ],
+  }),
+})
+
 const homeLocations = defineLocations({
   select: {title: "siteTitle"},
   resolve: (document) => ({
@@ -110,8 +150,16 @@ export const presentationResolve: PresentationPluginOptions["resolve"] = {
     author: directoryLocations("Stories", "/stories"),
     athlete: athleteLocations,
     competition: competitionLocations,
+    team: teamLocations,
+    teamSeason: directoryLocations("Teams", "/teams"),
     video: videoLocations,
     videoSeries: directoryLocations("Videos", "/videos"),
     rankingCategory: standingLocations,
+    rankingProvider: directoryLocations("Athlete rankings", "/rankings"),
+    rankingSystem: directoryLocations("Athlete rankings", "/rankings"),
+    rankingSnapshot: directoryLocations("Athlete rankings", "/rankings"),
+    ruleset: directoryLocations("WCL rules", "/wcl/rules"),
+    organization: organizationLocations,
+    product: productLocations,
   },
 }

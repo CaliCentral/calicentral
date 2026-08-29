@@ -9,9 +9,10 @@ export const navigationItems = [
   { label: "Home", href: "/" },
   { label: "Stories", href: "/stories" },
   { label: "Athletes", href: "/athletes" },
+  { label: "Teams", href: "/teams" },
   { label: "Competitions", href: "/competitions" },
+  { label: "Rankings", href: "/rankings" },
   { label: "Videos", href: "/videos" },
-  { label: "Standings", href: "/standings" },
 ] as const satisfies readonly NavigationItem[];
 
 export const heroContent = {
@@ -81,25 +82,30 @@ export const footerGroups = [
     links: [
       { label: "Stories", href: "/stories" },
       { label: "Athletes", href: "/athletes" },
+      { label: "Teams", href: "/teams" },
       { label: "Competitions", href: "/competitions" },
+      { label: "Rankings", href: "/rankings" },
       { label: "Videos", href: "/videos" },
-      { label: "Standings", href: "/standings" },
     ],
   },
   {
     title: "Field",
     links: [
+      { label: "Standings", href: "/standings" },
       { label: "Search", href: "/search" },
-      { label: "Athlete spotlight", href: "/#athlete-spotlight" },
-      { label: "Back to top", href: "#top" },
+      { label: "About", href: "/about" },
     ],
   },
   {
     title: "Trust",
     links: [
+      { label: "Help", href: "/help" },
+      { label: "Community guidelines", href: "/community-guidelines" },
       { label: "Verification", href: "/verification" },
       { label: "Corrections", href: "/corrections" },
       { label: "Editorial standards", href: "/editorial-standards" },
+      { label: "Copyright & takedown", href: "/copyright" },
+      { label: "Affiliate disclosure", href: "/affiliate-disclosure" },
     ],
   },
 ] as const satisfies readonly FooterGroup[];

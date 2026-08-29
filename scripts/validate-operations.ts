@@ -5,10 +5,7 @@ import {
   athleteCompetitionCategoryValues,
   athleteSpecialtyValues,
 } from "@/lib/athlete-taxonomy";
-import {
-  countries,
-  unitedStatesAdministrativeAreas,
-} from "@/lib/geography";
+import { countries, unitedStatesAdministrativeAreas } from "@/lib/geography";
 import {
   ACCOUNT_CAPABILITIES,
   JOIN_INTENTS,
@@ -26,7 +23,12 @@ import {
   submissionDraftSchema,
   submissionForReviewSchema,
   submissionIdempotencyKeySchema,
+  teamApplicationDetailsSchema,
   mutationOperationKeySchema,
+  mediaPitchDetailsSchema,
+  organizationClaimDetailsSchema,
+  productSubmissionDetailsSchema,
+  videoSubmissionDetailsSchema,
 } from "@/lib/operations/validation";
 import {
   resolveTrustedAuthRedirect,
@@ -72,6 +74,7 @@ import {
 } from "@/lib/standings/publication";
 import type { Competition, CompetitionResult } from "@/types/competition";
 import type { RankingCategory } from "@/types/ranking";
+import { accessibleTeamMarkColors, contrastRatio } from "@/lib/teams/branding";
 
 let assertionCount = 0;
 
@@ -100,6 +103,22 @@ const deploymentWranglerConfig = JSON.parse(
 const typegenWranglerConfig = JSON.parse(
   readFileSync(new URL("../wrangler.typegen.jsonc", import.meta.url), "utf8"),
 ) as WranglerConfigSubset;
+const sanityWriteClientSource = readFileSync(
+  new URL("../sanity/lib/write-client.ts", import.meta.url),
+  "utf8",
+);
+const sanityReadClientSource = readFileSync(
+  new URL("../sanity/lib/client.ts", import.meta.url),
+  "utf8",
+);
+
+assert(
+  !sanityWriteClientSource.includes("let cachedClient") &&
+    sanityWriteClientSource.includes("return createClient({") &&
+    sanityWriteClientSource.includes("fetch: true") &&
+    sanityReadClientSource.includes("fetch: true"),
+  "Sanity clients must remain request-safe on Cloudflare Workers.",
+);
 
 assert(
   typegenWranglerConfig.main === undefined,
@@ -124,9 +143,7 @@ assert(
 assert(
   new Set(ACCOUNT_CAPABILITIES).size === ACCOUNT_CAPABILITIES.length &&
     JOIN_INTENTS.length === ACCOUNT_CAPABILITIES.length &&
-    JOIN_INTENTS.every((intent) =>
-      isAccountCapability(intent.capability),
-    ),
+    JOIN_INTENTS.every((intent) => isAccountCapability(intent.capability)),
   "Join intents and the reusable account-capability contract drifted.",
 );
 assert(
@@ -204,7 +221,10 @@ assert(
 );
 assert(
   !isVerifiedCompetitionResult(
-    { status: "completed", resultsStatus: "sample-results" } as unknown as Competition,
+    {
+      status: "completed",
+      resultsStatus: "sample-results",
+    } as unknown as Competition,
     sourcedResult,
   ),
   "A sample result entered the verified-results gate.",
@@ -304,7 +324,8 @@ assert(
 
 assert(
   countries.length >= 249 &&
-    new Set(countries.map((country) => country.code)).size === countries.length &&
+    new Set(countries.map((country) => country.code)).size ===
+      countries.length &&
     new Set(countries.map((country) => country.name)).size === countries.length,
   "Reusable worldwide country data is incomplete or duplicated.",
 );
@@ -317,7 +338,7 @@ assert(
 );
 assert(
   new Set(athleteCompetitionCategoryValues).size ===
-      athleteCompetitionCategoryValues.length &&
+    athleteCompetitionCategoryValues.length &&
     new Set(athleteSpecialtyValues).size === athleteSpecialtyValues.length,
   "Athlete category or specialty values are duplicated.",
 );
@@ -348,7 +369,7 @@ const athleteClaim = athleteNominationDetailsSchema.safeParse({
   yearsActive: "",
   profileImageUrl: "",
   coverImageUrl: "",
-  socialLinks: [{url: "https://example.com/sample-athlete", label: ""}],
+  socialLinks: [{ url: "https://example.com/sample-athlete", label: "" }],
   competitionHistory: [
     {
       eventName: "Public sample event",
@@ -380,10 +401,7 @@ assert(
   "Athlete claim validation did not preserve structured profile data or require a target profile.",
 );
 
-for (const link of [
-  "https://example.com/source",
-  "http://example.com/path",
-]) {
+for (const link of ["https://example.com/source", "http://example.com/path"]) {
   assert(
     safeHttpUrlSchema.safeParse(link).success,
     `Valid HTTP(S) URL was rejected: ${link}`,
@@ -540,11 +558,7 @@ assert(
   "An active editor could not access a contributor submission.",
 );
 assert(
-  canEditSubmission(
-    contributorActor,
-    contributorActor.id,
-    "revisionRequested",
-  ),
+  canEditSubmission(contributorActor, contributorActor.id, "revisionRequested"),
   "A contributor could not edit their own requested revision.",
 );
 assert(
@@ -642,8 +656,7 @@ assert(
     firstSubmissionIdentifiers.createdAuditId,
     firstSubmissionIdentifiers.submittedAuditId,
   ].every(
-    (identifier) =>
-      operationalDocumentIdSchema.safeParse(identifier).success,
+    (identifier) => operationalDocumentIdSchema.safeParse(identifier).success,
   ),
   "An idempotent submission identifier is invalid for Sanity.",
 );
@@ -706,9 +719,8 @@ assert(
 assert(
   operationalDocumentIdSchema.safeParse(firstUpdateIdentifiers.auditId)
     .success &&
-    operationalDocumentIdSchema.safeParse(
-      firstPrivateNoteIdentifiers.auditId,
-    ).success &&
+    operationalDocumentIdSchema.safeParse(firstPrivateNoteIdentifiers.auditId)
+      .success &&
     operationalDocumentIdSchema.safeParse(firstPrivateNoteIdentifiers.noteKey)
       .success,
   "A replay-safe mutation identifier is invalid for Sanity.",
@@ -740,22 +752,17 @@ assert(
 );
 
 assert(
-  !hasReachedActiveSubmissionLimit(
-    MAX_ACTIVE_SUBMISSIONS_PER_CONTRIBUTOR - 1,
-  ),
+  !hasReachedActiveSubmissionLimit(MAX_ACTIVE_SUBMISSIONS_PER_CONTRIBUTOR - 1),
   "The active-submission quota activated below its boundary.",
 );
 assert(
-  hasReachedActiveSubmissionLimit(
-    MAX_ACTIVE_SUBMISSIONS_PER_CONTRIBUTOR,
-  ),
+  hasReachedActiveSubmissionLimit(MAX_ACTIVE_SUBMISSIONS_PER_CONTRIBUTOR),
   "The active-submission quota did not activate at its boundary.",
 );
 
 const trustedOrigin = "https://cali.example";
 assert(
-  safeAuthReturnPath("/account/submissions") ===
-    "/account/submissions",
+  safeAuthReturnPath("/account/submissions") === "/account/submissions",
   "A safe account return path was rejected.",
 );
 assert(
@@ -781,11 +788,209 @@ assert(
   "A same-origin redirect containing credentials was accepted.",
 );
 assert(
-  resolveTrustedAuthRedirect(
-    "https://evil.example/account",
+  resolveTrustedAuthRedirect("https://evil.example/account", trustedOrigin) ===
     trustedOrigin,
-  ) === trustedOrigin,
   "A cross-origin authentication redirect was accepted.",
+);
+
+const validTeamApplication = {
+  proposedTeamName: "Northstar Test Crew",
+  shortName: "Northstar",
+  code: "NST",
+  teamType: "crew",
+  representedIdentity: "Toronto",
+  country: "Canada",
+  administrativeArea: "Ontario",
+  city: "Toronto",
+  trainingBase: "Public training park",
+  foundingYear: "2025",
+  description:
+    "A fictional team application used only for deterministic validation.",
+  disciplines: ["Strength", "Freestyle"],
+  competitionIntentions: "Regional competition participation after review.",
+  website: "",
+  socialLinks: [],
+  primaryColor: "#121820",
+  secondaryColor: "#F4F1EA",
+  accentColor: "#C9252D",
+  crestReferenceUrl: "https://example.com/fictional-crest",
+  wordmarkReferenceUrl: "",
+  brandingPermissionAcknowledged: true,
+  proposedUniformDesign: "Fictional uniform concept.",
+  proposedRoster: [
+    {
+      name: "Sample Captain",
+      privateEmail: "captain@example.com",
+      privatePhone: "",
+      existingProfileSlug: "",
+      relationshipToTeam: "Applicant",
+      role: "captain",
+      rosterStatus: "proposed",
+      specialty: "strength",
+      consentStatus: "accepted",
+    },
+  ],
+};
+assert(
+  teamApplicationDetailsSchema.safeParse(validTeamApplication).success,
+  "A valid structured team application was rejected.",
+);
+assert(
+  !teamApplicationDetailsSchema.safeParse({
+    ...validTeamApplication,
+    primaryColor: "red",
+  }).success,
+  "A non-hex team color was accepted.",
+);
+assert(
+  !teamApplicationDetailsSchema.safeParse({
+    ...validTeamApplication,
+    brandingPermissionAcknowledged: false,
+  }).success,
+  "A review-ready team application without branding authority was accepted.",
+);
+
+const fictionalVideoSubmission = {
+  submittingIdentityType: "member",
+  videoTitle: "Fictional streetlifting meet recap",
+  description:
+    "A fictional public-link submission used only to test moderated video intake.",
+  category: "streetlifting",
+  discipline: "Weighted strength",
+  sourceHost: "youtube",
+  originalPublicUrl: "https://www.youtube.com/watch?v=fictional",
+  submitterRelationship: "Creator and rights holder",
+  creatorName: "Sample Creator",
+  creatorProfileUrl: "https://example.com/creator",
+  featuredAthletes: ["Sample Athlete"],
+  featuredTeams: [],
+  organizationId: "",
+  competition: "Fictional test event",
+  eventDate: "2026-07-01",
+  location: "Toronto, Canada",
+  thumbnailReferenceUrl: "",
+  rightsDeclaration: "submitter-owned",
+  ownershipSourceDeclaration:
+    "The fictional submitter declares that they created and own this test video.",
+  sourceAccount: "Sample Creator",
+  editorialNote: "",
+  contentWarnings: [],
+};
+assert(
+  videoSubmissionDetailsSchema.safeParse(fictionalVideoSubmission).success &&
+    !videoSubmissionDetailsSchema.safeParse({
+      ...fictionalVideoSubmission,
+      originalPublicUrl: "https://www.instagram.com/p/fictional",
+    }).success &&
+    !videoSubmissionDetailsSchema.safeParse({
+      ...fictionalVideoSubmission,
+      originalPublicUrl: "https://notyoutube.com/watch?v=lookalike",
+    }).success,
+  "Video intake failed a valid fictional submission or accepted a source-host mismatch.",
+);
+assert(
+  ["draft", "submitted", "inReview", "approved"].every(
+    (status, index, statuses) =>
+      index === 0 ||
+      canTransitionSubmission(
+        index === 1 ? "contributor" : "editor",
+        statuses[index - 1] as "draft" | "submitted" | "inReview",
+        status as "submitted" | "inReview" | "approved",
+      ),
+  ),
+  "The video submission workflow cannot reach editorial approval through authorized transitions.",
+);
+
+assert(
+  mediaPitchDetailsSchema.safeParse({
+    mediaKind: "photo",
+    submittingIdentityType: "member",
+    proposedTitle: "Fictional training photo",
+    series: "",
+    format: "Photo",
+    subject: "Sample athlete",
+    location: "",
+    visualApproach:
+      "A documentary-style fictional test image with clear creator credit.",
+    estimatedDuration: "",
+    sourcePlatform: "Website",
+    sourceAccount: "Sample Creator",
+    originalPostUrl: "https://example.com/fictional-photo",
+    creatorName: "Sample Creator",
+    caption: "Fictional test caption.",
+    altText: "An athlete holding the top position of a pull-up.",
+    mediaPermissionStatus: "permission-confirmed",
+    publicReferenceLinks: [],
+  }).success &&
+    !mediaPitchDetailsSchema.safeParse({
+      mediaKind: "photo",
+      submittingIdentityType: "member",
+      proposedTitle: "Missing source photo",
+      series: "",
+      format: "Photo",
+      subject: "Sample athlete",
+      location: "",
+      visualApproach:
+        "A fictional test record that intentionally omits its public source URL.",
+      estimatedDuration: "",
+      sourcePlatform: "Website",
+      sourceAccount: "",
+      originalPostUrl: "",
+      creatorName: "",
+      caption: "",
+      altText: "",
+      mediaPermissionStatus: "unknown",
+      publicReferenceLinks: [],
+    }).success,
+  "Photo/media intake did not require a real public source and explicit rights declaration.",
+);
+
+assert(
+  organizationClaimDetailsSchema.safeParse({
+    requestKind: "claim",
+    existingOrganizationId: "organization.fictional",
+    organizationName: "Fictional Movement Federation",
+    organizationType: "federation",
+    country: "Canada",
+    website: "https://example.com/fictional-organization",
+    relationshipToOrganization:
+      "Authorized representative for this fictional test record.",
+    requestedCapabilities: ["manage-profile"],
+    evidenceLinks: [
+      { url: "https://example.com/fictional-evidence", label: "" },
+    ],
+  }).success,
+  "A complete fictional organization claim was rejected.",
+);
+
+assert(
+  productSubmissionDetailsSchema.safeParse({
+    organizationId: "organization.fictional-brand",
+    productName: "Fictional wooden parallettes",
+    category: "Equipment",
+    productSummary:
+      "A fictional product proposal used only for offline validation of the moderated intake model.",
+    standardProductUrl: "https://example.com/fictional-product",
+    affiliateUrl: "",
+    affiliateRelationship: "none",
+    submitterRelationship: "Authorized fictional brand representative.",
+    commercialDisclosure:
+      "No real commercial or affiliate relationship exists.",
+  }).success,
+  "A non-affiliate fictional product submission was rejected.",
+);
+assert(
+  ACCOUNT_CAPABILITIES.includes("team") &&
+    PUBLIC_SEARCH_FILTERS.includes("teams"),
+  "Team onboarding or public-search capability is missing.",
+);
+const safeTeamMark = accessibleTeamMarkColors({
+  primaryColor: "#FFFFFF",
+  secondaryColor: "#F4F4F4",
+});
+assert(
+  contrastRatio(safeTeamMark.backgroundColor, safeTeamMark.color) >= 4.5,
+  "Team branding was allowed to reduce mark text contrast below 4.5:1.",
 );
 
 console.log(

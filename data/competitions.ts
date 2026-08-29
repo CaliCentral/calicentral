@@ -40,15 +40,19 @@ export const competitionResultsStatusLabels = {
 
 export const competitionDisciplineLabels = {
   freestyle: "Freestyle",
+  streetlifting: "Streetlifting",
+  "weighted-calisthenics": "Weighted calisthenics",
   "static-strength": "Static strength",
   dynamic: "Dynamic",
   endurance: "Endurance",
+  skills: "Skills",
   team: "Team",
   mixed: "Mixed",
 } as const satisfies Record<CompetitionDiscipline, string>;
 
 export const competitions: readonly Competition[] = [
   {
+    canonicalId: "sample.competition.pacific-motion-open",
     slug: "pacific-motion-open",
     name: "Pacific Motion Open",
     shortName: "Pacific Motion",
@@ -256,6 +260,7 @@ export const competitions: readonly Competition[] = [
     ],
   },
   {
+    canonicalId: "sample.competition.golden-state-strength-classic",
     slug: "golden-state-strength-classic",
     name: "Golden State Strength Classic",
     shortName: "Strength Classic",
@@ -438,6 +443,7 @@ export const competitions: readonly Competition[] = [
     ],
   },
   {
+    canonicalId: "sample.competition.coastline-team-cup",
     slug: "coastline-team-cup",
     name: "Coastline Team Cup",
     shortName: "Coastline Cup",
@@ -620,6 +626,7 @@ export const competitions: readonly Competition[] = [
     ],
   },
   {
+    canonicalId: "sample.competition.harbor-frame-sessions",
     slug: "harbor-frame-sessions",
     name: "Harbor Frame Sessions",
     shortName: "Harbor Frames",
@@ -811,6 +818,7 @@ export const competitions: readonly Competition[] = [
     ],
   },
   {
+    canonicalId: "sample.competition.redline-freestyle-trials",
     slug: "redline-freestyle-trials",
     name: "Redline Freestyle Trials",
     shortName: "Redline Trials",
@@ -1003,6 +1011,7 @@ export const competitions: readonly Competition[] = [
     ],
   },
   {
+    canonicalId: "sample.competition.valley-control-meet",
     slug: "valley-control-meet",
     name: "Valley Control Meet",
     shortName: "Valley Control",

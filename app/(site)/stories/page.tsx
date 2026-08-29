@@ -8,6 +8,8 @@ import { Container } from "@/components/ui/container";
 import { getStories } from "@/lib/content";
 import { createPublicMetadata } from "@/lib/site/metadata";
 
+export const dynamic = "force-dynamic";
+
 const description =
   "Fictional prototype reporting, athlete journals, training culture, competition analysis, and field notes from Cali Central.";
 

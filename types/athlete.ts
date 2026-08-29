@@ -102,6 +102,7 @@ export type AthleteCompetitionRecord = {
 };
 
 export type Athlete = {
+  readonly canonicalId: string;
   readonly slug: string;
   readonly name: string;
   readonly initials: string;

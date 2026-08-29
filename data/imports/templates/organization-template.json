@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "kind": "organizations",
+  "sourceId": "replace-with-registered-source-id",
+  "collectionMethod": "manual-editorial",
+  "source": {
+    "sourceTitle": "Replace with official organization source",
+    "sourceType": "organizer-source",
+    "sourceUrl": "https://replace-with-official-source.example/",
+    "checkedAt": "YYYY-MM-DDTHH:mm:ssZ",
+    "verificationStatus": "unverified"
+  },
+  "organizations": [
+    {
+      "reviewedKey": "replace-with-stable-reviewed-key",
+      "name": "Replace with official organization name",
+      "organizationType": "federation",
+      "description": "Replace with a concise source-supported description",
+      "website": "https://replace-with-official-organization-source.example/"
+    }
+  ]
+}

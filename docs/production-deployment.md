@@ -21,11 +21,15 @@ OAuth/Sanity settings.
 - `nodejs_compat` provides the adapter/runtime compatibility required by the
   reviewed dependency graph.
 - Static framework assets bypass the Worker and use immutable caching.
-- Public content uses static generation plus a reviewed rebuild after publish.
-  Draft Mode bypasses the static cache and keeps live preview tooling isolated
-  to authenticated preview sessions.
-- Sanity remains the content and operational store. D1 and R2 have no current
-  responsibility and no empty resources or bindings are configured.
+- Published Sanity queries use the supported live tag-sync listener; Draft Mode
+  keeps visual editing isolated to authenticated preview sessions. Rebuild and
+  review metadata/sitemap behavior before each release.
+- Sanity remains the content and operational store. Environment-isolated D1,
+  R2, and distributed rate-limit bindings support the feature-gated community
+  layer; production community/media flags remain off.
+- Sanity Studio is built separately. `/studio` is a lightweight noindex handoff
+  and the application Worker retains Sanity data clients, Live Content, Draft
+  Mode, and Visual Editing without the editor runtime or Vision.
 - Sanity CDN performs responsive image transformations through the local
   allowlisted image loader; Cloudflare Images is not required.
 
@@ -42,17 +46,14 @@ before and after the ignored `.open-next/worker.js` artifact exists.
 
 ## Worker size and account plan gate
 
-The reviewed OpenNext artifact produced a 17,035,638-byte default handler;
-gzip of that local handler was 4,565,808 bytes. That is a useful warning, not
-the authoritative upload measurement, because Wrangler performs final
-bundling. Cloudflare currently documents a 3 MB compressed Worker limit on
-Workers Free and 10 MB on Workers Paid:
+The P4.6 baseline was 30,114.40 KiB raw / 6,461.70 KiB gzip. Separating Studio,
+sharing the Zod validation runtime across route chunks, and enabling Wrangler
+minification reduced the current staging upload to 10,686.56 KiB raw /
+2,743.64 KiB gzip. This is 328.36 KiB below the current 3 MiB free-plan limit
+and within the preferred 2.7 MiB target. Cloudflare reported 26 ms startup.
+Re-run the dry run for every release because route/dependency growth can consume
+that margin. Current limits are documented at
 <https://developers.cloudflare.com/workers/platform/limits/>.
-
-Run Wrangler’s nonpublishing dry run after the final build and inspect its
-reported total. Do not attempt a Free-plan launch unless the final result is
-within 3 MB. Otherwise select an appropriate paid Workers plan or reduce the
-bundle before deployment; no plan change was made by this milestone.
 
 VS CODE TERMINAL — RUN MANUALLY AFTER COMMIT AND REVIEW
 
@@ -86,6 +87,9 @@ for route_path in \
   /stories/built-on-the-bars \
   /athletes \
   /athletes/maya-calder \
+  /teams \
+  /teams/northstar-bar-collective \
+  /rankings \
   /standings \
   /standings/methodology \
   /competitions/calendar \
@@ -115,13 +119,13 @@ The 2026-08-06 local workerd review completed this matrix successfully. Public
 routes returned `200` with their expected page markers; the unknown route
 returned `404`; unauthenticated `/account` and `/admin` requests returned safe
 `307` sign-in redirects; `/sign-in` and `/studio` rendered their honest
-unconfigured states; and the credential-free `/api/health` response returned
+configuration/handoff states; and the credential-free `/api/health` response returned
 the intended `503` degraded status without naming missing secrets. The preview
 was stopped cleanly after the checks.
 
 Inspect representative bodies and response headers as well as status codes.
 Unauthenticated account/admin requests must redirect or deny without private
-content; Studio must either load or show its explicit configuration state.
+content; `/studio` must show the safe standalone-Studio handoff.
 Health must be no-store and general, and the unknown route must return `404`.
 Do not test real OAuth against localhost unless the provider application is
 explicitly configured for the local callback.
@@ -287,10 +291,11 @@ operational document type that returns no documents. Sanity may return HTTP
 `200` with an empty result for a private dataset; status alone is not the test.
 Do not publish production submissions, contributor profiles, or audit events.
 
-Published public changes follow a rebuild-on-publish release model. Draft Mode
-provides authenticated preview and visual editing. Document the reviewed
-build/deploy that publishes a content change; do not promise immediate live
-cache invalidation.
+Published page queries mount Sanity's supported live listener without a browser
+token. Draft Mode provides authenticated preview and visual editing. Verify
+published-page refresh, metadata, sitemap, and the reviewed build/deploy path;
+do not promise an update boundary that has not been smoke-tested in the target
+runtime.
 
 ## Workers Builds (optional later)
 

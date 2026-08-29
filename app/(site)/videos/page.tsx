@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 
 import { MediaDiscover } from "@/components/videos/media-discover";
 import { getVideosPageData } from "@/lib/content";
+import { featureConfig } from "@/lib/features/config";
 import { createPublicMetadata } from "@/lib/site/metadata";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   ...createPublicMetadata({
@@ -21,10 +24,16 @@ export const metadata: Metadata = {
 };
 
 export default async function VideosPage() {
-  const { videos } = await getVideosPageData();
+  const { videos, featuredVideo } = await getVideosPageData();
   const discoverVideos = [...videos].sort((a, b) =>
     b.publishedDate.localeCompare(a.publishedDate),
   );
 
-  return <MediaDiscover videos={discoverVideos} />;
+  return (
+    <MediaDiscover
+      videos={discoverVideos}
+      featuredVideo={featuredVideo}
+      videoSubmissionsEnabled={featureConfig.videoSubmissions}
+    />
+  );
 }

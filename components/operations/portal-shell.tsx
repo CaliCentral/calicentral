@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { PortalNavigationLink } from "@/components/operations/portal-navigation-link";
 import { StatusLabel } from "@/components/operations/status-label";
+import { featureConfig } from "@/lib/features/config";
+import { studioUrl } from "@/lib/site/studio";
 
 type PortalShellProps = {
   readonly children: ReactNode;
@@ -24,6 +26,16 @@ const accountLinks = [
     excludedPath: "/account/submissions/new",
   },
   { href: "/account/submissions/new", label: "New submission" },
+  { href: "/account/saved", label: "Saved", community: true },
+  { href: "/account/collections", label: "Collections", community: true },
+  { href: "/account/following", label: "Following", community: true },
+  { href: "/account/notifications", label: "Notifications", community: true },
+  { href: "/account/training", label: "Training", community: true },
+  { href: "/account/records", label: "PRs", community: true },
+  { href: "/account/skills", label: "Skills", community: true },
+  { href: "/account/media", label: "Media", community: true },
+  { href: "/account/athlete-profile", label: "Athlete profile", community: true },
+  { href: "/account/teams", label: "Teams" },
 ] as const;
 
 const adminLinks = [
@@ -38,7 +50,23 @@ const adminLinks = [
     label: "Contributors",
     matchNested: true,
   },
+  {
+    href: "/admin/athletes",
+    label: "Athletes",
+    matchNested: true,
+  },
+  {
+    href: "/admin/competitions",
+    label: "Competitions",
+    matchNested: true,
+  },
+  {
+    href: "/admin/rankings",
+    label: "Rankings",
+    matchNested: true,
+  },
   { href: "/admin/audit", label: "Audit history" },
+  { href: "/admin/community", label: "Trust & Safety", community: true },
 ] as const;
 
 export function PortalShell({
@@ -51,9 +79,14 @@ export function PortalShell({
 }: PortalShellProps) {
   const links = section === "admin"
     ? adminLinks.filter(
-        (link) => link.href !== "/admin/audit" || role === "admin",
+        (link) =>
+          (link.href !== "/admin/audit" || role === "admin") &&
+          (!("community" in link) || !link.community || featureConfig.community),
       )
-    : accountLinks;
+    : accountLinks.filter(
+        (link) =>
+          !("community" in link) || !link.community || featureConfig.community,
+      );
   const canUseAdmin =
     accessStatus === "active" && (role === "editor" || role === "admin");
 
@@ -126,7 +159,7 @@ export function PortalShell({
                     </li>
                     <li>
                       <Link
-                        href="/studio"
+                        href={studioUrl}
                         className="inline-flex min-h-10 items-center border border-accent/45 px-3 font-mono text-[0.7rem] font-bold uppercase tracking-[0.11em] text-accent transition-colors hover:bg-accent hover:text-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                       >
                         Open Studio

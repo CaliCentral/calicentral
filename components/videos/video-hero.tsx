@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { videoStatusLabels } from "@/components/videos/video-labels";
+import { VideoOriginLabel } from "@/components/videos/video-origin-label";
 import { VideoVisual } from "@/components/videos/video-visual";
 import { Container } from "@/components/ui/container";
 import type { MediaFeature } from "@/types/video";
@@ -41,6 +42,7 @@ export function VideoHero({ video }: VideoHeroProps) {
               <p className="mt-12 font-mono text-xs font-bold uppercase tracking-[0.15em] text-muted">
                 {video.seriesTitle} · {video.format}
               </p>
+              <VideoOriginLabel origin={video.origin} className="mt-4" />
               <h1 className="mt-4 max-w-[12ch] text-balance font-display text-[clamp(2.5rem,7vw,5.5rem)] font-black uppercase leading-[0.85] tracking-[-0.07em] text-ink">
                 {video.title}
               </h1>

@@ -9,8 +9,6 @@ import {
   projectId,
 } from "@/sanity/env";
 
-let cachedClient: SanityClient | null = null;
-
 function configuredWriteToken(): string | null {
   const token = process.env.SANITY_API_WRITE_TOKEN?.trim();
   return token || null;
@@ -36,16 +34,15 @@ export function requireSanityWriteClient(): SanityClient {
     );
   }
 
-  if (!cachedClient) {
-    cachedClient = createClient({
-      projectId,
-      dataset,
-      apiVersion,
-      token,
-      useCdn: false,
-      perspective: "published",
-    });
-  }
-
-  return cachedClient;
+  // Cloudflare Workers forbid reusing request-scoped I/O across invocations.
+  // A fresh client also gives each request its own requester/cancellation state.
+  return createClient({
+    projectId,
+    dataset,
+    apiVersion,
+    token,
+    fetch: true,
+    useCdn: false,
+    perspective: "published",
+  });
 }

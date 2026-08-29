@@ -36,6 +36,9 @@ export const sanityClient = isSanityConfigured
       // This module is server-only, and defineLive never receives a browser
       // token, so this value is not serialized into client-side JavaScript.
       token: readToken,
+      // Force native fetch when a server route is compiled with Node export
+      // conditions; Node keep-alive agents are not request-safe in Workers.
+      fetch: true,
       perspective: "published",
       useCdn: false,
     })

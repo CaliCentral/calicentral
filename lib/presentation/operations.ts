@@ -2,7 +2,11 @@ const submissionTypeLabels: Record<string, string> = {
   storyPitch: "Story pitch",
   athleteNomination: "Athlete nomination",
   competitionListing: "Competition listing",
-  mediaPitch: "Media pitch",
+  teamApplication: "Team application",
+  organizationClaim: "Organization claim",
+  videoSubmission: "Video submission",
+  mediaPitch: "Photo / media submission",
+  productSubmission: "Product submission",
   correctionRequest: "Correction request",
 };
 

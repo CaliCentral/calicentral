@@ -5,6 +5,7 @@ const prototypeNotice =
 
 export const articles = [
   {
+    canonicalId: "sample.story.built-on-the-bars",
     slug: "built-on-the-bars",
     title: "Built on the bars: the ritual behind a neighborhood training crew",
     dek: "At an imagined Los Angeles training ground, repetition is only part of the practice. The crew is also building trust, shared standards, and a place where progress belongs to everyone.",
@@ -122,6 +123,7 @@ export const articles = [
     ],
   },
   {
+    canonicalId: "sample.story.language-of-control",
     slug: "language-of-control",
     title: "The quiet language of control",
     dek: "An illustrative conversation with three fictional coaches about static strength, patient progress, and the cues that help athletes make difficult positions feel deliberate.",
@@ -238,6 +240,7 @@ export const articles = [
     ],
   },
   {
+    canonicalId: "sample.story.judging-the-line",
     slug: "judging-the-line",
     title: "Judging the line between difficulty and execution",
     dek: "A fictional roundtable asks what a competition score should communicate—to the athlete taking the risk, the judge making the decision, and the audience trying to follow both.",
@@ -355,6 +358,7 @@ export const articles = [
     ],
   },
   {
+    canonicalId: "sample.story.after-the-last-round",
     slug: "after-the-last-round",
     title: "After the last round",
     dek: "A fictional athlete journal about the hours after competition, the pressure carried into a final, and the quieter work of returning to practice with a clear mind.",
@@ -471,6 +475,7 @@ export const articles = [
     ],
   },
   {
+    canonicalId: "sample.story.one-evening-at-harbor-park",
     slug: "one-evening-at-harbor-park",
     title: "One evening at Harbor Park",
     dek: "At a fictional Long Beach park, a single open-air session shows how a training space can hold serious practice, first attempts, and the unplanned exchanges that give a local scene its character.",
@@ -584,6 +589,7 @@ export const articles = [
     ],
   },
   {
+    canonicalId: "sample.story.building-a-stage-the-audience-can-understand",
     slug: "building-a-stage-the-audience-can-understand",
     title: "Building a stage the audience can understand",
     dek: "Competition presentation is more than decoration. This prototype analysis explores how rounds, judging graphics, commentary, and venue cues can give every performance a clearer narrative.",

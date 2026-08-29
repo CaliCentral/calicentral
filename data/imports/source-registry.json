@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "sourceId": "official-streetlifting",
+      "name": "Official Streetlifting",
+      "officialWebsite": "https://rankings.officialstreetlifting.com/",
+      "dataTypes": [
+        "athletes",
+        "rankings"
+      ],
+      "integrationMethod": "manual-import",
+      "approvalStatus": "review-pending",
+      "notes": "No documented API, licensed feed, export, or explicit bulk-reuse authorization is currently recorded. Do not change this status without real approval evidence."
+    }
+  ]
+}

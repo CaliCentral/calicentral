@@ -6,10 +6,8 @@ import { VideoHero } from "@/components/videos/video-hero";
 import { VideoRecord } from "@/components/videos/video-record";
 import { VideoRelatedContent } from "@/components/videos/video-related-content";
 import { Container } from "@/components/ui/container";
-import {
-  getVideoPage,
-  getVideoSlugs,
-} from "@/lib/content";
+import { ContentDiscussion } from "@/components/community/content-discussion";
+import { getVideoPage } from "@/lib/content";
 import { isPublicSlug } from "@/lib/content/public-slug";
 import {
   createPublicMetadata,
@@ -20,14 +18,15 @@ type VideoPageProps = {
   readonly params: Promise<{
     slug: string;
   }>;
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export async function generateStaticParams() {
-  const slugs = await getVideoSlugs();
+export const dynamic = "force-dynamic";
 
-  return [...new Set(slugs.filter(isPublicSlug))].map((slug) => ({
-    slug,
-  }));
+function commentOffset(value: string | string[] | undefined): number {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  const parsed = Number(candidate);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 10_000 ? parsed : 0;
 }
 
 export async function generateMetadata({
@@ -84,8 +83,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function VideoPage({ params }: VideoPageProps) {
-  const { slug } = await params;
+export default async function VideoPage({ params, searchParams }: VideoPageProps) {
+  const [{ slug }, query] = await Promise.all([params, searchParams]);
   const pageData = await getVideoPage(slug);
 
   if (!pageData || !isPublicSlug(pageData.video.slug)) {
@@ -104,6 +103,13 @@ export default async function VideoPage({ params }: VideoPageProps) {
     <article>
       <VideoHero video={video} />
       <VideoRecord video={video} />
+      <ContentDiscussion
+        targetType="video"
+        targetId={video.canonicalId}
+        title={video.title}
+        returnTo={`/videos/${video.slug}`}
+        commentsOffset={commentOffset(query.commentsOffset)}
+      />
       <VideoRelatedContent
         athletes={relatedAthletes}
         competitions={relatedCompetitions}

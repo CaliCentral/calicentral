@@ -3,11 +3,15 @@ import type { MetadataRoute } from "next";
 import {
   getAthletes,
   getCompetitions,
+  getOrganizations,
+  getProducts,
   getSiteSettings,
   getStories,
+  getTeams,
   getVideosPageData,
 } from "@/lib/content";
 import { isPublicSlug } from "@/lib/content/public-slug";
+import { featureConfig } from "@/lib/features/config";
 import {
   absoluteSiteUrl,
   isPublicIndexingEnabled,
@@ -15,10 +19,14 @@ import {
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
+export const dynamic = "force-dynamic";
+
 const staticEntries = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/stories", changeFrequency: "daily", priority: 0.9 },
   { path: "/athletes", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/teams", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/rankings", changeFrequency: "weekly", priority: 0.7 },
   { path: "/standings", changeFrequency: "weekly", priority: 0.8 },
   {
     path: "/standings/methodology",
@@ -44,6 +52,11 @@ const staticEntries = [
   { path: "/privacy", changeFrequency: "yearly", priority: 0.2 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { path: "/accessibility", changeFrequency: "yearly", priority: 0.2 },
+  { path: "/community-guidelines", changeFrequency: "yearly", priority: 0.2 },
+  { path: "/affiliate-disclosure", changeFrequency: "yearly", priority: 0.2 },
+  { path: "/copyright", changeFrequency: "yearly", priority: 0.2 },
+  { path: "/help", changeFrequency: "monthly", priority: 0.4 },
+  { path: "/about", changeFrequency: "yearly", priority: 0.3 },
 ] as const;
 
 function validDate(value: string | undefined): Date | undefined {
@@ -136,6 +149,15 @@ async function competitionEntries(): Promise<SitemapEntry[]> {
   });
 }
 
+async function teamEntries(): Promise<SitemapEntry[]> {
+  const teams = await getTeams({publishedOnly: true, stega: false});
+  return teams.flatMap((team) =>
+    isPublicSlug(team.slug) && !team.seo?.noIndex
+      ? [{url: absoluteSiteUrl(`/teams/${team.slug}`), changeFrequency: "monthly" as const, priority: 0.6}]
+      : [],
+  );
+}
+
 async function videoEntries(): Promise<SitemapEntry[]> {
   const { videos } = await getVideosPageData({
     publishedOnly: true,
@@ -158,6 +180,45 @@ async function videoEntries(): Promise<SitemapEntry[]> {
   });
 }
 
+async function organizationEntries(): Promise<SitemapEntry[]> {
+  const organizations = await getOrganizations({
+    publishedOnly: true,
+    stega: false,
+  });
+
+  return organizations.flatMap((organization) =>
+    isPublicSlug(organization.slug) && !organization.seo?.noIndex
+      ? [
+          {
+            url: absoluteSiteUrl(`/organizations/${organization.slug}`),
+            changeFrequency: "monthly" as const,
+            priority: 0.5,
+          },
+        ]
+      : [],
+  );
+}
+
+async function productEntries(): Promise<SitemapEntry[]> {
+  if (!featureConfig.shop) {
+    return [];
+  }
+
+  const products = await getProducts({ publishedOnly: true, stega: false });
+
+  return products.flatMap((product) =>
+    isPublicSlug(product.slug) && !product.seo?.noIndex
+      ? [
+          {
+            url: absoluteSiteUrl(`/shop/${product.slug}`),
+            changeFrequency: "monthly" as const,
+            priority: 0.5,
+          },
+        ]
+      : [],
+  );
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!isPublicIndexingEnabled) {
     return [];
@@ -175,12 +236,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dynamicEntries = await Promise.all([
     storyEntries(),
     athleteEntries(),
+    teamEntries(),
     competitionEntries(),
     videoEntries(),
+    organizationEntries(),
+    productEntries(),
   ]);
 
   return uniqueEntries([
-    ...staticEntries.map((entry) => ({
+    ...[
+      ...staticEntries,
+      ...(featureConfig.community
+        ? [
+            { path: "/community", changeFrequency: "daily" as const, priority: 0.7 },
+          ]
+        : []),
+      ...(featureConfig.shop
+        ? [{ path: "/shop", changeFrequency: "weekly" as const, priority: 0.6 }]
+        : []),
+      ...(featureConfig.wcl
+        ? [
+            { path: "/wcl", changeFrequency: "weekly" as const, priority: 0.6 },
+            { path: "/wcl/rules", changeFrequency: "monthly" as const, priority: 0.5 },
+          ]
+        : []),
+    ].map((entry) => ({
       url: absoluteSiteUrl(entry.path),
       changeFrequency: entry.changeFrequency,
       priority: entry.priority,

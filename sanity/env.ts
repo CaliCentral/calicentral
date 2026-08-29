@@ -51,7 +51,7 @@ export const apiVersion =
     ? configuredApiVersion
     : API_VERSION_FALLBACK
 
-export const studioBasePath = "/studio"
+export const studioBasePath = "/"
 
 export const siteUrl = configuredSiteOrigin
 export const siteOrigin = configuredSiteOrigin

@@ -12,6 +12,8 @@ export type SafeLogEvent =
   | "draft_mode.disable_failed"
   | "draft_mode.enable_failed"
   | "health.degraded"
+  | "community.mutation_failed"
+  | "community.read_failed"
   | "operations.mutation_failed";
 
 export type SafeErrorCategory =
@@ -19,6 +21,7 @@ export type SafeErrorCategory =
   | "configuration_error"
   | "content_read_error"
   | "content_write_error"
+  | "community_error"
   | "draft_mode_error"
   | "operation_error"
   | "provider_email_unverified";
@@ -27,6 +30,7 @@ export type SafeRouteCategory =
   | "auth"
   | "draft_mode"
   | "health"
+  | "community"
   | "operations";
 
 export type SafeAuthProvider = "google" | "github";

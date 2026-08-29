@@ -6,10 +6,8 @@ import { CompetitionHero } from "@/components/competitions/competition-hero";
 import { CompetitionRecord } from "@/components/competitions/competition-record";
 import { CompetitionRelatedContent } from "@/components/competitions/competition-related-content";
 import { Container } from "@/components/ui/container";
-import {
-  getCompetitionPage,
-  getCompetitionSlugs,
-} from "@/lib/content";
+import { ContentCommunityActions } from "@/components/community/content-discussion";
+import { getCompetitionPage } from "@/lib/content";
 import { isPublicSlug } from "@/lib/content/public-slug";
 import { formatGlobalLocation } from "@/lib/geography";
 import {
@@ -23,13 +21,7 @@ type CompetitionPageProps = {
   }>;
 };
 
-export async function generateStaticParams() {
-  const slugs = await getCompetitionSlugs();
-
-  return [...new Set(slugs.filter(isPublicSlug))].map((slug) => ({
-    slug,
-  }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -105,6 +97,13 @@ export default async function CompetitionPage({
     <article>
       <CompetitionHero competition={competition} />
       <CompetitionRecord competition={competition} />
+      <ContentCommunityActions
+        targetType="competition"
+        targetId={competition.canonicalId}
+        title={competition.name}
+        returnTo={`/competitions/${competition.slug}`}
+        followType="competition"
+      />
       <CompetitionRelatedContent
         athletes={relatedAthletes}
         stories={relatedStories}
@@ -115,13 +114,7 @@ export default async function CompetitionPage({
       <footer className="border-t border-white/10 bg-surface-2 py-8">
         <Container>
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <Link
-              href="/competitions"
-              className="inline-flex min-h-11 items-center gap-3 font-mono text-xs font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-            >
-              <span aria-hidden="true">←</span>
-              Return to competition directory
-            </Link>
+            <div className="flex flex-wrap gap-4"><Link href="/competitions" className="inline-flex min-h-11 items-center gap-3 font-mono text-xs font-bold uppercase tracking-[0.13em] text-ink transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"><span aria-hidden="true">←</span>Return to competition directory</Link><a href={`/api/calendar/competitions/${competition.slug}`} download className="inline-flex min-h-11 items-center border border-white/20 px-4 font-mono text-xs font-bold uppercase tracking-[0.13em] text-accent hover:border-accent">Add to calendar</a></div>
             <p className="max-w-xl text-xs leading-5 text-muted sm:text-right">
               {competition.contentStatus === "published-record"
                 ? "External registration, ticketing, and livestream actions appear only when a reviewed link is attached to this event record."

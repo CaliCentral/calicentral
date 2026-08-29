@@ -14,6 +14,9 @@ import {
 } from "@/lib/auth";
 import { safeAuthReturnPath } from "@/lib/auth/redirects";
 import { isSanityMutationConfigured } from "@/sanity/lib/write-client";
+import { isSupabaseConfigured, useSupabaseAuth } from "@/lib/supabase/config";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSiteOrigin } from "@/lib/site/config";
 
 export const metadata: Metadata = {
   title: "Account sign in",
@@ -59,6 +62,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     ? (safeErrorMessages[errorCode] ??
       "Sign-in did not complete. No account changes were made.")
     : null;
+  const supabaseEnabled = useSupabaseAuth && isSupabaseConfigured;
+  const authAvailable = supabaseEnabled || isAuthConfigured;
+  const providers = supabaseEnabled
+    ? ([{ id: "google", label: "Google" }] as const)
+    : configuredAuthProviders;
 
   return (
     <main className="technical-grid flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
@@ -115,7 +123,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             </div>
           ) : null}
 
-          {!isAuthConfigured ? (
+          {!authAvailable ? (
             <div className="mt-7 border border-amber-300/35 bg-amber-300/[0.08] p-5">
               <h3 className="text-sm font-black uppercase tracking-[0.06em] text-amber-100">
                 Provider configuration required
@@ -141,18 +149,19 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             </div>
           ) : (
             <div className="mt-7 space-y-3">
-              {configuredAuthProviders.map((provider) => (
+              {providers.map((provider) => (
                 <ProviderForm
                   key={provider.id}
                   providerId={provider.id}
                   providerLabel={provider.label}
                   callbackPath={callbackPath}
+                  providerMode={supabaseEnabled ? "supabase" : "authjs"}
                 />
               ))}
             </div>
           )}
 
-          {isAuthConfigured && !isSanityMutationConfigured() ? (
+          {isAuthConfigured && !supabaseEnabled && !isSanityMutationConfigured() ? (
             <p className="mt-5 border-l-2 border-amber-300 pl-4 text-xs leading-5 text-amber-100/80">
               Sign-in is available, but account provisioning and portal
               changes require a configured Sanity write token.
@@ -186,17 +195,32 @@ function ProviderForm({
   providerId,
   providerLabel,
   callbackPath,
+  providerMode,
 }: {
   readonly providerId: AuthProviderId;
   readonly providerLabel: string;
   readonly callbackPath: string;
+  readonly providerMode: "authjs" | "supabase";
 }) {
   async function startProviderSignIn() {
     "use server";
 
-    const configured = configuredAuthProviders.some(
-      (provider) => provider.id === providerId,
-    );
+    if (providerMode === "supabase") {
+      if (!useSupabaseAuth || !isSupabaseConfigured || providerId !== "google") {
+        redirect("/auth/error?code=Configuration");
+      }
+      const client = await createSupabaseServerClient();
+      const callback = new URL("/auth/callback", getSiteOrigin());
+      callback.searchParams.set("next", callbackPath);
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: callback.toString() },
+      });
+      if (error || !data.url) redirect("/auth/error?code=OAuthCallback");
+      redirect(data.url);
+    }
+
+    const configured = configuredAuthProviders.some((provider) => provider.id === providerId);
 
     if (!configured) {
       redirect("/auth/error?code=Configuration");

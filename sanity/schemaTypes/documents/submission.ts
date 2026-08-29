@@ -235,6 +235,70 @@ export const submission = defineType({
         ),
     }),
     defineField({
+      name: "organizationClaimDetails",
+      title: "Organization claim details",
+      type: "organizationClaimDetails",
+      group: "typeDetails",
+      hidden: ({document}) => document?.submissionType !== "organizationClaim",
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requireSelectedDetails(
+            value,
+            context,
+            "organizationClaim",
+            "Organization claim details",
+          ),
+        ),
+    }),
+    defineField({
+      name: "videoSubmissionDetails",
+      title: "Video submission details",
+      type: "videoSubmissionDetails",
+      group: "typeDetails",
+      hidden: ({document}) => document?.submissionType !== "videoSubmission",
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requireSelectedDetails(
+            value,
+            context,
+            "videoSubmission",
+            "Video submission details",
+          ),
+        ),
+    }),
+    defineField({
+      name: "productSubmissionDetails",
+      title: "Product submission details",
+      type: "productSubmissionDetails",
+      group: "typeDetails",
+      hidden: ({document}) => document?.submissionType !== "productSubmission",
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requireSelectedDetails(
+            value,
+            context,
+            "productSubmission",
+            "Product submission details",
+          ),
+        ),
+    }),
+    defineField({
+      name: "teamApplicationDetails",
+      title: "Team application details",
+      type: "teamApplicationDetails",
+      group: "typeDetails",
+      hidden: ({document}) => document?.submissionType !== "teamApplication",
+      validation: (Rule) =>
+        Rule.custom((value, context) =>
+          requireSelectedDetails(
+            value,
+            context,
+            "teamApplication",
+            "Team application details",
+          ),
+        ),
+    }),
+    defineField({
       name: "correctionRequestDetails",
       title: "Correction request details",
       type: "correctionRequestDetails",
@@ -356,6 +420,22 @@ export const submission = defineType({
       group: "relationships",
       readOnly: true,
       to: [{type: "video"}],
+    }),
+    defineField({
+      name: "linkedOrganization",
+      title: "Linked organization",
+      type: "reference",
+      group: "relationships",
+      readOnly: true,
+      to: [{type: "organization"}],
+    }),
+    defineField({
+      name: "linkedProduct",
+      title: "Linked product",
+      type: "reference",
+      group: "relationships",
+      readOnly: true,
+      to: [{type: "product"}],
     }),
     defineField({
       name: "createdDraftDocumentId",

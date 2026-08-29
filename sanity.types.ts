@@ -121,6 +121,20 @@ export type VideoReference = {
   [internalGroqTypeReferenceTo]?: "video";
 };
 
+export type OrganizationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "organization";
+};
+
+export type ProductReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "product";
+};
+
 export type AuditEventReference = {
   _ref: string;
   _type: "reference";
@@ -139,7 +153,11 @@ export type Submission = {
     | "storyPitch"
     | "athleteNomination"
     | "competitionListing"
+    | "teamApplication"
+    | "organizationClaim"
+    | "videoSubmission"
     | "mediaPitch"
+    | "productSubmission"
     | "correctionRequest";
   title?: string;
   summary?: string;
@@ -154,6 +172,10 @@ export type Submission = {
   athleteNominationDetails?: AthleteNominationDetails;
   competitionListingDetails?: CompetitionListingDetails;
   mediaPitchDetails?: MediaPitchDetails;
+  organizationClaimDetails?: OrganizationClaimDetails;
+  videoSubmissionDetails?: VideoSubmissionDetails;
+  productSubmissionDetails?: ProductSubmissionDetails;
+  teamApplicationDetails?: TeamApplicationDetails;
   correctionRequestDetails?: CorrectionRequestDetails;
   status:
     | "draft"
@@ -176,6 +198,8 @@ export type Submission = {
   linkedAthlete?: AthleteReference;
   linkedCompetition?: CompetitionReference;
   linkedVideo?: VideoReference;
+  linkedOrganization?: OrganizationReference;
+  linkedProduct?: ProductReference;
   createdDraftDocumentId?: string;
   auditEvents?: Array<
     {
@@ -206,8 +230,620 @@ export type CorrectionRequestDetails = {
   relationshipToSubject?: string;
 };
 
+export type TeamApplicationDetails = {
+  _type: "teamApplicationDetails";
+  proposedTeamName: string;
+  shortName: string;
+  code: string;
+  teamType:
+    | "prospective-wcl-team"
+    | "competitive-team"
+    | "crew"
+    | "club"
+    | "gym-team"
+    | "national-team"
+    | "other";
+  representedIdentity: string;
+  country:
+    | "Andorra"
+    | "United Arab Emirates"
+    | "Afghanistan"
+    | "Antigua & Barbuda"
+    | "Anguilla"
+    | "Albania"
+    | "Armenia"
+    | "Angola"
+    | "Antarctica"
+    | "Argentina"
+    | "American Samoa"
+    | "Austria"
+    | "Australia"
+    | "Aruba"
+    | "\xC5land Islands"
+    | "Azerbaijan"
+    | "Bosnia & Herzegovina"
+    | "Barbados"
+    | "Bangladesh"
+    | "Belgium"
+    | "Burkina Faso"
+    | "Bulgaria"
+    | "Bahrain"
+    | "Burundi"
+    | "Benin"
+    | "St. Barth\xE9lemy"
+    | "Bermuda"
+    | "Brunei"
+    | "Bolivia"
+    | "Caribbean Netherlands"
+    | "Brazil"
+    | "Bahamas"
+    | "Bhutan"
+    | "Bouvet Island"
+    | "Botswana"
+    | "Belarus"
+    | "Belize"
+    | "Canada"
+    | "Cocos (Keeling) Islands"
+    | "Congo - Kinshasa"
+    | "Central African Republic"
+    | "Congo - Brazzaville"
+    | "Switzerland"
+    | "C\xF4te d\u2019Ivoire"
+    | "Cook Islands"
+    | "Chile"
+    | "Cameroon"
+    | "China"
+    | "Colombia"
+    | "Costa Rica"
+    | "Cuba"
+    | "Cape Verde"
+    | "Cura\xE7ao"
+    | "Christmas Island"
+    | "Cyprus"
+    | "Czechia"
+    | "Germany"
+    | "Djibouti"
+    | "Denmark"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Algeria"
+    | "Ecuador"
+    | "Estonia"
+    | "Egypt"
+    | "Western Sahara"
+    | "Eritrea"
+    | "Spain"
+    | "Ethiopia"
+    | "Finland"
+    | "Fiji"
+    | "Falkland Islands"
+    | "Micronesia"
+    | "Faroe Islands"
+    | "France"
+    | "Gabon"
+    | "United Kingdom"
+    | "Grenada"
+    | "Georgia"
+    | "French Guiana"
+    | "Guernsey"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greenland"
+    | "Gambia"
+    | "Guinea"
+    | "Guadeloupe"
+    | "Equatorial Guinea"
+    | "Greece"
+    | "South Georgia & South Sandwich Islands"
+    | "Guatemala"
+    | "Guam"
+    | "Guinea-Bissau"
+    | "Guyana"
+    | "Hong Kong SAR China"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Croatia"
+    | "Haiti"
+    | "Hungary"
+    | "Indonesia"
+    | "Ireland"
+    | "Israel"
+    | "Isle of Man"
+    | "India"
+    | "British Indian Ocean Territory"
+    | "Iraq"
+    | "Iran"
+    | "Iceland"
+    | "Italy"
+    | "Jersey"
+    | "Jamaica"
+    | "Jordan"
+    | "Japan"
+    | "Kenya"
+    | "Kyrgyzstan"
+    | "Cambodia"
+    | "Kiribati"
+    | "Comoros"
+    | "St. Kitts & Nevis"
+    | "North Korea"
+    | "South Korea"
+    | "Kuwait"
+    | "Cayman Islands"
+    | "Kazakhstan"
+    | "Laos"
+    | "Lebanon"
+    | "St. Lucia"
+    | "Liechtenstein"
+    | "Sri Lanka"
+    | "Liberia"
+    | "Lesotho"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Latvia"
+    | "Libya"
+    | "Morocco"
+    | "Monaco"
+    | "Moldova"
+    | "Montenegro"
+    | "St. Martin"
+    | "Madagascar"
+    | "Marshall Islands"
+    | "North Macedonia"
+    | "Mali"
+    | "Myanmar (Burma)"
+    | "Mongolia"
+    | "Macao SAR China"
+    | "Northern Mariana Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Montserrat"
+    | "Malta"
+    | "Mauritius"
+    | "Maldives"
+    | "Malawi"
+    | "Mexico"
+    | "Malaysia"
+    | "Mozambique"
+    | "Namibia"
+    | "New Caledonia"
+    | "Niger"
+    | "Norfolk Island"
+    | "Nigeria"
+    | "Nicaragua"
+    | "Netherlands"
+    | "Norway"
+    | "Nepal"
+    | "Nauru"
+    | "Niue"
+    | "New Zealand"
+    | "Oman"
+    | "Panama"
+    | "Peru"
+    | "French Polynesia"
+    | "Papua New Guinea"
+    | "Philippines"
+    | "Pakistan"
+    | "Poland"
+    | "St. Pierre & Miquelon"
+    | "Pitcairn Islands"
+    | "Puerto Rico"
+    | "Palestinian Territories"
+    | "Portugal"
+    | "Palau"
+    | "Paraguay"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Serbia"
+    | "Russia"
+    | "Rwanda"
+    | "Saudi Arabia"
+    | "Solomon Islands"
+    | "Seychelles"
+    | "Sudan"
+    | "Sweden"
+    | "Singapore"
+    | "St. Helena"
+    | "Slovenia"
+    | "Svalbard & Jan Mayen"
+    | "Slovakia"
+    | "Sierra Leone"
+    | "San Marino"
+    | "Senegal"
+    | "Somalia"
+    | "Suriname"
+    | "South Sudan"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "El Salvador"
+    | "Sint Maarten"
+    | "Syria"
+    | "Eswatini"
+    | "Turks & Caicos Islands"
+    | "Chad"
+    | "French Southern Territories"
+    | "Togo"
+    | "Thailand"
+    | "Tajikistan"
+    | "Tokelau"
+    | "Timor-Leste"
+    | "Turkmenistan"
+    | "Tunisia"
+    | "Tonga"
+    | "T\xFCrkiye"
+    | "Trinidad & Tobago"
+    | "Tuvalu"
+    | "Taiwan"
+    | "Tanzania"
+    | "Ukraine"
+    | "Uganda"
+    | "U.S. Outlying Islands"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vatican City"
+    | "St. Vincent & Grenadines"
+    | "Venezuela"
+    | "British Virgin Islands"
+    | "U.S. Virgin Islands"
+    | "Vietnam"
+    | "Vanuatu"
+    | "Wallis & Futuna"
+    | "Samoa"
+    | "Yemen"
+    | "Mayotte"
+    | "South Africa"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea?: string;
+  city?: string;
+  trainingBase?: string;
+  foundingYear?: string;
+  description: string;
+  disciplines?: Array<string>;
+  competitionIntentions: string;
+  website?: string;
+  socialLinks?: Array<
+    {
+      _key: string;
+    } & SupportingLink
+  >;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor?: string;
+  crestReferenceUrl?: string;
+  wordmarkReferenceUrl?: string;
+  brandingPermissionAcknowledged: boolean;
+  proposedUniformDesign?: string;
+  proposedRoster?: Array<
+    {
+      _key: string;
+    } & TeamApplicationRosterEntry
+  >;
+};
+
+export type ProductSubmissionDetails = {
+  _type: "productSubmissionDetails";
+  organizationId?: string;
+  productName?: string;
+  category?: string;
+  productSummary?: string;
+  standardProductUrl?: string;
+  affiliateUrl?: string;
+  affiliateRelationship?: "none" | "pending" | "active";
+  submitterRelationship?: string;
+  commercialDisclosure?: string;
+};
+
+export type VideoSubmissionDetails = {
+  _type: "videoSubmissionDetails";
+  submittingIdentityType?: "member" | "organization";
+  submittingIdentityId?: string;
+  videoTitle?: string;
+  description?: string;
+  category?: string;
+  discipline?: string;
+  sourceHost?: "youtube" | "instagram" | "tiktok" | "other-approved";
+  originalPublicUrl?: string;
+  submitterRelationship?: string;
+  creatorName?: string;
+  creatorProfileUrl?: string;
+  featuredAthletes?: Array<string>;
+  featuredTeams?: Array<string>;
+  organizationId?: string;
+  competition?: string;
+  eventDate?: string;
+  location?: string;
+  thumbnailReferenceUrl?: string;
+  rightsDeclaration?:
+    "submitter-owned" | "permission-confirmed" | "public-reference-only";
+  ownershipSourceDeclaration?: string;
+  sourceAccount?: string;
+  editorialNote?: string;
+  contentWarnings?: Array<string>;
+};
+
+export type OrganizationClaimDetails = {
+  _type: "organizationClaimDetails";
+  requestKind?: "create" | "claim";
+  existingOrganizationId?: string;
+  organizationName?: string;
+  organizationType?:
+    | "federation"
+    | "league"
+    | "competition-organizer"
+    | "gym"
+    | "training-facility"
+    | "team-operator"
+    | "brand"
+    | "retailer"
+    | "media-company"
+    | "community-organization"
+    | "other";
+  country?:
+    | "Andorra"
+    | "United Arab Emirates"
+    | "Afghanistan"
+    | "Antigua & Barbuda"
+    | "Anguilla"
+    | "Albania"
+    | "Armenia"
+    | "Angola"
+    | "Antarctica"
+    | "Argentina"
+    | "American Samoa"
+    | "Austria"
+    | "Australia"
+    | "Aruba"
+    | "\xC5land Islands"
+    | "Azerbaijan"
+    | "Bosnia & Herzegovina"
+    | "Barbados"
+    | "Bangladesh"
+    | "Belgium"
+    | "Burkina Faso"
+    | "Bulgaria"
+    | "Bahrain"
+    | "Burundi"
+    | "Benin"
+    | "St. Barth\xE9lemy"
+    | "Bermuda"
+    | "Brunei"
+    | "Bolivia"
+    | "Caribbean Netherlands"
+    | "Brazil"
+    | "Bahamas"
+    | "Bhutan"
+    | "Bouvet Island"
+    | "Botswana"
+    | "Belarus"
+    | "Belize"
+    | "Canada"
+    | "Cocos (Keeling) Islands"
+    | "Congo - Kinshasa"
+    | "Central African Republic"
+    | "Congo - Brazzaville"
+    | "Switzerland"
+    | "C\xF4te d\u2019Ivoire"
+    | "Cook Islands"
+    | "Chile"
+    | "Cameroon"
+    | "China"
+    | "Colombia"
+    | "Costa Rica"
+    | "Cuba"
+    | "Cape Verde"
+    | "Cura\xE7ao"
+    | "Christmas Island"
+    | "Cyprus"
+    | "Czechia"
+    | "Germany"
+    | "Djibouti"
+    | "Denmark"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Algeria"
+    | "Ecuador"
+    | "Estonia"
+    | "Egypt"
+    | "Western Sahara"
+    | "Eritrea"
+    | "Spain"
+    | "Ethiopia"
+    | "Finland"
+    | "Fiji"
+    | "Falkland Islands"
+    | "Micronesia"
+    | "Faroe Islands"
+    | "France"
+    | "Gabon"
+    | "United Kingdom"
+    | "Grenada"
+    | "Georgia"
+    | "French Guiana"
+    | "Guernsey"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greenland"
+    | "Gambia"
+    | "Guinea"
+    | "Guadeloupe"
+    | "Equatorial Guinea"
+    | "Greece"
+    | "South Georgia & South Sandwich Islands"
+    | "Guatemala"
+    | "Guam"
+    | "Guinea-Bissau"
+    | "Guyana"
+    | "Hong Kong SAR China"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Croatia"
+    | "Haiti"
+    | "Hungary"
+    | "Indonesia"
+    | "Ireland"
+    | "Israel"
+    | "Isle of Man"
+    | "India"
+    | "British Indian Ocean Territory"
+    | "Iraq"
+    | "Iran"
+    | "Iceland"
+    | "Italy"
+    | "Jersey"
+    | "Jamaica"
+    | "Jordan"
+    | "Japan"
+    | "Kenya"
+    | "Kyrgyzstan"
+    | "Cambodia"
+    | "Kiribati"
+    | "Comoros"
+    | "St. Kitts & Nevis"
+    | "North Korea"
+    | "South Korea"
+    | "Kuwait"
+    | "Cayman Islands"
+    | "Kazakhstan"
+    | "Laos"
+    | "Lebanon"
+    | "St. Lucia"
+    | "Liechtenstein"
+    | "Sri Lanka"
+    | "Liberia"
+    | "Lesotho"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Latvia"
+    | "Libya"
+    | "Morocco"
+    | "Monaco"
+    | "Moldova"
+    | "Montenegro"
+    | "St. Martin"
+    | "Madagascar"
+    | "Marshall Islands"
+    | "North Macedonia"
+    | "Mali"
+    | "Myanmar (Burma)"
+    | "Mongolia"
+    | "Macao SAR China"
+    | "Northern Mariana Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Montserrat"
+    | "Malta"
+    | "Mauritius"
+    | "Maldives"
+    | "Malawi"
+    | "Mexico"
+    | "Malaysia"
+    | "Mozambique"
+    | "Namibia"
+    | "New Caledonia"
+    | "Niger"
+    | "Norfolk Island"
+    | "Nigeria"
+    | "Nicaragua"
+    | "Netherlands"
+    | "Norway"
+    | "Nepal"
+    | "Nauru"
+    | "Niue"
+    | "New Zealand"
+    | "Oman"
+    | "Panama"
+    | "Peru"
+    | "French Polynesia"
+    | "Papua New Guinea"
+    | "Philippines"
+    | "Pakistan"
+    | "Poland"
+    | "St. Pierre & Miquelon"
+    | "Pitcairn Islands"
+    | "Puerto Rico"
+    | "Palestinian Territories"
+    | "Portugal"
+    | "Palau"
+    | "Paraguay"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Serbia"
+    | "Russia"
+    | "Rwanda"
+    | "Saudi Arabia"
+    | "Solomon Islands"
+    | "Seychelles"
+    | "Sudan"
+    | "Sweden"
+    | "Singapore"
+    | "St. Helena"
+    | "Slovenia"
+    | "Svalbard & Jan Mayen"
+    | "Slovakia"
+    | "Sierra Leone"
+    | "San Marino"
+    | "Senegal"
+    | "Somalia"
+    | "Suriname"
+    | "South Sudan"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "El Salvador"
+    | "Sint Maarten"
+    | "Syria"
+    | "Eswatini"
+    | "Turks & Caicos Islands"
+    | "Chad"
+    | "French Southern Territories"
+    | "Togo"
+    | "Thailand"
+    | "Tajikistan"
+    | "Tokelau"
+    | "Timor-Leste"
+    | "Turkmenistan"
+    | "Tunisia"
+    | "Tonga"
+    | "T\xFCrkiye"
+    | "Trinidad & Tobago"
+    | "Tuvalu"
+    | "Taiwan"
+    | "Tanzania"
+    | "Ukraine"
+    | "Uganda"
+    | "U.S. Outlying Islands"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vatican City"
+    | "St. Vincent & Grenadines"
+    | "Venezuela"
+    | "British Virgin Islands"
+    | "U.S. Virgin Islands"
+    | "Vietnam"
+    | "Vanuatu"
+    | "Wallis & Futuna"
+    | "Samoa"
+    | "Yemen"
+    | "Mayotte"
+    | "South Africa"
+    | "Zambia"
+    | "Zimbabwe";
+  website?: string;
+  relationshipToOrganization?: string;
+  requestedCapabilities?: Array<string>;
+  evidenceLinks?: Array<
+    {
+      _key: string;
+    } & SupportingLink
+  >;
+};
+
 export type MediaPitchDetails = {
   _type: "mediaPitchDetails";
+  mediaKind?: "photo" | "photo-series" | "mixed-media" | "other";
+  submittingIdentityType?: "member" | "organization";
+  submittingIdentityId?: string;
   proposedTitle?: string;
   series?: string;
   format?: string;
@@ -226,6 +862,9 @@ export type MediaPitchDetails = {
     | "Website";
   sourceAccount?: string;
   originalPostUrl?: string;
+  creatorName?: string;
+  caption?: string;
+  altText?: string;
   mediaPermissionStatus?:
     | "unknown"
     | "submitter-owned"
@@ -590,6 +1229,632 @@ export type ContributorIdentityClaim = {
   createdAt: string;
 };
 
+export type TeamReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "team";
+};
+
+export type RulesetReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "ruleset";
+};
+
+export type SportingResultReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "sportingResult";
+};
+
+export type SportingResult = {
+  _id: string;
+  _type: "sportingResult";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  competition: CompetitionReference;
+  athlete?: AthleteReference;
+  team?: TeamReference;
+  ruleset?: RulesetReference;
+  division: string;
+  event: string;
+  placement?: number;
+  performances?: Array<
+    {
+      _key: string;
+    } & ResultPerformance
+  >;
+  penalties?: number;
+  resultStatus:
+    | "imported"
+    | "submitted"
+    | "provisional"
+    | "source-confirmed"
+    | "official"
+    | "corrected"
+    | "disputed"
+    | "disqualified"
+    | "withdrawn"
+    | "superseded";
+  source: ProvenanceSource;
+  equipmentCompliance?: WclEquipmentCompliance;
+  supersedes?: SportingResultReference;
+};
+
+export type WclEquipmentCompliance = {
+  _type: "wclEquipmentCompliance";
+  inspectionStatus: "not-inspected" | "pending" | "compliant" | "non-compliant";
+  specificationVersion?: string;
+  calibrationStatus?: string;
+  scaleStatus?: string;
+  apparatusCompliant?: boolean;
+  safetyEquipmentCompliant?: boolean;
+  notes?: string;
+};
+
+export type RankingProviderReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "rankingProvider";
+};
+
+export type ProvenanceSource = {
+  _type: "provenanceSource";
+  provider?: RankingProviderReference;
+  sourceTitle: string;
+  sourceType:
+    | "official-results-page"
+    | "organization-ranking-page"
+    | "official-result-sheet"
+    | "organizer-source"
+    | "athlete-submitted"
+    | "editor-confirmed"
+    | "other";
+  url?: string;
+  externalRecordId?: string;
+  publishedAt?: string;
+  checkedAt: string;
+  verificationStatus:
+    | "unverified"
+    | "submitted"
+    | "source-confirmed"
+    | "official"
+    | "disputed"
+    | "superseded";
+};
+
+export type TeamSeasonReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "teamSeason";
+};
+
+export type Team = {
+  _id: string;
+  _type: "team";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  shortName: string;
+  code: string;
+  teamType:
+    | "wcl-franchise"
+    | "prospective-wcl-team"
+    | "competitive-team"
+    | "crew"
+    | "club"
+    | "gym-team"
+    | "national-team"
+    | "other";
+  publicStatus:
+    "approved-prospective" | "official" | "active" | "inactive" | "archived";
+  leagueAdmissionStatus:
+    | "not-applicable"
+    | "prospective"
+    | "candidate"
+    | "official-franchise"
+    | "active-season-franchise";
+  country:
+    | "Andorra"
+    | "United Arab Emirates"
+    | "Afghanistan"
+    | "Antigua & Barbuda"
+    | "Anguilla"
+    | "Albania"
+    | "Armenia"
+    | "Angola"
+    | "Antarctica"
+    | "Argentina"
+    | "American Samoa"
+    | "Austria"
+    | "Australia"
+    | "Aruba"
+    | "\xC5land Islands"
+    | "Azerbaijan"
+    | "Bosnia & Herzegovina"
+    | "Barbados"
+    | "Bangladesh"
+    | "Belgium"
+    | "Burkina Faso"
+    | "Bulgaria"
+    | "Bahrain"
+    | "Burundi"
+    | "Benin"
+    | "St. Barth\xE9lemy"
+    | "Bermuda"
+    | "Brunei"
+    | "Bolivia"
+    | "Caribbean Netherlands"
+    | "Brazil"
+    | "Bahamas"
+    | "Bhutan"
+    | "Bouvet Island"
+    | "Botswana"
+    | "Belarus"
+    | "Belize"
+    | "Canada"
+    | "Cocos (Keeling) Islands"
+    | "Congo - Kinshasa"
+    | "Central African Republic"
+    | "Congo - Brazzaville"
+    | "Switzerland"
+    | "C\xF4te d\u2019Ivoire"
+    | "Cook Islands"
+    | "Chile"
+    | "Cameroon"
+    | "China"
+    | "Colombia"
+    | "Costa Rica"
+    | "Cuba"
+    | "Cape Verde"
+    | "Cura\xE7ao"
+    | "Christmas Island"
+    | "Cyprus"
+    | "Czechia"
+    | "Germany"
+    | "Djibouti"
+    | "Denmark"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Algeria"
+    | "Ecuador"
+    | "Estonia"
+    | "Egypt"
+    | "Western Sahara"
+    | "Eritrea"
+    | "Spain"
+    | "Ethiopia"
+    | "Finland"
+    | "Fiji"
+    | "Falkland Islands"
+    | "Micronesia"
+    | "Faroe Islands"
+    | "France"
+    | "Gabon"
+    | "United Kingdom"
+    | "Grenada"
+    | "Georgia"
+    | "French Guiana"
+    | "Guernsey"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greenland"
+    | "Gambia"
+    | "Guinea"
+    | "Guadeloupe"
+    | "Equatorial Guinea"
+    | "Greece"
+    | "South Georgia & South Sandwich Islands"
+    | "Guatemala"
+    | "Guam"
+    | "Guinea-Bissau"
+    | "Guyana"
+    | "Hong Kong SAR China"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Croatia"
+    | "Haiti"
+    | "Hungary"
+    | "Indonesia"
+    | "Ireland"
+    | "Israel"
+    | "Isle of Man"
+    | "India"
+    | "British Indian Ocean Territory"
+    | "Iraq"
+    | "Iran"
+    | "Iceland"
+    | "Italy"
+    | "Jersey"
+    | "Jamaica"
+    | "Jordan"
+    | "Japan"
+    | "Kenya"
+    | "Kyrgyzstan"
+    | "Cambodia"
+    | "Kiribati"
+    | "Comoros"
+    | "St. Kitts & Nevis"
+    | "North Korea"
+    | "South Korea"
+    | "Kuwait"
+    | "Cayman Islands"
+    | "Kazakhstan"
+    | "Laos"
+    | "Lebanon"
+    | "St. Lucia"
+    | "Liechtenstein"
+    | "Sri Lanka"
+    | "Liberia"
+    | "Lesotho"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Latvia"
+    | "Libya"
+    | "Morocco"
+    | "Monaco"
+    | "Moldova"
+    | "Montenegro"
+    | "St. Martin"
+    | "Madagascar"
+    | "Marshall Islands"
+    | "North Macedonia"
+    | "Mali"
+    | "Myanmar (Burma)"
+    | "Mongolia"
+    | "Macao SAR China"
+    | "Northern Mariana Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Montserrat"
+    | "Malta"
+    | "Mauritius"
+    | "Maldives"
+    | "Malawi"
+    | "Mexico"
+    | "Malaysia"
+    | "Mozambique"
+    | "Namibia"
+    | "New Caledonia"
+    | "Niger"
+    | "Norfolk Island"
+    | "Nigeria"
+    | "Nicaragua"
+    | "Netherlands"
+    | "Norway"
+    | "Nepal"
+    | "Nauru"
+    | "Niue"
+    | "New Zealand"
+    | "Oman"
+    | "Panama"
+    | "Peru"
+    | "French Polynesia"
+    | "Papua New Guinea"
+    | "Philippines"
+    | "Pakistan"
+    | "Poland"
+    | "St. Pierre & Miquelon"
+    | "Pitcairn Islands"
+    | "Puerto Rico"
+    | "Palestinian Territories"
+    | "Portugal"
+    | "Palau"
+    | "Paraguay"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Serbia"
+    | "Russia"
+    | "Rwanda"
+    | "Saudi Arabia"
+    | "Solomon Islands"
+    | "Seychelles"
+    | "Sudan"
+    | "Sweden"
+    | "Singapore"
+    | "St. Helena"
+    | "Slovenia"
+    | "Svalbard & Jan Mayen"
+    | "Slovakia"
+    | "Sierra Leone"
+    | "San Marino"
+    | "Senegal"
+    | "Somalia"
+    | "Suriname"
+    | "South Sudan"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "El Salvador"
+    | "Sint Maarten"
+    | "Syria"
+    | "Eswatini"
+    | "Turks & Caicos Islands"
+    | "Chad"
+    | "French Southern Territories"
+    | "Togo"
+    | "Thailand"
+    | "Tajikistan"
+    | "Tokelau"
+    | "Timor-Leste"
+    | "Turkmenistan"
+    | "Tunisia"
+    | "Tonga"
+    | "T\xFCrkiye"
+    | "Trinidad & Tobago"
+    | "Tuvalu"
+    | "Taiwan"
+    | "Tanzania"
+    | "Ukraine"
+    | "Uganda"
+    | "U.S. Outlying Islands"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vatican City"
+    | "St. Vincent & Grenadines"
+    | "Venezuela"
+    | "British Virgin Islands"
+    | "U.S. Virgin Islands"
+    | "Vietnam"
+    | "Vanuatu"
+    | "Wallis & Futuna"
+    | "Samoa"
+    | "Yemen"
+    | "Mayotte"
+    | "South Africa"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea?: string;
+  city?: string;
+  trainingBase?: string;
+  foundingYear?: number;
+  description: string;
+  disciplines?: Array<string>;
+  branding: TeamBranding;
+  socialLinks?: Array<
+    {
+      _key: string;
+    } & TeamSocialLink
+  >;
+  featured?: boolean;
+  currentSeason?: TeamSeasonReference;
+  prototypeStatus?: "fictional-prototype" | "sample-record" | "not-official";
+  seo?: Seo;
+};
+
+export type Seo = {
+  _type: "seo";
+  metaTitle?: string;
+  metaDescription?: string;
+  socialImage?: AccessibleImage;
+  noIndex?: boolean;
+};
+
+export type TeamSeason = {
+  _id: string;
+  _type: "teamSeason";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  team: TeamReference;
+  seasonLabel: string;
+  ruleset?: RulesetReference;
+  status: "draft" | "prospective" | "active" | "completed" | "archived";
+  members?: Array<
+    {
+      _key: string;
+    } & TeamSeasonMember
+  >;
+  uniformApprovalStatus:
+    "not-submitted" | "in-review" | "approved" | "changes-required";
+  registrationStatus: "not-registered" | "pending" | "registered" | "withdrawn";
+};
+
+export type TeamBranding = {
+  _type: "teamBranding";
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor?: string;
+  crest?: AccessibleImage;
+  wordmark?: AccessibleImage;
+  uniformNotes?: string;
+  approvalStatus: "not-reviewed" | "in-review" | "approved";
+};
+
+export type Slug = {
+  _type: "slug";
+  current: string;
+  source?: string;
+};
+
+export type ExternalCompetitionIdentity = {
+  _id: string;
+  _type: "externalCompetitionIdentity";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  competition?: CompetitionReference;
+  provider: RankingProviderReference;
+  providerCompetitionId: string;
+  providerCompetitionUrl?: string;
+  providerDisplayName: string;
+  matchingStatus:
+    | "unmatched"
+    | "candidate"
+    | "confirmed"
+    | "rejected"
+    | "manually-linked"
+    | "do-not-auto-match";
+  reviewStatus: "not-reviewed" | "in-review" | "reviewed";
+  privateReviewNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExternalAthleteIdentity = {
+  _id: string;
+  _type: "externalAthleteIdentity";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  athlete?: AthleteReference;
+  provider: RankingProviderReference;
+  providerAthleteId: string;
+  providerAthleteUrl?: string;
+  providerDisplayName: string;
+  aliases?: Array<
+    {
+      _key: string;
+    } & ExternalAlias
+  >;
+  matchingStatus:
+    | "unmatched"
+    | "candidate"
+    | "confirmed"
+    | "rejected"
+    | "manually-linked"
+    | "do-not-auto-match";
+  reviewStatus: "not-reviewed" | "in-review" | "reviewed";
+  privateReviewNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RankingSystemReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "rankingSystem";
+};
+
+export type RankingSnapshot = {
+  _id: string;
+  _type: "rankingSnapshot";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  rankingSystem: RankingSystemReference;
+  sourceCompetitions?: Array<
+    {
+      _key: string;
+    } & CompetitionReference
+  >;
+  rankingDate: string;
+  sourcePublishedAt?: string;
+  checkedAt: string;
+  season?: string;
+  methodologyVersion?: string;
+  entries: Array<
+    {
+      _key: string;
+    } & RankingSnapshotEntry
+  >;
+  source: ProvenanceSource;
+  notes?: string;
+  publicationStatus: "draft" | "published" | "superseded" | "archived";
+};
+
+export type RankingSystem = {
+  _id: string;
+  _type: "rankingSystem";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  provider: RankingProviderReference;
+  rankingKind:
+    | "ordinal-position"
+    | "points"
+    | "rating"
+    | "season-standings"
+    | "qualification-ranking"
+    | "record-leaderboard"
+    | "relative-strength";
+  discipline: string;
+  movement?: string;
+  category?: string;
+  division?: string;
+  weightClass?: string;
+  sexDivision?: string;
+  ageGroup?: string;
+  geographicScope: string;
+  methodologyVersion?: string;
+  methodologyNotes?: string;
+  status: "draft" | "active" | "inactive";
+};
+
+export type Ruleset = {
+  _id: string;
+  _type: "ruleset";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  organization: OrganizationReference;
+  version: string;
+  status: "current" | "historical" | "proposed";
+  effectiveFrom?: string;
+  effectiveTo?: string;
+  implementationNotes?: string;
+  source: ProvenanceSource;
+  matchSequence?: Array<string>;
+};
+
+export type Product = {
+  _id: string;
+  _type: "product";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  brand: OrganizationReference;
+  retailer?: OrganizationReference;
+  category:
+    | "equipment"
+    | "apparel"
+    | "training-content-accessories"
+    | "nutrition-recovery";
+  subcategory: string;
+  images?: Array<
+    {
+      _key: string;
+    } & AccessibleImage
+  >;
+  shortDescription: string;
+  editorialSummary: string;
+  useCases?: Array<string>;
+  disciplines?: Array<string>;
+  trainingLevel?: Array<string>;
+  environments?: Array<"indoor" | "outdoor">;
+  portable: boolean;
+  priceDisplay?: string;
+  currency?: string;
+  standardProductUrl?: string;
+  affiliateUrl?: string;
+  affiliateNetwork?: string;
+  affiliateStatus: "none" | "pending" | "active" | "paused" | "ended";
+  commercialRelationship: "none" | "affiliate" | "sponsored" | "advertising";
+  sponsored: boolean;
+  disclosure?: string;
+  countryAvailability?: Array<string>;
+  lastCheckedAt?: string;
+  availabilityNote?: string;
+  featured: boolean;
+  editorPick: boolean;
+  status: "draft" | "published" | "archived" | "discontinued";
+  prototypeStatus?: "fictional-prototype" | "sample-record" | "not-official";
+  seo?: Seo;
+};
+
 export type RankingCategoryReference = {
   _ref: string;
   _type: "reference";
@@ -618,14 +1883,6 @@ export type SiteSettings = {
   featuredRankingCategory?: RankingCategoryReference;
   defaultSeo: Seo;
   prototypeStatus: "fictional-prototype" | "sample-record" | "not-official";
-};
-
-export type Seo = {
-  _type: "seo";
-  metaTitle?: string;
-  metaDescription?: string;
-  socialImage?: AccessibleImage;
-  noIndex?: boolean;
 };
 
 export type RankingCategory = {
@@ -657,12 +1914,6 @@ export type RankingCategory = {
   methodologyNote: string;
   prototypeStatus: "fictional-prototype" | "sample-record" | "not-official";
   seo?: Seo;
-};
-
-export type Slug = {
-  _type: "slug";
-  current: string;
-  source?: string;
 };
 
 export type VideoSeriesReference = {
@@ -743,6 +1994,7 @@ export type Video = {
   >;
   tags?: Array<string>;
   availabilityLabel: string;
+  origin: "cali-central-original" | "community-submission" | "external-source";
   ownershipStatus:
     "cali-central-original" | "third-party-attributed" | "source-unavailable";
   sourcePlatform?:
@@ -864,6 +2116,26 @@ export type VideoSeries = {
   >;
   displayOrder: number;
   prototypeStatus: "fictional-prototype" | "sample-record" | "not-official";
+};
+
+export type TeamApplicationRosterEntry = {
+  _type: "teamApplicationRosterEntry";
+  name: string;
+  privateEmail?: string;
+  privatePhone?: string;
+  existingProfileSlug?: string;
+  relationshipToTeam?: string;
+  role:
+    | "captain"
+    | "athlete"
+    | "reserve"
+    | "coach"
+    | "manager"
+    | "administrator"
+    | "media-manager";
+  rosterStatus: "proposed" | "invited" | "accepted" | "declined";
+  specialty?: "strength" | "control" | "endurance" | "freestyle";
+  consentStatus: "not-contacted" | "pending" | "accepted" | "declined";
 };
 
 export type AthleteCompetitionHistorySubmission = {
@@ -1143,6 +2415,92 @@ export type SupportingLink = {
   url: string;
 };
 
+export type ExternalAlias = {
+  _type: "externalAlias";
+  name: string;
+  source?: ProvenanceSource;
+};
+
+export type TeamSeasonMember = {
+  _type: "teamSeasonMember";
+  athlete: AthleteReference;
+  role:
+    | "starter"
+    | "reserve"
+    | "coach"
+    | "manager"
+    | "administrator"
+    | "media-manager";
+  specialty?: "strength" | "control" | "endurance" | "freestyle";
+  athleteNumber?: string;
+  captain?: boolean;
+  joinedAt?: string;
+  leftAt?: string;
+  membershipStatus: "proposed" | "active" | "inactive" | "transferred";
+  consentStatus: "pending" | "accepted" | "declined" | "revoked";
+  verificationStatus: "unverified" | "editor-confirmed" | "league-confirmed";
+};
+
+export type TeamSocialLink = {
+  _type: "teamSocialLink";
+  label: string;
+  url: string;
+};
+
+export type ResultPerformance = {
+  _type: "resultPerformance";
+  metric: string;
+  value?: number;
+  unit?: string;
+  status: "completed" | "dns" | "disqualified" | "withdrawn";
+};
+
+export type SportingMeasurement = {
+  _type: "sportingMeasurement";
+  measurementType: string;
+  value: number;
+  unit: string;
+  measuredAt?: string;
+  source: ProvenanceSource;
+};
+
+export type RankingSnapshotEntry = {
+  _type: "rankingSnapshotEntry";
+  athlete?: AthleteReference;
+  sourceDisplayName: string;
+  providerAthleteId?: string;
+  position?: number;
+  points?: number;
+  rating?: number;
+  previousPosition?: number;
+  status: "ranked" | "provisional" | "inactive" | "unmatched";
+};
+
+export type RankingProvider = {
+  _id: string;
+  _type: "rankingProvider";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  organization?: OrganizationReference;
+  website?: string;
+  description: string;
+  status: "active" | "inactive" | "under-review";
+  disciplines?: Array<string>;
+  geographicScope: string;
+  integrationMethod:
+    | "manual"
+    | "editorial"
+    | "structured-import"
+    | "authorized-api"
+    | "licensed-feed";
+  attributionRequirement: string;
+  sourcePolicyNotes?: string;
+  lastReviewedAt?: string;
+};
+
 export type RankingEntry = {
   _type: "rankingEntry";
   rank: number;
@@ -1291,9 +2649,12 @@ export type CompetitionParticipant = {
   city?: string;
   discipline:
     | "freestyle"
+    | "streetlifting"
+    | "weighted-calisthenics"
     | "static-strength"
     | "dynamic"
     | "endurance"
+    | "skills"
     | "team"
     | "mixed";
   seed?: string;
@@ -1621,6 +2982,11 @@ export type Athlete = {
       _key: string;
     } & AthleteStatistic
   >;
+  sportingMeasurements?: Array<
+    {
+      _key: string;
+    } & SportingMeasurement
+  >;
   achievements?: Array<
     {
       _key: string;
@@ -1659,7 +3025,7 @@ export type Athlete = {
       _key: string;
     } & VideoReference
   >;
-  prototypeStatus: "fictional-prototype" | "sample-record" | "not-official";
+  prototypeStatus?: "fictional-prototype" | "sample-record" | "not-official";
   seo?: Seo;
 };
 
@@ -1701,9 +3067,12 @@ export type CompetitionDivision = {
   slug: Slug;
   discipline:
     | "freestyle"
+    | "streetlifting"
+    | "weighted-calisthenics"
     | "static-strength"
     | "dynamic"
     | "endurance"
+    | "skills"
     | "team"
     | "mixed";
   level?: string;
@@ -2011,38 +3380,58 @@ export type Competition = {
   _updatedAt: string;
   _rev: string;
   name: string;
-  shortName: string;
+  shortName?: string;
   slug: Slug;
-  eventNumber: string;
-  status: "upcoming" | "completed" | "postponed" | "cancelled" | "preview";
+  eventNumber?: string;
+  status?: "upcoming" | "completed" | "postponed" | "cancelled" | "preview";
   startDate: string;
   endDate?: string;
-  city: string;
+  city?: string;
   state?: string;
   administrativeArea?: string;
-  country: string;
+  country?: string;
   region?: string;
-  venueName: string;
+  venueName?: string;
   venueType?: string;
-  summary: string;
-  description: PortableText;
-  disciplines: Array<
-    "freestyle" | "static-strength" | "dynamic" | "endurance" | "team" | "mixed"
-  >;
-  primaryDiscipline:
+  summary?: string;
+  description?: PortableText;
+  disciplines?: Array<
     | "freestyle"
+    | "streetlifting"
+    | "weighted-calisthenics"
     | "static-strength"
     | "dynamic"
     | "endurance"
+    | "skills"
+    | "team"
+    | "mixed"
+  >;
+  primaryDiscipline?:
+    | "freestyle"
+    | "streetlifting"
+    | "weighted-calisthenics"
+    | "static-strength"
+    | "dynamic"
+    | "endurance"
+    | "skills"
     | "team"
     | "mixed";
-  divisions: Array<
+  divisions?: Array<
     {
       _key: string;
     } & CompetitionDivision
   >;
+  eventSeries?: string;
+  editorialPriority?:
+    | "world-championship"
+    | "continental-championship"
+    | "national-championship"
+    | "major-open"
+    | "qualifier"
+    | "major-event"
+    | "standard";
   featured?: boolean;
-  registrationStatus:
+  registrationStatus?:
     | "not-open"
     | "open"
     | "preview-only"
@@ -2050,19 +3439,23 @@ export type Competition = {
     | "sold-out"
     | "unavailable";
   registrationDeadline?: string;
-  scheduleStatus: "pending" | "provisional" | "published" | "completed";
-  resultsStatus:
+  scheduleStatus?: "pending" | "provisional" | "published" | "completed";
+  resultsStatus?:
     "not-available" | "pending" | "verified-results" | "sample-results";
   capacityLabel?: string;
-  organizerName: string;
-  organizerVerificationStatus:
+  organizerName?: string;
+  organization?: OrganizationReference;
+  source?: ProvenanceSource;
+  externalProviderId?: string;
+  externalProviderUrl?: string;
+  organizerVerificationStatus?:
     "unverified" | "reviewed" | "verified" | "sample";
   actionLinks?: Array<
     {
       _key: string;
     } & CompetitionActionLink
   >;
-  competitionFormat: string;
+  competitionFormat?: string;
   schedule?: Array<
     {
       _key: string;
@@ -2089,7 +3482,7 @@ export type Competition = {
     } & CompetitionNotice
   >;
   heroImage?: AccessibleImage;
-  visualVariant: "signal" | "field" | "frame";
+  visualVariant?: "signal" | "field" | "frame";
   relatedStories?: Array<
     {
       _key: string;
@@ -2110,6 +3503,48 @@ export type Competition = {
     | "fictional-prototype"
     | "sample-record"
     | "not-official";
+  publicStatus?: "draft" | "published" | "archived";
+  prototypeStatus?: "fictional-prototype" | "sample-record" | "not-official";
+  seo?: Seo;
+};
+
+export type Organization = {
+  _id: string;
+  _type: "organization";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name: string;
+  slug: Slug;
+  organizationType:
+    | "federation"
+    | "league"
+    | "competition-organizer"
+    | "gym"
+    | "training-facility"
+    | "team-operator"
+    | "brand"
+    | "retailer"
+    | "media-company"
+    | "community-organization"
+    | "other";
+  logo?: AccessibleImage;
+  description: string;
+  country?: string;
+  administrativeArea?: string;
+  city?: string;
+  geographicScope?: string;
+  disciplines?: Array<string>;
+  website?: string;
+  source?: ProvenanceSource;
+  socialLinks?: Array<{
+    label: string;
+    url: string;
+    _type: "organizationSocialLink";
+    _key: string;
+  }>;
+  status: "active" | "inactive" | "historical";
+  publicStatus: "draft" | "published" | "archived";
   prototypeStatus?: "fictional-prototype" | "sample-record" | "not-official";
   seo?: Seo;
 };
@@ -2332,29 +3767,61 @@ export type AllSanitySchemaTypes =
   | AthleteReference
   | CompetitionReference
   | VideoReference
+  | OrganizationReference
+  | ProductReference
   | AuditEventReference
   | Submission
   | CorrectionRequestDetails
+  | TeamApplicationDetails
+  | ProductSubmissionDetails
+  | VideoSubmissionDetails
+  | OrganizationClaimDetails
   | MediaPitchDetails
   | CompetitionListingDetails
   | AthleteNominationDetails
   | StoryPitchDetails
   | OperationalLock
   | ContributorIdentityClaim
+  | TeamReference
+  | RulesetReference
+  | SportingResultReference
+  | SportingResult
+  | WclEquipmentCompliance
+  | RankingProviderReference
+  | ProvenanceSource
+  | TeamSeasonReference
+  | Team
+  | Seo
+  | TeamSeason
+  | TeamBranding
+  | Slug
+  | ExternalCompetitionIdentity
+  | ExternalAthleteIdentity
+  | RankingSystemReference
+  | RankingSnapshot
+  | RankingSystem
+  | Ruleset
+  | Product
   | RankingCategoryReference
   | SiteSettings
-  | Seo
   | RankingCategory
-  | Slug
   | VideoSeriesReference
   | Video
   | SanityImageAssetReference
   | AccessibleImage
   | PortableText
   | VideoSeries
+  | TeamApplicationRosterEntry
   | AthleteCompetitionHistorySubmission
   | PrivateEditorialNote
   | SupportingLink
+  | ExternalAlias
+  | TeamSeasonMember
+  | TeamSocialLink
+  | ResultPerformance
+  | SportingMeasurement
+  | RankingSnapshotEntry
+  | RankingProvider
   | RankingEntry
   | StandingResultSource
   | EditorialNote
@@ -2376,6 +3843,7 @@ export type AllSanitySchemaTypes =
   | AthleteSocialLink
   | AthleteCompetitionRecord
   | Competition
+  | Organization
   | AthleteAchievement
   | AthleteStatistic
   | Divider
@@ -2471,8 +3939,2852 @@ export type SITE_SETTINGS_QUERY_RESULT =
   | null;
 
 // Source: sanity/queries.ts
+// Variable: ORGANIZATIONS_QUERY
+// Query: *[    _type == "organization" &&    defined(slug.current) &&    publicStatus == "published"  ] | order(name asc)[0...300]{    "canonicalId": _id,    "slug": slug.current,    name,    organizationType,    description,    website,    country,    administrativeArea,    city,    geographicScope,    disciplines,    socialLinks[]{label, url},    "lifecycleStatus": status,    prototypeStatus,    logo{      asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+export type ORGANIZATIONS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  slug: string;
+  name: string;
+  organizationType:
+    | "brand"
+    | "community-organization"
+    | "competition-organizer"
+    | "federation"
+    | "gym"
+    | "league"
+    | "media-company"
+    | "other"
+    | "retailer"
+    | "team-operator"
+    | "training-facility";
+  description: string;
+  website: string | null;
+  country: string | null;
+  administrativeArea: string | null;
+  city: string | null;
+  geographicScope: string | null;
+  disciplines: Array<string> | null;
+  socialLinks: Array<{
+    label: string;
+    url: string;
+  }> | null;
+  lifecycleStatus: "active" | "historical" | "inactive";
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  logo: {
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  } | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+    socialImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ORGANIZATION_SLUGS_QUERY
+// Query: *[    _type == "organization" &&    defined(slug.current) &&    publicStatus == "published"  ].slug.current
+export type ORGANIZATION_SLUGS_QUERY_RESULT = Array<string>;
+
+// Source: sanity/queries.ts
+// Variable: ORGANIZATION_PAGE_QUERY
+// Query: *[    _type == "organization" &&    slug.current == $slug &&    publicStatus == "published"  ][0]{    "canonicalId": _id,    "slug": slug.current,    name,    organizationType,    description,    website,    country,    administrativeArea,    city,    geographicScope,    disciplines,    socialLinks[]{label, url},    "lifecycleStatus": status,    prototypeStatus,    logo{      asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+export type ORGANIZATION_PAGE_QUERY_RESULT = {
+  canonicalId: string;
+  slug: string;
+  name: string;
+  organizationType:
+    | "brand"
+    | "community-organization"
+    | "competition-organizer"
+    | "federation"
+    | "gym"
+    | "league"
+    | "media-company"
+    | "other"
+    | "retailer"
+    | "team-operator"
+    | "training-facility";
+  description: string;
+  website: string | null;
+  country: string | null;
+  administrativeArea: string | null;
+  city: string | null;
+  geographicScope: string | null;
+  disciplines: Array<string> | null;
+  socialLinks: Array<{
+    label: string;
+    url: string;
+  }> | null;
+  lifecycleStatus: "active" | "historical" | "inactive";
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  logo: {
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  } | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+    socialImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+} | null;
+
+// Source: sanity/queries.ts
+// Variable: PRODUCTS_QUERY
+// Query: *[    _type == "product" &&    defined(slug.current) &&    status == "published" &&    brand->publicStatus == "published"  ] | order(featured desc, name asc)[0...300]{    "canonicalId": _id,    "slug": slug.current,    name,    "brand": brand->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}},    "retailer": select(retailer->publicStatus == "published" => retailer->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}),    category,    subcategory,    images[]{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, crop{top, bottom, left, right}, hotspot{x, y, width, height}, alt, caption, credit, decorative},    shortDescription,    editorialSummary,    useCases,    disciplines,    trainingLevel,    environments,    portable,    priceDisplay,    currency,    standardProductUrl,    affiliateUrl,    affiliateNetwork,    affiliateStatus,    countryAvailability,    featured,    editorPick,    sponsored,    commercialRelationship,    lastCheckedAt,    availabilityNote,    disclosure,    prototypeStatus,    seo{metaTitle, metaDescription, noIndex, socialImage{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}  }
+export type PRODUCTS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  slug: string;
+  name: string;
+  brand: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    organizationType:
+      | "brand"
+      | "community-organization"
+      | "competition-organizer"
+      | "federation"
+      | "gym"
+      | "league"
+      | "media-company"
+      | "other"
+      | "retailer"
+      | "team-operator"
+      | "training-facility";
+    logo: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  };
+  retailer: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    organizationType:
+      | "brand"
+      | "community-organization"
+      | "competition-organizer"
+      | "federation"
+      | "gym"
+      | "league"
+      | "media-company"
+      | "other"
+      | "retailer"
+      | "team-operator"
+      | "training-facility";
+    logo: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+  category:
+    | "apparel"
+    | "equipment"
+    | "nutrition-recovery"
+    | "training-content-accessories";
+  subcategory: string;
+  images: Array<{
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  }> | null;
+  shortDescription: string;
+  editorialSummary: string;
+  useCases: Array<string> | null;
+  disciplines: Array<string> | null;
+  trainingLevel: Array<string> | null;
+  environments: Array<"indoor" | "outdoor"> | null;
+  portable: boolean;
+  priceDisplay: string | null;
+  currency: string | null;
+  standardProductUrl: string | null;
+  affiliateUrl: string | null;
+  affiliateNetwork: string | null;
+  affiliateStatus: "active" | "ended" | "none" | "paused" | "pending";
+  countryAvailability: Array<string> | null;
+  featured: boolean;
+  editorPick: boolean;
+  sponsored: boolean;
+  commercialRelationship: "advertising" | "affiliate" | "none" | "sponsored";
+  lastCheckedAt: string | null;
+  availabilityNote: string | null;
+  disclosure: string | null;
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+    socialImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: PRODUCT_SLUGS_QUERY
+// Query: *[    _type == "product" &&    defined(slug.current) &&    status == "published" &&    brand->publicStatus == "published"  ].slug.current
+export type PRODUCT_SLUGS_QUERY_RESULT = Array<string>;
+
+// Source: sanity/queries.ts
+// Variable: PRODUCT_PAGE_QUERY
+// Query: *[    _type == "product" &&    slug.current == $slug &&    status == "published" &&    brand->publicStatus == "published"  ][0]{    "canonicalId": _id,    "slug": slug.current,    name,    "brand": brand->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}},    "retailer": select(retailer->publicStatus == "published" => retailer->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}),    category,    subcategory,    images[]{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, crop{top, bottom, left, right}, hotspot{x, y, width, height}, alt, caption, credit, decorative},    shortDescription,    editorialSummary,    useCases,    disciplines,    trainingLevel,    environments,    portable,    priceDisplay,    currency,    standardProductUrl,    affiliateUrl,    affiliateNetwork,    affiliateStatus,    countryAvailability,    featured,    editorPick,    sponsored,    commercialRelationship,    lastCheckedAt,    availabilityNote,    disclosure,    prototypeStatus,    seo{metaTitle, metaDescription, noIndex, socialImage{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}  }
+export type PRODUCT_PAGE_QUERY_RESULT = {
+  canonicalId: string;
+  slug: string;
+  name: string;
+  brand: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    organizationType:
+      | "brand"
+      | "community-organization"
+      | "competition-organizer"
+      | "federation"
+      | "gym"
+      | "league"
+      | "media-company"
+      | "other"
+      | "retailer"
+      | "team-operator"
+      | "training-facility";
+    logo: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  };
+  retailer: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    organizationType:
+      | "brand"
+      | "community-organization"
+      | "competition-organizer"
+      | "federation"
+      | "gym"
+      | "league"
+      | "media-company"
+      | "other"
+      | "retailer"
+      | "team-operator"
+      | "training-facility";
+    logo: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+  category:
+    | "apparel"
+    | "equipment"
+    | "nutrition-recovery"
+    | "training-content-accessories";
+  subcategory: string;
+  images: Array<{
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  }> | null;
+  shortDescription: string;
+  editorialSummary: string;
+  useCases: Array<string> | null;
+  disciplines: Array<string> | null;
+  trainingLevel: Array<string> | null;
+  environments: Array<"indoor" | "outdoor"> | null;
+  portable: boolean;
+  priceDisplay: string | null;
+  currency: string | null;
+  standardProductUrl: string | null;
+  affiliateUrl: string | null;
+  affiliateNetwork: string | null;
+  affiliateStatus: "active" | "ended" | "none" | "paused" | "pending";
+  countryAvailability: Array<string> | null;
+  featured: boolean;
+  editorPick: boolean;
+  sponsored: boolean;
+  commercialRelationship: "advertising" | "affiliate" | "none" | "sponsored";
+  lastCheckedAt: string | null;
+  availabilityNote: string | null;
+  disclosure: string | null;
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+    socialImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      alt: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+} | null;
+
+// Source: sanity/queries.ts
+// Variable: TEAMS_QUERY
+// Query: *[    _type == "team" &&    defined(slug.current) &&    publicStatus in ["approved-prospective", "official", "active", "inactive"]  ] | order(featured desc, name asc)[0...200]{    "canonicalId": _id,    "slug": slug.current,    name,    shortName,    code,    teamType,    publicStatus,    leagueAdmissionStatus,    country,    administrativeArea,    city,    trainingBase,    foundingYear,    description,    disciplines,    branding{primaryColor, secondaryColor, accentColor, uniformNotes, approvalStatus},    socialLinks[]{label, url},    featured,    prototypeStatus,    seo{metaTitle, metaDescription, noIndex},    "seasonLabel": currentSeason->seasonLabel,    "roster": currentSeason->members[      membershipStatus == "active" &&      consentStatus == "accepted" &&      (        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"]      )    ]{      "canonicalId": _key,      role,      specialty,      athleteNumber,      captain,      athlete->{"canonicalId": _id, "slug": slug.current, name}    }  }
+export type TEAMS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  slug: string;
+  name: string;
+  shortName: string;
+  code: string;
+  teamType:
+    | "club"
+    | "competitive-team"
+    | "crew"
+    | "gym-team"
+    | "national-team"
+    | "other"
+    | "prospective-wcl-team"
+    | "wcl-franchise";
+  publicStatus:
+    "active" | "approved-prospective" | "archived" | "inactive" | "official";
+  leagueAdmissionStatus:
+    | "active-season-franchise"
+    | "candidate"
+    | "not-applicable"
+    | "official-franchise"
+    | "prospective";
+  country:
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea: string | null;
+  city: string | null;
+  trainingBase: string | null;
+  foundingYear: number | null;
+  description: string;
+  disciplines: Array<string> | null;
+  branding: {
+    primaryColor: string;
+    secondaryColor: string;
+    accentColor: string | null;
+    uniformNotes: string | null;
+    approvalStatus: "approved" | "in-review" | "not-reviewed";
+  };
+  socialLinks: Array<{
+    label: string;
+    url: string;
+  }> | null;
+  featured: boolean | null;
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+  } | null;
+  seasonLabel: string | null;
+  roster: Array<{
+    canonicalId: string;
+    role:
+      | "administrator"
+      | "coach"
+      | "manager"
+      | "media-manager"
+      | "reserve"
+      | "starter";
+    specialty: "control" | "endurance" | "freestyle" | "strength" | null;
+    athleteNumber: string | null;
+    captain: boolean | null;
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    };
+  }> | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: TEAM_SLUGS_QUERY
+// Query: *[    _type == "team" &&    defined(slug.current) &&    publicStatus in ["approved-prospective", "official", "active", "inactive"]  ].slug.current
+export type TEAM_SLUGS_QUERY_RESULT = Array<string>;
+
+// Source: sanity/queries.ts
+// Variable: TEAM_PAGE_QUERY
+// Query: *[    _type == "team" &&    slug.current == $slug &&    publicStatus in ["approved-prospective", "official", "active", "inactive"]  ][0]{    "canonicalId": _id,    "slug": slug.current,    name,    shortName,    code,    teamType,    publicStatus,    leagueAdmissionStatus,    country,    administrativeArea,    city,    trainingBase,    foundingYear,    description,    disciplines,    branding{primaryColor, secondaryColor, accentColor, uniformNotes, approvalStatus},    socialLinks[]{label, url},    featured,    prototypeStatus,    seo{metaTitle, metaDescription, noIndex},    "seasonLabel": currentSeason->seasonLabel,    "roster": currentSeason->members[      membershipStatus == "active" &&      consentStatus == "accepted" &&      (        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"]      )    ]{      "canonicalId": _key,      role,      specialty,      athleteNumber,      captain,      athlete->{"canonicalId": _id, "slug": slug.current, name}    }  }
+export type TEAM_PAGE_QUERY_RESULT = {
+  canonicalId: string;
+  slug: string;
+  name: string;
+  shortName: string;
+  code: string;
+  teamType:
+    | "club"
+    | "competitive-team"
+    | "crew"
+    | "gym-team"
+    | "national-team"
+    | "other"
+    | "prospective-wcl-team"
+    | "wcl-franchise";
+  publicStatus:
+    "active" | "approved-prospective" | "archived" | "inactive" | "official";
+  leagueAdmissionStatus:
+    | "active-season-franchise"
+    | "candidate"
+    | "not-applicable"
+    | "official-franchise"
+    | "prospective";
+  country:
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea: string | null;
+  city: string | null;
+  trainingBase: string | null;
+  foundingYear: number | null;
+  description: string;
+  disciplines: Array<string> | null;
+  branding: {
+    primaryColor: string;
+    secondaryColor: string;
+    accentColor: string | null;
+    uniformNotes: string | null;
+    approvalStatus: "approved" | "in-review" | "not-reviewed";
+  };
+  socialLinks: Array<{
+    label: string;
+    url: string;
+  }> | null;
+  featured: boolean | null;
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+  } | null;
+  seasonLabel: string | null;
+  roster: Array<{
+    canonicalId: string;
+    role:
+      | "administrator"
+      | "coach"
+      | "manager"
+      | "media-manager"
+      | "reserve"
+      | "starter";
+    specialty: "control" | "endurance" | "freestyle" | "strength" | null;
+    athleteNumber: string | null;
+    captain: boolean | null;
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    };
+  }> | null;
+} | null;
+
+// Source: sanity/queries.ts
+// Variable: ATHLETE_RANKING_SNAPSHOTS_QUERY
+// Query: *[    _type == "rankingSnapshot" &&    publicationStatus == "published" &&    rankingSystem->status == "active" &&    rankingSystem->provider->status == "active" &&    source.verificationStatus in ["source-confirmed", "official"] &&    defined(source.url)  ] | order(rankingDate desc)[0...50]{    "canonicalId": _id,    rankingDate,    sourcePublishedAt,    checkedAt,    season,    methodologyVersion,    "systemName": rankingSystem->name,    "systemSlug": rankingSystem->slug.current,    "rankingKind": rankingSystem->rankingKind,    "discipline": rankingSystem->discipline,    "movement": rankingSystem->movement,    "category": rankingSystem->category,    "division": rankingSystem->division,    "weightClass": rankingSystem->weightClass,    "sexDivision": rankingSystem->sexDivision,    "ageGroup": rankingSystem->ageGroup,    "geographicScope": rankingSystem->geographicScope,    "provider": rankingSystem->provider->{      "canonicalId": _id,      "slug": slug.current,      name,      "organizationId": organization->_id,      website,      description,      status,      disciplines,      geographicScope,      integrationMethod,      attributionRequirement,      lastReviewedAt    },    entries[      athlete->verification.profileStatus == "approved" ||      athlete->prototypeStatus in ["fictional-prototype", "sample-record"]    ][0...500]{      "canonicalId": _key,      sourceDisplayName,      position,      points,      rating,      previousPosition,      status,      athlete->{"canonicalId": _id, "slug": slug.current, name}    },    "provenance": source{      "title": sourceTitle,      "type": sourceType,      url,      externalRecordId,      publishedAt,      checkedAt,      verificationStatus    }  }
+export type ATHLETE_RANKING_SNAPSHOTS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  rankingDate: string;
+  sourcePublishedAt: string | null;
+  checkedAt: string;
+  season: string | null;
+  methodologyVersion: string | null;
+  systemName: string;
+  systemSlug: string;
+  rankingKind:
+    | "ordinal-position"
+    | "points"
+    | "qualification-ranking"
+    | "rating"
+    | "record-leaderboard"
+    | "relative-strength"
+    | "season-standings";
+  discipline: string;
+  movement: string | null;
+  category: string | null;
+  division: string | null;
+  weightClass: string | null;
+  sexDivision: string | null;
+  ageGroup: string | null;
+  geographicScope: string;
+  provider: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    organizationId: string | null;
+    website: string | null;
+    description: string;
+    status: "active" | "inactive" | "under-review";
+    disciplines: Array<string> | null;
+    geographicScope: string;
+    integrationMethod:
+      | "authorized-api"
+      | "editorial"
+      | "licensed-feed"
+      | "manual"
+      | "structured-import";
+    attributionRequirement: string;
+    lastReviewedAt: string | null;
+  };
+  entries: Array<{
+    canonicalId: string;
+    sourceDisplayName: string;
+    position: number | null;
+    points: number | null;
+    rating: number | null;
+    previousPosition: number | null;
+    status: "inactive" | "provisional" | "ranked" | "unmatched";
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    } | null;
+  }>;
+  provenance: {
+    title: string;
+    type:
+      | "athlete-submitted"
+      | "editor-confirmed"
+      | "official-result-sheet"
+      | "official-results-page"
+      | "organization-ranking-page"
+      | "organizer-source"
+      | "other";
+    url: string | null;
+    externalRecordId: string | null;
+    publishedAt: string | null;
+    checkedAt: string;
+    verificationStatus:
+      | "disputed"
+      | "official"
+      | "source-confirmed"
+      | "submitted"
+      | "superseded"
+      | "unverified";
+  };
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_ATHLETES_QUERY
+// Query: *[_type == "athlete"] | order(name asc)[0...1000]{    "canonicalId": _id,    "slug": slug.current,    name,    country,    prototypeStatus,    rankingEligible,    verification{      identityStatus,      profileStatus    }  }
+export type ADMIN_ATHLETES_QUERY_RESULT = Array<{
+  canonicalId: string;
+  slug: string;
+  name: string;
+  country:
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe";
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  rankingEligible: boolean | null;
+  verification: {
+    identityStatus: "profile-control-confirmed" | "unverified";
+    profileStatus: "approved" | "not-reviewed";
+  } | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_ATHLETE_DIRECTORY_QUERY
+// Query: {    "items": *[      _type == "athlete" &&      ($q == "" || name match $q || _id match $q || country match $q) &&      ($profileStatus == "" || verification.profileStatus == $profileStatus) &&      ($prototypeStatus == "" || ($prototypeStatus == "real" && !defined(prototypeStatus)) || prototypeStatus == $prototypeStatus) &&      ($country == "" || country == $country) &&      (        $sourceStatus == "all" ||        ($sourceStatus == "linked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) > 0) ||        ($sourceStatus == "unlinked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) == 0)      ) &&      (        $rankingStatus == "all" ||        ($rankingStatus == "linked" && count(*[_type == "rankingSnapshot" && references(^._id)]) > 0) ||        ($rankingStatus == "unlinked" && count(*[_type == "rankingSnapshot" && references(^._id)]) == 0)      )    ] | order(name asc, _id asc)[$offset...$end]{      "canonicalId": _id,      "slug": slug.current,      name,      country,      prototypeStatus,      rankingEligible,      "externalIdentityCount": count(*[_type == "externalAthleteIdentity" && references(^._id)]),      "rankingSnapshotCount": count(*[_type == "rankingSnapshot" && references(^._id)]),      verification{        identityStatus,        profileStatus      }    },    "total": count(*[      _type == "athlete" &&      ($q == "" || name match $q || _id match $q || country match $q) &&      ($profileStatus == "" || verification.profileStatus == $profileStatus) &&      ($prototypeStatus == "" || ($prototypeStatus == "real" && !defined(prototypeStatus)) || prototypeStatus == $prototypeStatus) &&      ($country == "" || country == $country) &&      (        $sourceStatus == "all" ||        ($sourceStatus == "linked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) > 0) ||        ($sourceStatus == "unlinked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) == 0)      ) &&      (        $rankingStatus == "all" ||        ($rankingStatus == "linked" && count(*[_type == "rankingSnapshot" && references(^._id)]) > 0) ||        ($rankingStatus == "unlinked" && count(*[_type == "rankingSnapshot" && references(^._id)]) == 0)      )    ]),    "awaitingProfileReview": count(*[      _type == "athlete" && verification.profileStatus == "not-reviewed"    ]),    "sampleRecords": count(*[      _type == "athlete" && prototypeStatus == "sample-record"    ]),    "countries": array::unique(*[      _type == "athlete" && defined(country)    ].country)  }
+export type ADMIN_ATHLETE_DIRECTORY_QUERY_RESULT = {
+  items: Array<{
+    canonicalId: string;
+    slug: string;
+    name: string;
+    country:
+      | "Afghanistan"
+      | "\xC5land Islands"
+      | "Albania"
+      | "Algeria"
+      | "American Samoa"
+      | "Andorra"
+      | "Angola"
+      | "Anguilla"
+      | "Antarctica"
+      | "Antigua & Barbuda"
+      | "Argentina"
+      | "Armenia"
+      | "Aruba"
+      | "Australia"
+      | "Austria"
+      | "Azerbaijan"
+      | "Bahamas"
+      | "Bahrain"
+      | "Bangladesh"
+      | "Barbados"
+      | "Belarus"
+      | "Belgium"
+      | "Belize"
+      | "Benin"
+      | "Bermuda"
+      | "Bhutan"
+      | "Bolivia"
+      | "Bosnia & Herzegovina"
+      | "Botswana"
+      | "Bouvet Island"
+      | "Brazil"
+      | "British Indian Ocean Territory"
+      | "British Virgin Islands"
+      | "Brunei"
+      | "Bulgaria"
+      | "Burkina Faso"
+      | "Burundi"
+      | "Cambodia"
+      | "Cameroon"
+      | "Canada"
+      | "Cape Verde"
+      | "Caribbean Netherlands"
+      | "Cayman Islands"
+      | "Central African Republic"
+      | "Chad"
+      | "Chile"
+      | "China"
+      | "Christmas Island"
+      | "Cocos (Keeling) Islands"
+      | "Colombia"
+      | "Comoros"
+      | "Congo - Brazzaville"
+      | "Congo - Kinshasa"
+      | "Cook Islands"
+      | "Costa Rica"
+      | "C\xF4te d\u2019Ivoire"
+      | "Croatia"
+      | "Cuba"
+      | "Cura\xE7ao"
+      | "Cyprus"
+      | "Czechia"
+      | "Denmark"
+      | "Djibouti"
+      | "Dominica"
+      | "Dominican Republic"
+      | "Ecuador"
+      | "Egypt"
+      | "El Salvador"
+      | "Equatorial Guinea"
+      | "Eritrea"
+      | "Estonia"
+      | "Eswatini"
+      | "Ethiopia"
+      | "Falkland Islands"
+      | "Faroe Islands"
+      | "Fiji"
+      | "Finland"
+      | "France"
+      | "French Guiana"
+      | "French Polynesia"
+      | "French Southern Territories"
+      | "Gabon"
+      | "Gambia"
+      | "Georgia"
+      | "Germany"
+      | "Ghana"
+      | "Gibraltar"
+      | "Greece"
+      | "Greenland"
+      | "Grenada"
+      | "Guadeloupe"
+      | "Guam"
+      | "Guatemala"
+      | "Guernsey"
+      | "Guinea-Bissau"
+      | "Guinea"
+      | "Guyana"
+      | "Haiti"
+      | "Heard & McDonald Islands"
+      | "Honduras"
+      | "Hong Kong SAR China"
+      | "Hungary"
+      | "Iceland"
+      | "India"
+      | "Indonesia"
+      | "Iran"
+      | "Iraq"
+      | "Ireland"
+      | "Isle of Man"
+      | "Israel"
+      | "Italy"
+      | "Jamaica"
+      | "Japan"
+      | "Jersey"
+      | "Jordan"
+      | "Kazakhstan"
+      | "Kenya"
+      | "Kiribati"
+      | "Kuwait"
+      | "Kyrgyzstan"
+      | "Laos"
+      | "Latvia"
+      | "Lebanon"
+      | "Lesotho"
+      | "Liberia"
+      | "Libya"
+      | "Liechtenstein"
+      | "Lithuania"
+      | "Luxembourg"
+      | "Macao SAR China"
+      | "Madagascar"
+      | "Malawi"
+      | "Malaysia"
+      | "Maldives"
+      | "Mali"
+      | "Malta"
+      | "Marshall Islands"
+      | "Martinique"
+      | "Mauritania"
+      | "Mauritius"
+      | "Mayotte"
+      | "Mexico"
+      | "Micronesia"
+      | "Moldova"
+      | "Monaco"
+      | "Mongolia"
+      | "Montenegro"
+      | "Montserrat"
+      | "Morocco"
+      | "Mozambique"
+      | "Myanmar (Burma)"
+      | "Namibia"
+      | "Nauru"
+      | "Nepal"
+      | "Netherlands"
+      | "New Caledonia"
+      | "New Zealand"
+      | "Nicaragua"
+      | "Niger"
+      | "Nigeria"
+      | "Niue"
+      | "Norfolk Island"
+      | "North Korea"
+      | "North Macedonia"
+      | "Northern Mariana Islands"
+      | "Norway"
+      | "Oman"
+      | "Pakistan"
+      | "Palau"
+      | "Palestinian Territories"
+      | "Panama"
+      | "Papua New Guinea"
+      | "Paraguay"
+      | "Peru"
+      | "Philippines"
+      | "Pitcairn Islands"
+      | "Poland"
+      | "Portugal"
+      | "Puerto Rico"
+      | "Qatar"
+      | "R\xE9union"
+      | "Romania"
+      | "Russia"
+      | "Rwanda"
+      | "Samoa"
+      | "San Marino"
+      | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+      | "Saudi Arabia"
+      | "Senegal"
+      | "Serbia"
+      | "Seychelles"
+      | "Sierra Leone"
+      | "Singapore"
+      | "Sint Maarten"
+      | "Slovakia"
+      | "Slovenia"
+      | "Solomon Islands"
+      | "Somalia"
+      | "South Africa"
+      | "South Georgia & South Sandwich Islands"
+      | "South Korea"
+      | "South Sudan"
+      | "Spain"
+      | "Sri Lanka"
+      | "St. Barth\xE9lemy"
+      | "St. Helena"
+      | "St. Kitts & Nevis"
+      | "St. Lucia"
+      | "St. Martin"
+      | "St. Pierre & Miquelon"
+      | "St. Vincent & Grenadines"
+      | "Sudan"
+      | "Suriname"
+      | "Svalbard & Jan Mayen"
+      | "Sweden"
+      | "Switzerland"
+      | "Syria"
+      | "Taiwan"
+      | "Tajikistan"
+      | "Tanzania"
+      | "Thailand"
+      | "Timor-Leste"
+      | "Togo"
+      | "Tokelau"
+      | "Tonga"
+      | "Trinidad & Tobago"
+      | "Tunisia"
+      | "T\xFCrkiye"
+      | "Turkmenistan"
+      | "Turks & Caicos Islands"
+      | "Tuvalu"
+      | "U.S. Outlying Islands"
+      | "U.S. Virgin Islands"
+      | "Uganda"
+      | "Ukraine"
+      | "United Arab Emirates"
+      | "United Kingdom"
+      | "United States"
+      | "Uruguay"
+      | "Uzbekistan"
+      | "Vanuatu"
+      | "Vatican City"
+      | "Venezuela"
+      | "Vietnam"
+      | "Wallis & Futuna"
+      | "Western Sahara"
+      | "Yemen"
+      | "Zambia"
+      | "Zimbabwe";
+    prototypeStatus:
+      "fictional-prototype" | "not-official" | "sample-record" | null;
+    rankingEligible: boolean | null;
+    externalIdentityCount: number;
+    rankingSnapshotCount: number;
+    verification: {
+      identityStatus: "profile-control-confirmed" | "unverified";
+      profileStatus: "approved" | "not-reviewed";
+    } | null;
+  }>;
+  total: number;
+  awaitingProfileReview: number;
+  sampleRecords: number;
+  countries: Array<
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe"
+  >;
+};
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_ATHLETE_DETAIL_QUERY
+// Query: {    "athlete": *[      _type == "athlete" && (_id == $id || slug.current == $id)    ][0]{      "canonicalId": _id,      "slug": slug.current,      name,      country,      prototypeStatus,      rankingEligible,      verification{        identityStatus,        profileStatus      }    },    "identities": *[      _type == "externalAthleteIdentity" &&      (athlete._ref == $id || athlete->slug.current == $id)    ] | order(provider->name asc, providerDisplayName asc)[0...100]{      "canonicalId": _id,      providerAthleteId,      providerAthleteUrl,      providerDisplayName,      matchingStatus,      reviewStatus,      "athlete": athlete->{        "canonicalId": _id,        "slug": slug.current,        name      },      "provider": provider->{        "canonicalId": _id,        "slug": slug.current,        name,        website,        status,        disciplines,        geographicScope,        integrationMethod,        attributionRequirement,        lastReviewedAt      }    },    "rankings": *[      _type == "rankingSnapshot" &&      count(entries[athlete._ref == $id || athlete->slug.current == $id]) > 0    ] | order(rankingDate desc, _id asc)[0...100]{      "canonicalId": _id,      publicationStatus,      rankingDate,      sourcePublishedAt,      checkedAt,      season,      methodologyVersion,      "entryCount": count(entries),      "system": rankingSystem->{        "canonicalId": _id,        name,        "slug": slug.current,        status,        rankingKind,        discipline,        movement,        category,        division,        weightClass,        sexDivision,        ageGroup,        geographicScope,        methodologyVersion,        "provider": provider->{          "canonicalId": _id,          "slug": slug.current,          name,          website,          status,          disciplines,          geographicScope,          integrationMethod,          attributionRequirement,          lastReviewedAt        }      },      entries[athlete._ref == $id || athlete->slug.current == $id][0...20]{        "canonicalId": _key,        providerAthleteId,        sourceDisplayName,        position,        points,        rating,        previousPosition,        status,        athlete->{          "canonicalId": _id,          "slug": slug.current,          name        }      },      "provenance": source{        "title": sourceTitle,        "type": sourceType,        url,        externalRecordId,        publishedAt,        checkedAt,        verificationStatus      }    }  }
+export type ADMIN_ATHLETE_DETAIL_QUERY_RESULT = {
+  athlete: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    country:
+      | "Afghanistan"
+      | "\xC5land Islands"
+      | "Albania"
+      | "Algeria"
+      | "American Samoa"
+      | "Andorra"
+      | "Angola"
+      | "Anguilla"
+      | "Antarctica"
+      | "Antigua & Barbuda"
+      | "Argentina"
+      | "Armenia"
+      | "Aruba"
+      | "Australia"
+      | "Austria"
+      | "Azerbaijan"
+      | "Bahamas"
+      | "Bahrain"
+      | "Bangladesh"
+      | "Barbados"
+      | "Belarus"
+      | "Belgium"
+      | "Belize"
+      | "Benin"
+      | "Bermuda"
+      | "Bhutan"
+      | "Bolivia"
+      | "Bosnia & Herzegovina"
+      | "Botswana"
+      | "Bouvet Island"
+      | "Brazil"
+      | "British Indian Ocean Territory"
+      | "British Virgin Islands"
+      | "Brunei"
+      | "Bulgaria"
+      | "Burkina Faso"
+      | "Burundi"
+      | "Cambodia"
+      | "Cameroon"
+      | "Canada"
+      | "Cape Verde"
+      | "Caribbean Netherlands"
+      | "Cayman Islands"
+      | "Central African Republic"
+      | "Chad"
+      | "Chile"
+      | "China"
+      | "Christmas Island"
+      | "Cocos (Keeling) Islands"
+      | "Colombia"
+      | "Comoros"
+      | "Congo - Brazzaville"
+      | "Congo - Kinshasa"
+      | "Cook Islands"
+      | "Costa Rica"
+      | "C\xF4te d\u2019Ivoire"
+      | "Croatia"
+      | "Cuba"
+      | "Cura\xE7ao"
+      | "Cyprus"
+      | "Czechia"
+      | "Denmark"
+      | "Djibouti"
+      | "Dominica"
+      | "Dominican Republic"
+      | "Ecuador"
+      | "Egypt"
+      | "El Salvador"
+      | "Equatorial Guinea"
+      | "Eritrea"
+      | "Estonia"
+      | "Eswatini"
+      | "Ethiopia"
+      | "Falkland Islands"
+      | "Faroe Islands"
+      | "Fiji"
+      | "Finland"
+      | "France"
+      | "French Guiana"
+      | "French Polynesia"
+      | "French Southern Territories"
+      | "Gabon"
+      | "Gambia"
+      | "Georgia"
+      | "Germany"
+      | "Ghana"
+      | "Gibraltar"
+      | "Greece"
+      | "Greenland"
+      | "Grenada"
+      | "Guadeloupe"
+      | "Guam"
+      | "Guatemala"
+      | "Guernsey"
+      | "Guinea-Bissau"
+      | "Guinea"
+      | "Guyana"
+      | "Haiti"
+      | "Heard & McDonald Islands"
+      | "Honduras"
+      | "Hong Kong SAR China"
+      | "Hungary"
+      | "Iceland"
+      | "India"
+      | "Indonesia"
+      | "Iran"
+      | "Iraq"
+      | "Ireland"
+      | "Isle of Man"
+      | "Israel"
+      | "Italy"
+      | "Jamaica"
+      | "Japan"
+      | "Jersey"
+      | "Jordan"
+      | "Kazakhstan"
+      | "Kenya"
+      | "Kiribati"
+      | "Kuwait"
+      | "Kyrgyzstan"
+      | "Laos"
+      | "Latvia"
+      | "Lebanon"
+      | "Lesotho"
+      | "Liberia"
+      | "Libya"
+      | "Liechtenstein"
+      | "Lithuania"
+      | "Luxembourg"
+      | "Macao SAR China"
+      | "Madagascar"
+      | "Malawi"
+      | "Malaysia"
+      | "Maldives"
+      | "Mali"
+      | "Malta"
+      | "Marshall Islands"
+      | "Martinique"
+      | "Mauritania"
+      | "Mauritius"
+      | "Mayotte"
+      | "Mexico"
+      | "Micronesia"
+      | "Moldova"
+      | "Monaco"
+      | "Mongolia"
+      | "Montenegro"
+      | "Montserrat"
+      | "Morocco"
+      | "Mozambique"
+      | "Myanmar (Burma)"
+      | "Namibia"
+      | "Nauru"
+      | "Nepal"
+      | "Netherlands"
+      | "New Caledonia"
+      | "New Zealand"
+      | "Nicaragua"
+      | "Niger"
+      | "Nigeria"
+      | "Niue"
+      | "Norfolk Island"
+      | "North Korea"
+      | "North Macedonia"
+      | "Northern Mariana Islands"
+      | "Norway"
+      | "Oman"
+      | "Pakistan"
+      | "Palau"
+      | "Palestinian Territories"
+      | "Panama"
+      | "Papua New Guinea"
+      | "Paraguay"
+      | "Peru"
+      | "Philippines"
+      | "Pitcairn Islands"
+      | "Poland"
+      | "Portugal"
+      | "Puerto Rico"
+      | "Qatar"
+      | "R\xE9union"
+      | "Romania"
+      | "Russia"
+      | "Rwanda"
+      | "Samoa"
+      | "San Marino"
+      | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+      | "Saudi Arabia"
+      | "Senegal"
+      | "Serbia"
+      | "Seychelles"
+      | "Sierra Leone"
+      | "Singapore"
+      | "Sint Maarten"
+      | "Slovakia"
+      | "Slovenia"
+      | "Solomon Islands"
+      | "Somalia"
+      | "South Africa"
+      | "South Georgia & South Sandwich Islands"
+      | "South Korea"
+      | "South Sudan"
+      | "Spain"
+      | "Sri Lanka"
+      | "St. Barth\xE9lemy"
+      | "St. Helena"
+      | "St. Kitts & Nevis"
+      | "St. Lucia"
+      | "St. Martin"
+      | "St. Pierre & Miquelon"
+      | "St. Vincent & Grenadines"
+      | "Sudan"
+      | "Suriname"
+      | "Svalbard & Jan Mayen"
+      | "Sweden"
+      | "Switzerland"
+      | "Syria"
+      | "Taiwan"
+      | "Tajikistan"
+      | "Tanzania"
+      | "Thailand"
+      | "Timor-Leste"
+      | "Togo"
+      | "Tokelau"
+      | "Tonga"
+      | "Trinidad & Tobago"
+      | "Tunisia"
+      | "T\xFCrkiye"
+      | "Turkmenistan"
+      | "Turks & Caicos Islands"
+      | "Tuvalu"
+      | "U.S. Outlying Islands"
+      | "U.S. Virgin Islands"
+      | "Uganda"
+      | "Ukraine"
+      | "United Arab Emirates"
+      | "United Kingdom"
+      | "United States"
+      | "Uruguay"
+      | "Uzbekistan"
+      | "Vanuatu"
+      | "Vatican City"
+      | "Venezuela"
+      | "Vietnam"
+      | "Wallis & Futuna"
+      | "Western Sahara"
+      | "Yemen"
+      | "Zambia"
+      | "Zimbabwe";
+    prototypeStatus:
+      "fictional-prototype" | "not-official" | "sample-record" | null;
+    rankingEligible: boolean | null;
+    verification: {
+      identityStatus: "profile-control-confirmed" | "unverified";
+      profileStatus: "approved" | "not-reviewed";
+    } | null;
+  } | null;
+  identities: Array<{
+    canonicalId: string;
+    providerAthleteId: string;
+    providerAthleteUrl: string | null;
+    providerDisplayName: string;
+    matchingStatus:
+      | "candidate"
+      | "confirmed"
+      | "do-not-auto-match"
+      | "manually-linked"
+      | "rejected"
+      | "unmatched";
+    reviewStatus: "in-review" | "not-reviewed" | "reviewed";
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    } | null;
+    provider: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+      website: string | null;
+      status: "active" | "inactive" | "under-review";
+      disciplines: Array<string> | null;
+      geographicScope: string;
+      integrationMethod:
+        | "authorized-api"
+        | "editorial"
+        | "licensed-feed"
+        | "manual"
+        | "structured-import";
+      attributionRequirement: string;
+      lastReviewedAt: string | null;
+    };
+  }>;
+  rankings: Array<{
+    canonicalId: string;
+    publicationStatus: "archived" | "draft" | "published" | "superseded";
+    rankingDate: string;
+    sourcePublishedAt: string | null;
+    checkedAt: string;
+    season: string | null;
+    methodologyVersion: string | null;
+    entryCount: number;
+    system: {
+      canonicalId: string;
+      name: string;
+      slug: string;
+      status: "active" | "draft" | "inactive";
+      rankingKind:
+        | "ordinal-position"
+        | "points"
+        | "qualification-ranking"
+        | "rating"
+        | "record-leaderboard"
+        | "relative-strength"
+        | "season-standings";
+      discipline: string;
+      movement: string | null;
+      category: string | null;
+      division: string | null;
+      weightClass: string | null;
+      sexDivision: string | null;
+      ageGroup: string | null;
+      geographicScope: string;
+      methodologyVersion: string | null;
+      provider: {
+        canonicalId: string;
+        slug: string;
+        name: string;
+        website: string | null;
+        status: "active" | "inactive" | "under-review";
+        disciplines: Array<string> | null;
+        geographicScope: string;
+        integrationMethod:
+          | "authorized-api"
+          | "editorial"
+          | "licensed-feed"
+          | "manual"
+          | "structured-import";
+        attributionRequirement: string;
+        lastReviewedAt: string | null;
+      };
+    };
+    entries: Array<{
+      canonicalId: string;
+      providerAthleteId: string | null;
+      sourceDisplayName: string;
+      position: number | null;
+      points: number | null;
+      rating: number | null;
+      previousPosition: number | null;
+      status: "inactive" | "provisional" | "ranked" | "unmatched";
+      athlete: {
+        canonicalId: string;
+        slug: string;
+        name: string;
+      } | null;
+    }>;
+    provenance: {
+      title: string;
+      type:
+        | "athlete-submitted"
+        | "editor-confirmed"
+        | "official-result-sheet"
+        | "official-results-page"
+        | "organization-ranking-page"
+        | "organizer-source"
+        | "other";
+      url: string | null;
+      externalRecordId: string | null;
+      publishedAt: string | null;
+      checkedAt: string;
+      verificationStatus:
+        | "disputed"
+        | "official"
+        | "source-confirmed"
+        | "submitted"
+        | "superseded"
+        | "unverified";
+    };
+  }>;
+};
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_RANKING_PROVIDERS_QUERY
+// Query: *[_type == "rankingProvider"] | order(name asc)[0...200]{    "canonicalId": _id,    "slug": slug.current,    name,    website,    status,    disciplines,    geographicScope,    integrationMethod,    attributionRequirement,    lastReviewedAt  }
+export type ADMIN_RANKING_PROVIDERS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  slug: string;
+  name: string;
+  website: string | null;
+  status: "active" | "inactive" | "under-review";
+  disciplines: Array<string> | null;
+  geographicScope: string;
+  integrationMethod:
+    | "authorized-api"
+    | "editorial"
+    | "licensed-feed"
+    | "manual"
+    | "structured-import";
+  attributionRequirement: string;
+  lastReviewedAt: string | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_RANKING_SYSTEMS_QUERY
+// Query: *[_type == "rankingSystem"] | order(name asc)[0...500]{    "canonicalId": _id,    name,    "slug": slug.current,    status,    rankingKind,    discipline,    movement,    category,    division,    weightClass,    sexDivision,    ageGroup,    geographicScope,    methodologyVersion,    "provider": provider->{      "canonicalId": _id,      "slug": slug.current,      name,      website,      status,      disciplines,      geographicScope,      integrationMethod,      attributionRequirement,      lastReviewedAt    }  }
+export type ADMIN_RANKING_SYSTEMS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  name: string;
+  slug: string;
+  status: "active" | "draft" | "inactive";
+  rankingKind:
+    | "ordinal-position"
+    | "points"
+    | "qualification-ranking"
+    | "rating"
+    | "record-leaderboard"
+    | "relative-strength"
+    | "season-standings";
+  discipline: string;
+  movement: string | null;
+  category: string | null;
+  division: string | null;
+  weightClass: string | null;
+  sexDivision: string | null;
+  ageGroup: string | null;
+  geographicScope: string;
+  methodologyVersion: string | null;
+  provider: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    website: string | null;
+    status: "active" | "inactive" | "under-review";
+    disciplines: Array<string> | null;
+    geographicScope: string;
+    integrationMethod:
+      | "authorized-api"
+      | "editorial"
+      | "licensed-feed"
+      | "manual"
+      | "structured-import";
+    attributionRequirement: string;
+    lastReviewedAt: string | null;
+  };
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_ATHLETE_RANKING_SNAPSHOTS_QUERY
+// Query: *[_type == "rankingSnapshot"] | order(rankingDate desc)[0...500]{    "canonicalId": _id,    publicationStatus,    rankingDate,    sourcePublishedAt,    checkedAt,    season,    methodologyVersion,    "system": rankingSystem->{      "canonicalId": _id,      name,      "slug": slug.current,      status,      rankingKind,      discipline,      movement,      category,      division,      weightClass,      sexDivision,      ageGroup,      geographicScope,      methodologyVersion,      "provider": provider->{        "canonicalId": _id,        "slug": slug.current,        name,        website,        status,        disciplines,        geographicScope,        integrationMethod,        attributionRequirement,        lastReviewedAt      }    },    entries[0...1000]{      "canonicalId": _key,      providerAthleteId,      sourceDisplayName,      position,      points,      rating,      previousPosition,      status,      athlete->{        "canonicalId": _id,        "slug": slug.current,        name      }    },    "provenance": source{      "title": sourceTitle,      "type": sourceType,      url,      externalRecordId,      publishedAt,      checkedAt,      verificationStatus,      "provider": provider->{        "canonicalId": _id,        name      }    }  }
+export type ADMIN_ATHLETE_RANKING_SNAPSHOTS_QUERY_RESULT = Array<{
+  canonicalId: string;
+  publicationStatus: "archived" | "draft" | "published" | "superseded";
+  rankingDate: string;
+  sourcePublishedAt: string | null;
+  checkedAt: string;
+  season: string | null;
+  methodologyVersion: string | null;
+  system: {
+    canonicalId: string;
+    name: string;
+    slug: string;
+    status: "active" | "draft" | "inactive";
+    rankingKind:
+      | "ordinal-position"
+      | "points"
+      | "qualification-ranking"
+      | "rating"
+      | "record-leaderboard"
+      | "relative-strength"
+      | "season-standings";
+    discipline: string;
+    movement: string | null;
+    category: string | null;
+    division: string | null;
+    weightClass: string | null;
+    sexDivision: string | null;
+    ageGroup: string | null;
+    geographicScope: string;
+    methodologyVersion: string | null;
+    provider: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+      website: string | null;
+      status: "active" | "inactive" | "under-review";
+      disciplines: Array<string> | null;
+      geographicScope: string;
+      integrationMethod:
+        | "authorized-api"
+        | "editorial"
+        | "licensed-feed"
+        | "manual"
+        | "structured-import";
+      attributionRequirement: string;
+      lastReviewedAt: string | null;
+    };
+  };
+  entries: Array<{
+    canonicalId: string;
+    providerAthleteId: string | null;
+    sourceDisplayName: string;
+    position: number | null;
+    points: number | null;
+    rating: number | null;
+    previousPosition: number | null;
+    status: "inactive" | "provisional" | "ranked" | "unmatched";
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    } | null;
+  }>;
+  provenance: {
+    title: string;
+    type:
+      | "athlete-submitted"
+      | "editor-confirmed"
+      | "official-result-sheet"
+      | "official-results-page"
+      | "organization-ranking-page"
+      | "organizer-source"
+      | "other";
+    url: string | null;
+    externalRecordId: string | null;
+    publishedAt: string | null;
+    checkedAt: string;
+    verificationStatus:
+      | "disputed"
+      | "official"
+      | "source-confirmed"
+      | "submitted"
+      | "superseded"
+      | "unverified";
+    provider: {
+      canonicalId: string;
+      name: string;
+    } | null;
+  };
+}>;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_RANKING_OVERVIEW_QUERY
+// Query: {    "canonicalAthletes": count(*[_type == "athlete"]),    "rankingLinkedAthletes": count(array::unique(      *[_type == "rankingSnapshot"].entries[defined(athlete._ref)].athlete._ref    )),    "snapshots": count(*[_type == "rankingSnapshot"]),    "draftSnapshots": count(*[      _type == "rankingSnapshot" && publicationStatus == "draft"    ]),    "draftSystems": count(*[      _type == "rankingSystem" && status == "draft"    ]),    "providersUnderReview": count(*[      _type == "rankingProvider" && status == "under-review"    ]),    "candidateIdentities": count(*[      _type == "externalAthleteIdentity" && matchingStatus == "candidate"    ])  }
+export type ADMIN_RANKING_OVERVIEW_QUERY_RESULT = {
+  canonicalAthletes: number;
+  rankingLinkedAthletes: number;
+  snapshots: number;
+  draftSnapshots: number;
+  draftSystems: number;
+  providersUnderReview: number;
+  candidateIdentities: number;
+};
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_RANKING_SNAPSHOT_DIRECTORY_QUERY
+// Query: {    "items": *[      _type == "rankingSnapshot" &&      ($q == "" || _id match $q || rankingSystem->name match $q || rankingSystem->provider->name match $q) &&      ($status == "" || publicationStatus == $status) &&      ($providerId == "" || rankingSystem->provider._ref == $providerId)    ] | order(rankingDate desc, _id asc)[$offset...$end]{      "canonicalId": _id,      publicationStatus,      rankingDate,      sourcePublishedAt,      checkedAt,      season,      methodologyVersion,      "entryCount": count(entries),      "system": rankingSystem->{        "canonicalId": _id,        name,        "slug": slug.current,        status,        rankingKind,        discipline,        movement,        category,        division,        weightClass,        sexDivision,        ageGroup,        geographicScope,        methodologyVersion,        "provider": provider->{          "canonicalId": _id,          "slug": slug.current,          name,          website,          status,          disciplines,          geographicScope,          integrationMethod,          attributionRequirement,          lastReviewedAt        }      },      entries[0...12]{        "canonicalId": _key,        providerAthleteId,        sourceDisplayName,        position,        points,        rating,        previousPosition,        status,        athlete->{          "canonicalId": _id,          "slug": slug.current,          name        }      },      "provenance": source{        "title": sourceTitle,        "type": sourceType,        url,        externalRecordId,        publishedAt,        checkedAt,        verificationStatus      }    },    "total": count(*[      _type == "rankingSnapshot" &&      ($q == "" || _id match $q || rankingSystem->name match $q || rankingSystem->provider->name match $q) &&      ($status == "" || publicationStatus == $status) &&      ($providerId == "" || rankingSystem->provider._ref == $providerId)    ])  }
+export type ADMIN_RANKING_SNAPSHOT_DIRECTORY_QUERY_RESULT = {
+  items: Array<{
+    canonicalId: string;
+    publicationStatus: "archived" | "draft" | "published" | "superseded";
+    rankingDate: string;
+    sourcePublishedAt: string | null;
+    checkedAt: string;
+    season: string | null;
+    methodologyVersion: string | null;
+    entryCount: number;
+    system: {
+      canonicalId: string;
+      name: string;
+      slug: string;
+      status: "active" | "draft" | "inactive";
+      rankingKind:
+        | "ordinal-position"
+        | "points"
+        | "qualification-ranking"
+        | "rating"
+        | "record-leaderboard"
+        | "relative-strength"
+        | "season-standings";
+      discipline: string;
+      movement: string | null;
+      category: string | null;
+      division: string | null;
+      weightClass: string | null;
+      sexDivision: string | null;
+      ageGroup: string | null;
+      geographicScope: string;
+      methodologyVersion: string | null;
+      provider: {
+        canonicalId: string;
+        slug: string;
+        name: string;
+        website: string | null;
+        status: "active" | "inactive" | "under-review";
+        disciplines: Array<string> | null;
+        geographicScope: string;
+        integrationMethod:
+          | "authorized-api"
+          | "editorial"
+          | "licensed-feed"
+          | "manual"
+          | "structured-import";
+        attributionRequirement: string;
+        lastReviewedAt: string | null;
+      };
+    };
+    entries: Array<{
+      canonicalId: string;
+      providerAthleteId: string | null;
+      sourceDisplayName: string;
+      position: number | null;
+      points: number | null;
+      rating: number | null;
+      previousPosition: number | null;
+      status: "inactive" | "provisional" | "ranked" | "unmatched";
+      athlete: {
+        canonicalId: string;
+        slug: string;
+        name: string;
+      } | null;
+    }>;
+    provenance: {
+      title: string;
+      type:
+        | "athlete-submitted"
+        | "editor-confirmed"
+        | "official-result-sheet"
+        | "official-results-page"
+        | "organization-ranking-page"
+        | "organizer-source"
+        | "other";
+      url: string | null;
+      externalRecordId: string | null;
+      publishedAt: string | null;
+      checkedAt: string;
+      verificationStatus:
+        | "disputed"
+        | "official"
+        | "source-confirmed"
+        | "submitted"
+        | "superseded"
+        | "unverified";
+    };
+  }>;
+  total: number;
+};
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_RANKING_SNAPSHOT_DETAIL_QUERY
+// Query: *[_type == "rankingSnapshot" && _id == $id][0]{    "canonicalId": _id,    publicationStatus,    rankingDate,    sourcePublishedAt,    checkedAt,    season,    methodologyVersion,    "entryCount": count(entries),    "system": rankingSystem->{      "canonicalId": _id,      name,      "slug": slug.current,      status,      rankingKind,      discipline,      movement,      category,      division,      weightClass,      sexDivision,      ageGroup,      geographicScope,      methodologyVersion,      "provider": provider->{        "canonicalId": _id,        "slug": slug.current,        name,        website,        status,        disciplines,        geographicScope,        integrationMethod,        attributionRequirement,        lastReviewedAt      }    },    entries[0...1000]{      "canonicalId": _key,      providerAthleteId,      sourceDisplayName,      position,      points,      rating,      previousPosition,      status,      athlete->{        "canonicalId": _id,        "slug": slug.current,        name      }    },    "provenance": source{      "title": sourceTitle,      "type": sourceType,      url,      externalRecordId,      publishedAt,      checkedAt,      verificationStatus    }  }
+export type ADMIN_RANKING_SNAPSHOT_DETAIL_QUERY_RESULT = {
+  canonicalId: string;
+  publicationStatus: "archived" | "draft" | "published" | "superseded";
+  rankingDate: string;
+  sourcePublishedAt: string | null;
+  checkedAt: string;
+  season: string | null;
+  methodologyVersion: string | null;
+  entryCount: number;
+  system: {
+    canonicalId: string;
+    name: string;
+    slug: string;
+    status: "active" | "draft" | "inactive";
+    rankingKind:
+      | "ordinal-position"
+      | "points"
+      | "qualification-ranking"
+      | "rating"
+      | "record-leaderboard"
+      | "relative-strength"
+      | "season-standings";
+    discipline: string;
+    movement: string | null;
+    category: string | null;
+    division: string | null;
+    weightClass: string | null;
+    sexDivision: string | null;
+    ageGroup: string | null;
+    geographicScope: string;
+    methodologyVersion: string | null;
+    provider: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+      website: string | null;
+      status: "active" | "inactive" | "under-review";
+      disciplines: Array<string> | null;
+      geographicScope: string;
+      integrationMethod:
+        | "authorized-api"
+        | "editorial"
+        | "licensed-feed"
+        | "manual"
+        | "structured-import";
+      attributionRequirement: string;
+      lastReviewedAt: string | null;
+    };
+  };
+  entries: Array<{
+    canonicalId: string;
+    providerAthleteId: string | null;
+    sourceDisplayName: string;
+    position: number | null;
+    points: number | null;
+    rating: number | null;
+    previousPosition: number | null;
+    status: "inactive" | "provisional" | "ranked" | "unmatched";
+    athlete: {
+      canonicalId: string;
+      slug: string;
+      name: string;
+    } | null;
+  }>;
+  provenance: {
+    title: string;
+    type:
+      | "athlete-submitted"
+      | "editor-confirmed"
+      | "official-result-sheet"
+      | "official-results-page"
+      | "organization-ranking-page"
+      | "organizer-source"
+      | "other";
+    url: string | null;
+    externalRecordId: string | null;
+    publishedAt: string | null;
+    checkedAt: string;
+    verificationStatus:
+      | "disputed"
+      | "official"
+      | "source-confirmed"
+      | "submitted"
+      | "superseded"
+      | "unverified";
+  };
+} | null;
+
+// Source: sanity/queries.ts
+// Variable: ADMIN_EXTERNAL_ATHLETE_IDENTITIES_QUERY
+// Query: *[_type == "externalAthleteIdentity"] | order(providerDisplayName asc)[0...2000]{    "canonicalId": _id,    providerAthleteId,    providerAthleteUrl,    providerDisplayName,    matchingStatus,    reviewStatus,    athlete->{      "canonicalId": _id,      "slug": slug.current,      name    },    "provider": provider->{      "canonicalId": _id,      "slug": slug.current,      name,      website,      status,      disciplines,      geographicScope,      integrationMethod,      attributionRequirement,      lastReviewedAt    }  }
+export type ADMIN_EXTERNAL_ATHLETE_IDENTITIES_QUERY_RESULT = Array<{
+  canonicalId: string;
+  providerAthleteId: string;
+  providerAthleteUrl: string | null;
+  providerDisplayName: string;
+  matchingStatus:
+    | "candidate"
+    | "confirmed"
+    | "do-not-auto-match"
+    | "manually-linked"
+    | "rejected"
+    | "unmatched";
+  reviewStatus: "in-review" | "not-reviewed" | "reviewed";
+  athlete: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+  } | null;
+  provider: {
+    canonicalId: string;
+    slug: string;
+    name: string;
+    website: string | null;
+    status: "active" | "inactive" | "under-review";
+    disciplines: Array<string> | null;
+    geographicScope: string;
+    integrationMethod:
+      | "authorized-api"
+      | "editorial"
+      | "licensed-feed"
+      | "manual"
+      | "structured-import";
+    attributionRequirement: string;
+    lastReviewedAt: string | null;
+  };
+}>;
+
+// Source: sanity/queries.ts
 // Variable: HOMEPAGE_QUERY
-// Query: {    "settings": *[      _id == "siteSettings"    ][0]{      homepageHeroEyebrow,      homepageHeroTitle,      homepageHeroBody    },    "featuredStory": coalesce(      *[        _type == "story" &&        _id == *[_id == "siteSettings"][0].featuredStory._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "story" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "story" &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "stories": *[      _type == "story" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...4]{      "slug": slug.current,      title,      excerpt,      category,      publishedAt,      readTimeMinutes,      location,      heroVisualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "athlete": coalesce(      *[        _type == "athlete" &&        _id == *[_id == "siteSettings"][0].featuredAthlete._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "athlete" &&        featured == true &&        defined(slug.current)      ] | order(profileNumber asc)[0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "athlete" &&        defined(slug.current)      ] | order(name asc)[0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "featuredCompetition": *[      _type == "competition" &&      _id == *[_id == "siteSettings"][0].featuredCompetition._ref &&      defined(slug.current)    ][0]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "competitions": *[      _type == "competition" &&      status == "upcoming" &&      defined(slug.current)    ] | order(startDate asc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "featuredVideo": coalesce(      *[        _type == "video" &&        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "video" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "videos": *[      _type == "video" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...4]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "rankingCategory": coalesce(      *[        _type == "rankingCategory" &&        _id == *[_id == "siteSettings"][0].featuredRankingCategory._ref &&        status == "published" &&        methodologyStatus == "approved" &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        subtitle,        discipline,        division,        region,        scope,        status,        methodologyStatus,        seasonLabel,        seasonStart,        seasonEnd,        updatedAt,        description,        displayOrder,        methodologyNote,        prototypeStatus,        entries[0...12]{          rank,          "athleteSlug": athlete->slug.current,          "athleteName": athlete->name,          "athleteRegion": athlete->region,          points,          movementDirection,          movementAmount,          movementLabel,          status,          sources[]{            "competitionSlug": competition->slug.current,            "competitionName": competition->name,            resultKey,            sourceName,            sourceUrl,            verificationStatus          }        }      },      *[        _type == "rankingCategory" &&        status == "published" &&        methodologyStatus == "approved" &&        defined(slug.current)      ] | order(displayOrder asc)[0]{        "slug": slug.current,        title,        subtitle,        discipline,        division,        region,        scope,        status,        methodologyStatus,        seasonLabel,        seasonStart,        seasonEnd,        updatedAt,        description,        displayOrder,        methodologyNote,        prototypeStatus,        entries[0...12]{          rank,          "athleteSlug": athlete->slug.current,          "athleteName": athlete->name,          "athleteRegion": athlete->region,          points,          movementDirection,          movementAmount,          movementLabel,          status,          sources[]{            "competitionSlug": competition->slug.current,            "competitionName": competition->name,            resultKey,            sourceName,            sourceUrl,            verificationStatus          }        }      }    )  }
+// Query: {    "settings": *[      _id == "siteSettings"    ][0]{      homepageHeroEyebrow,      homepageHeroTitle,      homepageHeroBody    },    "featuredStory": coalesce(      *[        _type == "story" &&        _id == *[_id == "siteSettings"][0].featuredStory._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "story" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "story" &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        excerpt,        category,        publishedAt,        readTimeMinutes,        location,        heroVisualVariant,        heroImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "stories": *[      _type == "story" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...4]{      "slug": slug.current,      title,      excerpt,      category,      publishedAt,      readTimeMinutes,      location,      heroVisualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "athlete": coalesce(      *[        _type == "athlete" &&        _id == *[_id == "siteSettings"][0].featuredAthlete._ref &&        defined(slug.current) &&        (          verification.profileStatus == "approved" ||          prototypeStatus in ["fictional-prototype", "sample-record"]        )      ][0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "athlete" &&        featured == true &&        defined(slug.current) &&        (          verification.profileStatus == "approved" ||          prototypeStatus in ["fictional-prototype", "sample-record"]        )      ] | order(profileNumber asc)[0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "athlete" &&        defined(slug.current) &&        (          verification.profileStatus == "approved" ||          prototypeStatus in ["fictional-prototype", "sample-record"]        )      ] | order(name asc)[0]{        "slug": slug.current,        name,        initials,        profileNumber,        profileStatus,        city,        state,        country,        region,        primaryDiscipline,        secondaryDisciplines,        shortBio,        quote,        trainingBase,        yearsActive,        styleLabel,        featured,        rankingEligible,        visualVariant,        disciplineCode,        profileImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "featuredCompetition": *[      _type == "competition" &&      _id == *[_id == "siteSettings"][0].featuredCompetition._ref &&      defined(slug.current) &&      (        (          publicStatus == "published" &&          (            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))          )        ) ||        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])      )    ][0]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "competitions": *[      _type == "competition" &&      status == "upcoming" &&      defined(slug.current) &&      (        (          publicStatus == "published" &&          (            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))          )        ) ||        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])      )    ] | order(startDate asc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "featuredVideo": coalesce(      *[        _type == "video" &&        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        origin,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "video" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        origin,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    ),    "videos": *[      _type == "video" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...4]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "rankingCategory": coalesce(      *[        _type == "rankingCategory" &&        _id == *[_id == "siteSettings"][0].featuredRankingCategory._ref &&        status == "published" &&        methodologyStatus == "approved" &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        subtitle,        discipline,        division,        region,        scope,        status,        methodologyStatus,        seasonLabel,        seasonStart,        seasonEnd,        updatedAt,        description,        displayOrder,        methodologyNote,        prototypeStatus,        entries[          athlete->verification.profileStatus == "approved" ||          athlete->prototypeStatus in ["fictional-prototype", "sample-record"]        ][0...12]{          rank,          "athleteSlug": athlete->slug.current,          "athleteName": athlete->name,          "athleteRegion": athlete->region,          points,          movementDirection,          movementAmount,          movementLabel,          status,          sources[            !defined(competition._ref) ||            (              (                competition->publicStatus == "published" &&                (                  coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||                  (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))                )              ) ||              (                !defined(competition->publicStatus) &&                coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]              )            )          ]{            "competitionSlug": competition->slug.current,            "competitionName": competition->name,            resultKey,            sourceName,            sourceUrl,            verificationStatus          }        }      },      *[        _type == "rankingCategory" &&        status == "published" &&        methodologyStatus == "approved" &&        defined(slug.current)      ] | order(displayOrder asc)[0]{        "slug": slug.current,        title,        subtitle,        discipline,        division,        region,        scope,        status,        methodologyStatus,        seasonLabel,        seasonStart,        seasonEnd,        updatedAt,        description,        displayOrder,        methodologyNote,        prototypeStatus,        entries[          athlete->verification.profileStatus == "approved" ||          athlete->prototypeStatus in ["fictional-prototype", "sample-record"]        ][0...12]{          rank,          "athleteSlug": athlete->slug.current,          "athleteName": athlete->name,          "athleteRegion": athlete->region,          points,          movementDirection,          movementAmount,          movementLabel,          status,          sources[            !defined(competition._ref) ||            (              (                competition->publicStatus == "published" &&                (                  coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||                  (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))                )              ) ||              (                !defined(competition->publicStatus) &&                coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]              )            )          ]{            "competitionSlug": competition->slug.current,            "competitionName": competition->name,            resultKey,            sourceName,            sourceUrl,            verificationStatus          }        }      }    )  }
 export type HOMEPAGE_QUERY_RESULT = {
   settings:
     | {
@@ -2580,644 +6892,328 @@ export type HOMEPAGE_QUERY_RESULT = {
       decorative: boolean | null;
     } | null;
   }>;
-  athlete:
-    | {
-        slug: string;
-        name: string;
-        initials: string;
-        profileNumber: string;
-        profileStatus: string;
-        city: string | null;
-        state: string | null;
-        country:
-          | "Afghanistan"
-          | "\xC5land Islands"
-          | "Albania"
-          | "Algeria"
-          | "American Samoa"
-          | "Andorra"
-          | "Angola"
-          | "Anguilla"
-          | "Antarctica"
-          | "Antigua & Barbuda"
-          | "Argentina"
-          | "Armenia"
-          | "Aruba"
-          | "Australia"
-          | "Austria"
-          | "Azerbaijan"
-          | "Bahamas"
-          | "Bahrain"
-          | "Bangladesh"
-          | "Barbados"
-          | "Belarus"
-          | "Belgium"
-          | "Belize"
-          | "Benin"
-          | "Bermuda"
-          | "Bhutan"
-          | "Bolivia"
-          | "Bosnia & Herzegovina"
-          | "Botswana"
-          | "Bouvet Island"
-          | "Brazil"
-          | "British Indian Ocean Territory"
-          | "British Virgin Islands"
-          | "Brunei"
-          | "Bulgaria"
-          | "Burkina Faso"
-          | "Burundi"
-          | "Cambodia"
-          | "Cameroon"
-          | "Canada"
-          | "Cape Verde"
-          | "Caribbean Netherlands"
-          | "Cayman Islands"
-          | "Central African Republic"
-          | "Chad"
-          | "Chile"
-          | "China"
-          | "Christmas Island"
-          | "Cocos (Keeling) Islands"
-          | "Colombia"
-          | "Comoros"
-          | "Congo - Brazzaville"
-          | "Congo - Kinshasa"
-          | "Cook Islands"
-          | "Costa Rica"
-          | "C\xF4te d\u2019Ivoire"
-          | "Croatia"
-          | "Cuba"
-          | "Cura\xE7ao"
-          | "Cyprus"
-          | "Czechia"
-          | "Denmark"
-          | "Djibouti"
-          | "Dominica"
-          | "Dominican Republic"
-          | "Ecuador"
-          | "Egypt"
-          | "El Salvador"
-          | "Equatorial Guinea"
-          | "Eritrea"
-          | "Estonia"
-          | "Eswatini"
-          | "Ethiopia"
-          | "Falkland Islands"
-          | "Faroe Islands"
-          | "Fiji"
-          | "Finland"
-          | "France"
-          | "French Guiana"
-          | "French Polynesia"
-          | "French Southern Territories"
-          | "Gabon"
-          | "Gambia"
-          | "Georgia"
-          | "Germany"
-          | "Ghana"
-          | "Gibraltar"
-          | "Greece"
-          | "Greenland"
-          | "Grenada"
-          | "Guadeloupe"
-          | "Guam"
-          | "Guatemala"
-          | "Guernsey"
-          | "Guinea-Bissau"
-          | "Guinea"
-          | "Guyana"
-          | "Haiti"
-          | "Heard & McDonald Islands"
-          | "Honduras"
-          | "Hong Kong SAR China"
-          | "Hungary"
-          | "Iceland"
-          | "India"
-          | "Indonesia"
-          | "Iran"
-          | "Iraq"
-          | "Ireland"
-          | "Isle of Man"
-          | "Israel"
-          | "Italy"
-          | "Jamaica"
-          | "Japan"
-          | "Jersey"
-          | "Jordan"
-          | "Kazakhstan"
-          | "Kenya"
-          | "Kiribati"
-          | "Kuwait"
-          | "Kyrgyzstan"
-          | "Laos"
-          | "Latvia"
-          | "Lebanon"
-          | "Lesotho"
-          | "Liberia"
-          | "Libya"
-          | "Liechtenstein"
-          | "Lithuania"
-          | "Luxembourg"
-          | "Macao SAR China"
-          | "Madagascar"
-          | "Malawi"
-          | "Malaysia"
-          | "Maldives"
-          | "Mali"
-          | "Malta"
-          | "Marshall Islands"
-          | "Martinique"
-          | "Mauritania"
-          | "Mauritius"
-          | "Mayotte"
-          | "Mexico"
-          | "Micronesia"
-          | "Moldova"
-          | "Monaco"
-          | "Mongolia"
-          | "Montenegro"
-          | "Montserrat"
-          | "Morocco"
-          | "Mozambique"
-          | "Myanmar (Burma)"
-          | "Namibia"
-          | "Nauru"
-          | "Nepal"
-          | "Netherlands"
-          | "New Caledonia"
-          | "New Zealand"
-          | "Nicaragua"
-          | "Niger"
-          | "Nigeria"
-          | "Niue"
-          | "Norfolk Island"
-          | "North Korea"
-          | "North Macedonia"
-          | "Northern Mariana Islands"
-          | "Norway"
-          | "Oman"
-          | "Pakistan"
-          | "Palau"
-          | "Palestinian Territories"
-          | "Panama"
-          | "Papua New Guinea"
-          | "Paraguay"
-          | "Peru"
-          | "Philippines"
-          | "Pitcairn Islands"
-          | "Poland"
-          | "Portugal"
-          | "Puerto Rico"
-          | "Qatar"
-          | "R\xE9union"
-          | "Romania"
-          | "Russia"
-          | "Rwanda"
-          | "Samoa"
-          | "San Marino"
-          | "S\xE3o Tom\xE9 & Pr\xEDncipe"
-          | "Saudi Arabia"
-          | "Senegal"
-          | "Serbia"
-          | "Seychelles"
-          | "Sierra Leone"
-          | "Singapore"
-          | "Sint Maarten"
-          | "Slovakia"
-          | "Slovenia"
-          | "Solomon Islands"
-          | "Somalia"
-          | "South Africa"
-          | "South Georgia & South Sandwich Islands"
-          | "South Korea"
-          | "South Sudan"
-          | "Spain"
-          | "Sri Lanka"
-          | "St. Barth\xE9lemy"
-          | "St. Helena"
-          | "St. Kitts & Nevis"
-          | "St. Lucia"
-          | "St. Martin"
-          | "St. Pierre & Miquelon"
-          | "St. Vincent & Grenadines"
-          | "Sudan"
-          | "Suriname"
-          | "Svalbard & Jan Mayen"
-          | "Sweden"
-          | "Switzerland"
-          | "Syria"
-          | "Taiwan"
-          | "Tajikistan"
-          | "Tanzania"
-          | "Thailand"
-          | "Timor-Leste"
-          | "Togo"
-          | "Tokelau"
-          | "Tonga"
-          | "Trinidad & Tobago"
-          | "Tunisia"
-          | "T\xFCrkiye"
-          | "Turkmenistan"
-          | "Turks & Caicos Islands"
-          | "Tuvalu"
-          | "U.S. Outlying Islands"
-          | "U.S. Virgin Islands"
-          | "Uganda"
-          | "Ukraine"
-          | "United Arab Emirates"
-          | "United Kingdom"
-          | "United States"
-          | "Uruguay"
-          | "Uzbekistan"
-          | "Vanuatu"
-          | "Vatican City"
-          | "Venezuela"
-          | "Vietnam"
-          | "Wallis & Futuna"
-          | "Western Sahara"
-          | "Yemen"
-          | "Zambia"
-          | "Zimbabwe";
-        region: string | null;
-        primaryDiscipline:
-          | "Dynamic freestyle"
-          | "Endurance"
-          | "Freestyle"
-          | "Hand balancing"
-          | "Static strength"
-          | "Strength";
-        secondaryDisciplines: Array<
-          | "Dynamic freestyle"
-          | "Endurance"
-          | "Freestyle"
-          | "Hand balancing"
-          | "Static strength"
-          | "Strength"
-        > | null;
-        shortBio: string | null;
-        quote: string | null;
-        trainingBase: string | null;
-        yearsActive: string | null;
-        styleLabel: string | null;
-        featured: true;
-        rankingEligible: boolean | null;
-        visualVariant: "frame" | "motion" | "signal";
-        disciplineCode: string | null;
-        profileImage: {
-          asset: {
-            _id: string;
-            _ref: string;
-            url: string;
-            metadata: {
-              dimensions: {
-                width: number;
-                height: number;
-                aspectRatio: number;
-              } | null;
-              lqip: string | null;
-            } | null;
-          } | null;
-          crop: {
-            top: number;
-            bottom: number;
-            left: number;
-            right: number;
-          } | null;
-          hotspot: {
-            x: number;
-            y: number;
+  athlete: {
+    slug: string;
+    name: string;
+    initials: string;
+    profileNumber: string;
+    profileStatus: string;
+    city: string | null;
+    state: string | null;
+    country:
+      | "Afghanistan"
+      | "\xC5land Islands"
+      | "Albania"
+      | "Algeria"
+      | "American Samoa"
+      | "Andorra"
+      | "Angola"
+      | "Anguilla"
+      | "Antarctica"
+      | "Antigua & Barbuda"
+      | "Argentina"
+      | "Armenia"
+      | "Aruba"
+      | "Australia"
+      | "Austria"
+      | "Azerbaijan"
+      | "Bahamas"
+      | "Bahrain"
+      | "Bangladesh"
+      | "Barbados"
+      | "Belarus"
+      | "Belgium"
+      | "Belize"
+      | "Benin"
+      | "Bermuda"
+      | "Bhutan"
+      | "Bolivia"
+      | "Bosnia & Herzegovina"
+      | "Botswana"
+      | "Bouvet Island"
+      | "Brazil"
+      | "British Indian Ocean Territory"
+      | "British Virgin Islands"
+      | "Brunei"
+      | "Bulgaria"
+      | "Burkina Faso"
+      | "Burundi"
+      | "Cambodia"
+      | "Cameroon"
+      | "Canada"
+      | "Cape Verde"
+      | "Caribbean Netherlands"
+      | "Cayman Islands"
+      | "Central African Republic"
+      | "Chad"
+      | "Chile"
+      | "China"
+      | "Christmas Island"
+      | "Cocos (Keeling) Islands"
+      | "Colombia"
+      | "Comoros"
+      | "Congo - Brazzaville"
+      | "Congo - Kinshasa"
+      | "Cook Islands"
+      | "Costa Rica"
+      | "C\xF4te d\u2019Ivoire"
+      | "Croatia"
+      | "Cuba"
+      | "Cura\xE7ao"
+      | "Cyprus"
+      | "Czechia"
+      | "Denmark"
+      | "Djibouti"
+      | "Dominica"
+      | "Dominican Republic"
+      | "Ecuador"
+      | "Egypt"
+      | "El Salvador"
+      | "Equatorial Guinea"
+      | "Eritrea"
+      | "Estonia"
+      | "Eswatini"
+      | "Ethiopia"
+      | "Falkland Islands"
+      | "Faroe Islands"
+      | "Fiji"
+      | "Finland"
+      | "France"
+      | "French Guiana"
+      | "French Polynesia"
+      | "French Southern Territories"
+      | "Gabon"
+      | "Gambia"
+      | "Georgia"
+      | "Germany"
+      | "Ghana"
+      | "Gibraltar"
+      | "Greece"
+      | "Greenland"
+      | "Grenada"
+      | "Guadeloupe"
+      | "Guam"
+      | "Guatemala"
+      | "Guernsey"
+      | "Guinea-Bissau"
+      | "Guinea"
+      | "Guyana"
+      | "Haiti"
+      | "Heard & McDonald Islands"
+      | "Honduras"
+      | "Hong Kong SAR China"
+      | "Hungary"
+      | "Iceland"
+      | "India"
+      | "Indonesia"
+      | "Iran"
+      | "Iraq"
+      | "Ireland"
+      | "Isle of Man"
+      | "Israel"
+      | "Italy"
+      | "Jamaica"
+      | "Japan"
+      | "Jersey"
+      | "Jordan"
+      | "Kazakhstan"
+      | "Kenya"
+      | "Kiribati"
+      | "Kuwait"
+      | "Kyrgyzstan"
+      | "Laos"
+      | "Latvia"
+      | "Lebanon"
+      | "Lesotho"
+      | "Liberia"
+      | "Libya"
+      | "Liechtenstein"
+      | "Lithuania"
+      | "Luxembourg"
+      | "Macao SAR China"
+      | "Madagascar"
+      | "Malawi"
+      | "Malaysia"
+      | "Maldives"
+      | "Mali"
+      | "Malta"
+      | "Marshall Islands"
+      | "Martinique"
+      | "Mauritania"
+      | "Mauritius"
+      | "Mayotte"
+      | "Mexico"
+      | "Micronesia"
+      | "Moldova"
+      | "Monaco"
+      | "Mongolia"
+      | "Montenegro"
+      | "Montserrat"
+      | "Morocco"
+      | "Mozambique"
+      | "Myanmar (Burma)"
+      | "Namibia"
+      | "Nauru"
+      | "Nepal"
+      | "Netherlands"
+      | "New Caledonia"
+      | "New Zealand"
+      | "Nicaragua"
+      | "Niger"
+      | "Nigeria"
+      | "Niue"
+      | "Norfolk Island"
+      | "North Korea"
+      | "North Macedonia"
+      | "Northern Mariana Islands"
+      | "Norway"
+      | "Oman"
+      | "Pakistan"
+      | "Palau"
+      | "Palestinian Territories"
+      | "Panama"
+      | "Papua New Guinea"
+      | "Paraguay"
+      | "Peru"
+      | "Philippines"
+      | "Pitcairn Islands"
+      | "Poland"
+      | "Portugal"
+      | "Puerto Rico"
+      | "Qatar"
+      | "R\xE9union"
+      | "Romania"
+      | "Russia"
+      | "Rwanda"
+      | "Samoa"
+      | "San Marino"
+      | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+      | "Saudi Arabia"
+      | "Senegal"
+      | "Serbia"
+      | "Seychelles"
+      | "Sierra Leone"
+      | "Singapore"
+      | "Sint Maarten"
+      | "Slovakia"
+      | "Slovenia"
+      | "Solomon Islands"
+      | "Somalia"
+      | "South Africa"
+      | "South Georgia & South Sandwich Islands"
+      | "South Korea"
+      | "South Sudan"
+      | "Spain"
+      | "Sri Lanka"
+      | "St. Barth\xE9lemy"
+      | "St. Helena"
+      | "St. Kitts & Nevis"
+      | "St. Lucia"
+      | "St. Martin"
+      | "St. Pierre & Miquelon"
+      | "St. Vincent & Grenadines"
+      | "Sudan"
+      | "Suriname"
+      | "Svalbard & Jan Mayen"
+      | "Sweden"
+      | "Switzerland"
+      | "Syria"
+      | "Taiwan"
+      | "Tajikistan"
+      | "Tanzania"
+      | "Thailand"
+      | "Timor-Leste"
+      | "Togo"
+      | "Tokelau"
+      | "Tonga"
+      | "Trinidad & Tobago"
+      | "Tunisia"
+      | "T\xFCrkiye"
+      | "Turkmenistan"
+      | "Turks & Caicos Islands"
+      | "Tuvalu"
+      | "U.S. Outlying Islands"
+      | "U.S. Virgin Islands"
+      | "Uganda"
+      | "Ukraine"
+      | "United Arab Emirates"
+      | "United Kingdom"
+      | "United States"
+      | "Uruguay"
+      | "Uzbekistan"
+      | "Vanuatu"
+      | "Vatican City"
+      | "Venezuela"
+      | "Vietnam"
+      | "Wallis & Futuna"
+      | "Western Sahara"
+      | "Yemen"
+      | "Zambia"
+      | "Zimbabwe";
+    region: string | null;
+    primaryDiscipline:
+      | "Dynamic freestyle"
+      | "Endurance"
+      | "Freestyle"
+      | "Hand balancing"
+      | "Static strength"
+      | "Strength";
+    secondaryDisciplines: Array<
+      | "Dynamic freestyle"
+      | "Endurance"
+      | "Freestyle"
+      | "Hand balancing"
+      | "Static strength"
+      | "Strength"
+    > | null;
+    shortBio: string | null;
+    quote: string | null;
+    trainingBase: string | null;
+    yearsActive: string | null;
+    styleLabel: string | null;
+    featured: boolean | null;
+    rankingEligible: boolean | null;
+    visualVariant: "frame" | "motion" | "signal";
+    disciplineCode: string | null;
+    profileImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
             width: number;
             height: number;
+            aspectRatio: number;
           } | null;
-          alt: string | null;
-          caption: string | null;
-          credit: string | null;
-          decorative: boolean | null;
+          lqip: string | null;
         } | null;
-      }
-    | {
-        slug: string;
-        name: string;
-        initials: string;
-        profileNumber: string;
-        profileStatus: string;
-        city: string | null;
-        state: string | null;
-        country:
-          | "Afghanistan"
-          | "\xC5land Islands"
-          | "Albania"
-          | "Algeria"
-          | "American Samoa"
-          | "Andorra"
-          | "Angola"
-          | "Anguilla"
-          | "Antarctica"
-          | "Antigua & Barbuda"
-          | "Argentina"
-          | "Armenia"
-          | "Aruba"
-          | "Australia"
-          | "Austria"
-          | "Azerbaijan"
-          | "Bahamas"
-          | "Bahrain"
-          | "Bangladesh"
-          | "Barbados"
-          | "Belarus"
-          | "Belgium"
-          | "Belize"
-          | "Benin"
-          | "Bermuda"
-          | "Bhutan"
-          | "Bolivia"
-          | "Bosnia & Herzegovina"
-          | "Botswana"
-          | "Bouvet Island"
-          | "Brazil"
-          | "British Indian Ocean Territory"
-          | "British Virgin Islands"
-          | "Brunei"
-          | "Bulgaria"
-          | "Burkina Faso"
-          | "Burundi"
-          | "Cambodia"
-          | "Cameroon"
-          | "Canada"
-          | "Cape Verde"
-          | "Caribbean Netherlands"
-          | "Cayman Islands"
-          | "Central African Republic"
-          | "Chad"
-          | "Chile"
-          | "China"
-          | "Christmas Island"
-          | "Cocos (Keeling) Islands"
-          | "Colombia"
-          | "Comoros"
-          | "Congo - Brazzaville"
-          | "Congo - Kinshasa"
-          | "Cook Islands"
-          | "Costa Rica"
-          | "C\xF4te d\u2019Ivoire"
-          | "Croatia"
-          | "Cuba"
-          | "Cura\xE7ao"
-          | "Cyprus"
-          | "Czechia"
-          | "Denmark"
-          | "Djibouti"
-          | "Dominica"
-          | "Dominican Republic"
-          | "Ecuador"
-          | "Egypt"
-          | "El Salvador"
-          | "Equatorial Guinea"
-          | "Eritrea"
-          | "Estonia"
-          | "Eswatini"
-          | "Ethiopia"
-          | "Falkland Islands"
-          | "Faroe Islands"
-          | "Fiji"
-          | "Finland"
-          | "France"
-          | "French Guiana"
-          | "French Polynesia"
-          | "French Southern Territories"
-          | "Gabon"
-          | "Gambia"
-          | "Georgia"
-          | "Germany"
-          | "Ghana"
-          | "Gibraltar"
-          | "Greece"
-          | "Greenland"
-          | "Grenada"
-          | "Guadeloupe"
-          | "Guam"
-          | "Guatemala"
-          | "Guernsey"
-          | "Guinea-Bissau"
-          | "Guinea"
-          | "Guyana"
-          | "Haiti"
-          | "Heard & McDonald Islands"
-          | "Honduras"
-          | "Hong Kong SAR China"
-          | "Hungary"
-          | "Iceland"
-          | "India"
-          | "Indonesia"
-          | "Iran"
-          | "Iraq"
-          | "Ireland"
-          | "Isle of Man"
-          | "Israel"
-          | "Italy"
-          | "Jamaica"
-          | "Japan"
-          | "Jersey"
-          | "Jordan"
-          | "Kazakhstan"
-          | "Kenya"
-          | "Kiribati"
-          | "Kuwait"
-          | "Kyrgyzstan"
-          | "Laos"
-          | "Latvia"
-          | "Lebanon"
-          | "Lesotho"
-          | "Liberia"
-          | "Libya"
-          | "Liechtenstein"
-          | "Lithuania"
-          | "Luxembourg"
-          | "Macao SAR China"
-          | "Madagascar"
-          | "Malawi"
-          | "Malaysia"
-          | "Maldives"
-          | "Mali"
-          | "Malta"
-          | "Marshall Islands"
-          | "Martinique"
-          | "Mauritania"
-          | "Mauritius"
-          | "Mayotte"
-          | "Mexico"
-          | "Micronesia"
-          | "Moldova"
-          | "Monaco"
-          | "Mongolia"
-          | "Montenegro"
-          | "Montserrat"
-          | "Morocco"
-          | "Mozambique"
-          | "Myanmar (Burma)"
-          | "Namibia"
-          | "Nauru"
-          | "Nepal"
-          | "Netherlands"
-          | "New Caledonia"
-          | "New Zealand"
-          | "Nicaragua"
-          | "Niger"
-          | "Nigeria"
-          | "Niue"
-          | "Norfolk Island"
-          | "North Korea"
-          | "North Macedonia"
-          | "Northern Mariana Islands"
-          | "Norway"
-          | "Oman"
-          | "Pakistan"
-          | "Palau"
-          | "Palestinian Territories"
-          | "Panama"
-          | "Papua New Guinea"
-          | "Paraguay"
-          | "Peru"
-          | "Philippines"
-          | "Pitcairn Islands"
-          | "Poland"
-          | "Portugal"
-          | "Puerto Rico"
-          | "Qatar"
-          | "R\xE9union"
-          | "Romania"
-          | "Russia"
-          | "Rwanda"
-          | "Samoa"
-          | "San Marino"
-          | "S\xE3o Tom\xE9 & Pr\xEDncipe"
-          | "Saudi Arabia"
-          | "Senegal"
-          | "Serbia"
-          | "Seychelles"
-          | "Sierra Leone"
-          | "Singapore"
-          | "Sint Maarten"
-          | "Slovakia"
-          | "Slovenia"
-          | "Solomon Islands"
-          | "Somalia"
-          | "South Africa"
-          | "South Georgia & South Sandwich Islands"
-          | "South Korea"
-          | "South Sudan"
-          | "Spain"
-          | "Sri Lanka"
-          | "St. Barth\xE9lemy"
-          | "St. Helena"
-          | "St. Kitts & Nevis"
-          | "St. Lucia"
-          | "St. Martin"
-          | "St. Pierre & Miquelon"
-          | "St. Vincent & Grenadines"
-          | "Sudan"
-          | "Suriname"
-          | "Svalbard & Jan Mayen"
-          | "Sweden"
-          | "Switzerland"
-          | "Syria"
-          | "Taiwan"
-          | "Tajikistan"
-          | "Tanzania"
-          | "Thailand"
-          | "Timor-Leste"
-          | "Togo"
-          | "Tokelau"
-          | "Tonga"
-          | "Trinidad & Tobago"
-          | "Tunisia"
-          | "T\xFCrkiye"
-          | "Turkmenistan"
-          | "Turks & Caicos Islands"
-          | "Tuvalu"
-          | "U.S. Outlying Islands"
-          | "U.S. Virgin Islands"
-          | "Uganda"
-          | "Ukraine"
-          | "United Arab Emirates"
-          | "United Kingdom"
-          | "United States"
-          | "Uruguay"
-          | "Uzbekistan"
-          | "Vanuatu"
-          | "Vatican City"
-          | "Venezuela"
-          | "Vietnam"
-          | "Wallis & Futuna"
-          | "Western Sahara"
-          | "Yemen"
-          | "Zambia"
-          | "Zimbabwe";
-        region: string | null;
-        primaryDiscipline:
-          | "Dynamic freestyle"
-          | "Endurance"
-          | "Freestyle"
-          | "Hand balancing"
-          | "Static strength"
-          | "Strength";
-        secondaryDisciplines: Array<
-          | "Dynamic freestyle"
-          | "Endurance"
-          | "Freestyle"
-          | "Hand balancing"
-          | "Static strength"
-          | "Strength"
-        > | null;
-        shortBio: string | null;
-        quote: string | null;
-        trainingBase: string | null;
-        yearsActive: string | null;
-        styleLabel: string | null;
-        featured: boolean | null;
-        rankingEligible: boolean | null;
-        visualVariant: "frame" | "motion" | "signal";
-        disciplineCode: string | null;
-        profileImage: {
-          asset: {
-            _id: string;
-            _ref: string;
-            url: string;
-            metadata: {
-              dimensions: {
-                width: number;
-                height: number;
-                aspectRatio: number;
-              } | null;
-              lqip: string | null;
-            } | null;
-          } | null;
-          crop: {
-            top: number;
-            bottom: number;
-            left: number;
-            right: number;
-          } | null;
-          hotspot: {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-          } | null;
-          alt: string | null;
-          caption: string | null;
-          credit: string | null;
-          decorative: boolean | null;
-        } | null;
-      }
-    | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
   featuredCompetition: {
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -3225,28 +7221,35 @@ export type HOMEPAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
-    venueName: string;
+    country: string | null;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -3254,14 +7257,20 @@ export type HOMEPAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -3297,9 +7306,10 @@ export type HOMEPAGE_QUERY_RESULT = {
   competitions: Array<{
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -3307,28 +7317,35 @@ export type HOMEPAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
-    venueName: string;
+    country: string | null;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -3336,14 +7353,20 @@ export type HOMEPAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -3433,6 +7456,8 @@ export type HOMEPAGE_QUERY_RESULT = {
           | null;
         sourceAccount: string | null;
         originalPostUrl: string | null;
+        origin:
+          "cali-central-original" | "community-submission" | "external-source";
         ownershipStatus:
           | "cali-central-original"
           | "source-unavailable"
@@ -3541,6 +7566,8 @@ export type HOMEPAGE_QUERY_RESULT = {
           | null;
         sourceAccount: string | null;
         originalPostUrl: string | null;
+        origin:
+          "cali-central-original" | "community-submission" | "external-source";
         ownershipStatus:
           | "cali-central-original"
           | "source-unavailable"
@@ -3650,6 +7677,8 @@ export type HOMEPAGE_QUERY_RESULT = {
       | null;
     sourceAccount: string | null;
     originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
     ownershipStatus:
       "cali-central-original" | "source-unavailable" | "third-party-attributed";
     discoverContext: string | null;
@@ -3794,8 +7823,9 @@ export type HOMEPAGE_QUERY_RESULT = {
 
 // Source: sanity/queries.ts
 // Variable: STORIES_QUERY
-// Query: *[    _type == "story" &&    defined(slug.current)  ] | order(featured desc, publishedAt desc)[0...120]{    "slug": slug.current,    title,    excerpt,    category,    "authorName": author->name,    publishedAt,    readTimeMinutes,    location,    featured,    issueNumber,    eyebrow,    heroVisualVariant,    prototypeStatus,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+// Query: *[    _type == "story" &&    defined(slug.current)  ] | order(featured desc, publishedAt desc)[0...120]{    "canonicalId": _id,    "slug": slug.current,    title,    excerpt,    category,    "authorName": author->name,    publishedAt,    readTimeMinutes,    location,    featured,    issueNumber,    eyebrow,    heroVisualVariant,    prototypeStatus,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
 export type STORIES_QUERY_RESULT = Array<{
+  canonicalId: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -3891,8 +7921,9 @@ export type STORY_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: sanity/queries.ts
 // Variable: STORY_PAGE_QUERY
-// Query: *[    _type == "story" &&    slug.current == $slug  ][0]{    "slug": slug.current,    title,    excerpt,    category,    "authorName": author->name,    publishedAt,    readTimeMinutes,    location,    featured,    issueNumber,    eyebrow,    heroVisualVariant,    prototypeStatus,    tags,    "portableBody": body[]{      ...,      _type == "block" => {        markDefs[]{          ...,          _type == "internalStoryLink" => {            "_type": "internalLink",            "storySlug": story->slug.current          }        }      },      _type == "accessibleImage" => {        "_type": "editorialImage",        "image": {          "asset": asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          "crop": crop{top, bottom, left, right},          "hotspot": hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    },    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedAthletes": *[      _type == "athlete" &&      defined(slug.current) &&      references(^._id)    ] | order(name asc)[0...3]{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedCompetitions": *[      _type == "competition" &&      defined(slug.current) &&      references(^._id)    ] | order(startDate desc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+// Query: *[    _type == "story" &&    slug.current == $slug  ][0]{    "canonicalId": _id,    "slug": slug.current,    title,    excerpt,    category,    "authorName": author->name,    publishedAt,    readTimeMinutes,    location,    featured,    issueNumber,    eyebrow,    heroVisualVariant,    prototypeStatus,    tags,    "portableBody": body[]{      ...,      _type == "block" => {        markDefs[]{          ...,          _type == "internalStoryLink" => {            "_type": "internalLink",            "storySlug": story->slug.current          }        }      },      _type == "accessibleImage" => {        "_type": "editorialImage",        "image": {          "asset": asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          "crop": crop{top, bottom, left, right},          "hotspot": hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    },    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedAthletes": *[      _type == "athlete" &&      defined(slug.current) &&      (        verification.profileStatus == "approved" ||        prototypeStatus in ["fictional-prototype", "sample-record"]      ) &&      references(^._id)    ] | order(name asc)[0...3]{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedCompetitions": *[      _type == "competition" &&      defined(slug.current) &&      (        (          publicStatus == "published" &&          (            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))          )        ) ||        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])      ) &&      references(^._id)    ] | order(startDate desc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
 export type STORY_PAGE_QUERY_RESULT = {
+  canonicalId: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -4439,9 +8470,10 @@ export type STORY_PAGE_QUERY_RESULT = {
   relatedCompetitions: Array<{
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -4449,28 +8481,35 @@ export type STORY_PAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
-    venueName: string;
+    country: string | null;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -4478,14 +8517,20 @@ export type STORY_PAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -4574,6 +8619,8 @@ export type STORY_PAGE_QUERY_RESULT = {
       | null;
     sourceAccount: string | null;
     originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
     ownershipStatus:
       "cali-central-original" | "source-unavailable" | "third-party-attributed";
     discoverContext: string | null;
@@ -4628,8 +8675,9 @@ export type STORY_PAGE_QUERY_RESULT = {
 
 // Source: sanity/queries.ts
 // Variable: ATHLETES_QUERY
-// Query: *[    _type == "athlete" &&    defined(slug.current)  ] | order(featured desc, name asc)[0...240]{    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex    }  }
+// Query: *[    _type == "athlete" &&    defined(slug.current)  ] | order(featured desc, name asc)[0...240]{    "canonicalId": _id,    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex    }  }
 export type ATHLETES_QUERY_RESULT = Array<{
+  canonicalId: string;
   slug: string;
   name: string;
   initials: string;
@@ -4993,9 +9041,375 @@ export type ATHLETES_QUERY_RESULT = Array<{
 export type ATHLETE_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: sanity/queries.ts
-// Variable: ATHLETE_PAGE_QUERY
-// Query: *[    _type == "athlete" &&    slug.current == $slug  ][0]{    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    "portableProfile": fullProfile,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileLabel,    prototypeStatus,    statistics,    achievements,    timeline,    competitionHistory[]{      "eventSlug": competition->slug.current,      "eventName": coalesce(eventName, competition->name),      date,      country,      administrativeArea,      city,      divisionCategory,      placement,      score,      verificationStatus,      sourceLabel,      sourceUrl,      videoUrl    },    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    coverImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedCompetitions": *[      _type == "competition" &&      defined(slug.current) &&      references(^._id)    ] | order(startDate desc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
-export type ATHLETE_PAGE_QUERY_RESULT = {
+// Variable: PUBLIC_ATHLETES_QUERY
+// Query: *[    _type == "athlete" &&    defined(slug.current) &&    (      verification.profileStatus == "approved" ||      prototypeStatus in ["fictional-prototype", "sample-record"]    )  ] | order(featured desc, name asc)[0...240]{    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex    }  }
+export type PUBLIC_ATHLETES_QUERY_RESULT = Array<{
+  slug: string;
+  name: string;
+  initials: string;
+  profileNumber: string;
+  profileStatus: string;
+  city: string | null;
+  state: string | null;
+  country:
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea: string | null;
+  region: string | null;
+  primaryDiscipline:
+    | "Dynamic freestyle"
+    | "Endurance"
+    | "Freestyle"
+    | "Hand balancing"
+    | "Static strength"
+    | "Strength";
+  primaryCategory:
+    | "endurance"
+    | "freestyle"
+    | "hybrid-all-around"
+    | "power-strength"
+    | "skills-static";
+  secondaryDisciplines: Array<
+    | "Dynamic freestyle"
+    | "Endurance"
+    | "Freestyle"
+    | "Hand balancing"
+    | "Static strength"
+    | "Strength"
+  > | null;
+  specialties: Array<
+    | "coaching"
+    | "content-creation"
+    | "dip-strength"
+    | "dynamic-freestyle"
+    | "endurance"
+    | "hand-balancing"
+    | "muscle-ups"
+    | "pull-strength"
+    | "static-combinations"
+    | "statics"
+    | "team-competition"
+    | "weighted-calisthenics"
+  > | null;
+  updatedAt: string;
+  verification: AthleteVerification | null;
+  socialLinks: Array<{
+    platform:
+      | "facebook"
+      | "instagram"
+      | "sponsor-merch"
+      | "threads"
+      | "tiktok"
+      | "website"
+      | "x"
+      | "youtube";
+    url: string;
+    handle: string | null;
+    confirmationStatus: "confirmed" | "unconfirmed";
+  }> | null;
+  shortBio: string | null;
+  quote: string | null;
+  trainingBase: string | null;
+  yearsActive: string | null;
+  styleLabel: string | null;
+  featured: boolean | null;
+  rankingEligible: boolean | null;
+  visualVariant: "frame" | "motion" | "signal";
+  disciplineCode: string | null;
+  profileImage: {
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  } | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+  } | null;
+}>;
+
+// Source: sanity/queries.ts
+// Variable: PUBLIC_ATHLETE_SLUGS_QUERY
+// Query: *[    _type == "athlete" &&    defined(slug.current) &&    (      verification.profileStatus == "approved" ||      prototypeStatus in ["fictional-prototype", "sample-record"]    )  ] | order(featured desc, name asc)[0...240].slug.current
+export type PUBLIC_ATHLETE_SLUGS_QUERY_RESULT = Array<string>;
+
+// Source: sanity/queries.ts
+// Variable: PUBLIC_ATHLETE_PAGE_QUERY
+// Query: *[    _type == "athlete" &&    slug.current == $slug &&    (      verification.profileStatus == "approved" ||      prototypeStatus in ["fictional-prototype", "sample-record"]    )  ][0]{    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    "portableProfile": fullProfile,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileLabel,    prototypeStatus,    statistics,    achievements,    timeline,    competitionHistory[      !defined(competition._ref) ||      (        (          competition->publicStatus == "published" &&          (            coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))          )        ) ||        (          !defined(competition->publicStatus) &&          coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]        )      )    ]{      "eventSlug": competition->slug.current,      "eventName": coalesce(eventName, competition->name),      date,      country,      administrativeArea,      city,      divisionCategory,      placement,      score,      verificationStatus,      sourceLabel,      sourceUrl,      videoUrl    },    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    coverImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[      defined(@->slug.current) &&      (        @->verification.profileStatus == "approved" ||        @->prototypeStatus in ["fictional-prototype", "sample-record"]      )    ][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedCompetitions": *[      _type == "competition" &&      defined(slug.current) &&      (        (          publicStatus == "published" &&          (            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))          )        ) ||        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])      ) &&      references(^._id)    ] | order(startDate desc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+export type PUBLIC_ATHLETE_PAGE_QUERY_RESULT = {
   slug: string;
   name: string;
   initials: string;
@@ -5317,7 +9731,8 @@ export type ATHLETE_PAGE_QUERY_RESULT = {
   visualVariant: "frame" | "motion" | "signal";
   disciplineCode: string | null;
   profileLabel: string | null;
-  prototypeStatus: "fictional-prototype" | "not-official" | "sample-record";
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
   statistics: Array<
     {
       _key: string;
@@ -6066,9 +10481,10 @@ export type ATHLETE_PAGE_QUERY_RESULT = {
   relatedCompetitions: Array<{
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -6076,28 +10492,35 @@ export type ATHLETE_PAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
-    venueName: string;
+    country: string | null;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -6105,14 +10528,20 @@ export type ATHLETE_PAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -6254,8 +10683,1287 @@ export type ATHLETE_PAGE_QUERY_RESULT = {
 } | null;
 
 // Source: sanity/queries.ts
+// Variable: ATHLETE_PAGE_QUERY
+// Query: *[    _type == "athlete" &&    slug.current == $slug  ][0]{    "canonicalId": _id,    "slug": slug.current,    name,    initials,    profileNumber,    profileStatus,    city,    state,    country,    administrativeArea,    region,    primaryDiscipline,    primaryCategory,    secondaryDisciplines,    specialties,    "updatedAt": _updatedAt,    verification,    socialLinks[]{      platform,      url,      handle,      confirmationStatus    },    shortBio,    "portableProfile": fullProfile,    quote,    trainingBase,    yearsActive,    styleLabel,    featured,    rankingEligible,    visualVariant,    disciplineCode,    profileLabel,    prototypeStatus,    statistics,    achievements,    timeline,    competitionHistory[]{      "eventSlug": competition->slug.current,      "eventName": coalesce(eventName, competition->name),      date,      country,      administrativeArea,      city,      divisionCategory,      placement,      score,      verificationStatus,      sourceLabel,      sourceUrl,      videoUrl    },    profileImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    coverImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedCompetitions": *[      _type == "competition" &&      defined(slug.current) &&      (        (          publicStatus == "published" &&          (            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))          )        ) ||        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])      ) &&      references(^._id)    ] | order(startDate desc)[0...3]{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+export type ATHLETE_PAGE_QUERY_RESULT = {
+  canonicalId: string;
+  slug: string;
+  name: string;
+  initials: string;
+  profileNumber: string;
+  profileStatus: string;
+  city: string | null;
+  state: string | null;
+  country:
+    | "Afghanistan"
+    | "\xC5land Islands"
+    | "Albania"
+    | "Algeria"
+    | "American Samoa"
+    | "Andorra"
+    | "Angola"
+    | "Anguilla"
+    | "Antarctica"
+    | "Antigua & Barbuda"
+    | "Argentina"
+    | "Armenia"
+    | "Aruba"
+    | "Australia"
+    | "Austria"
+    | "Azerbaijan"
+    | "Bahamas"
+    | "Bahrain"
+    | "Bangladesh"
+    | "Barbados"
+    | "Belarus"
+    | "Belgium"
+    | "Belize"
+    | "Benin"
+    | "Bermuda"
+    | "Bhutan"
+    | "Bolivia"
+    | "Bosnia & Herzegovina"
+    | "Botswana"
+    | "Bouvet Island"
+    | "Brazil"
+    | "British Indian Ocean Territory"
+    | "British Virgin Islands"
+    | "Brunei"
+    | "Bulgaria"
+    | "Burkina Faso"
+    | "Burundi"
+    | "Cambodia"
+    | "Cameroon"
+    | "Canada"
+    | "Cape Verde"
+    | "Caribbean Netherlands"
+    | "Cayman Islands"
+    | "Central African Republic"
+    | "Chad"
+    | "Chile"
+    | "China"
+    | "Christmas Island"
+    | "Cocos (Keeling) Islands"
+    | "Colombia"
+    | "Comoros"
+    | "Congo - Brazzaville"
+    | "Congo - Kinshasa"
+    | "Cook Islands"
+    | "Costa Rica"
+    | "C\xF4te d\u2019Ivoire"
+    | "Croatia"
+    | "Cuba"
+    | "Cura\xE7ao"
+    | "Cyprus"
+    | "Czechia"
+    | "Denmark"
+    | "Djibouti"
+    | "Dominica"
+    | "Dominican Republic"
+    | "Ecuador"
+    | "Egypt"
+    | "El Salvador"
+    | "Equatorial Guinea"
+    | "Eritrea"
+    | "Estonia"
+    | "Eswatini"
+    | "Ethiopia"
+    | "Falkland Islands"
+    | "Faroe Islands"
+    | "Fiji"
+    | "Finland"
+    | "France"
+    | "French Guiana"
+    | "French Polynesia"
+    | "French Southern Territories"
+    | "Gabon"
+    | "Gambia"
+    | "Georgia"
+    | "Germany"
+    | "Ghana"
+    | "Gibraltar"
+    | "Greece"
+    | "Greenland"
+    | "Grenada"
+    | "Guadeloupe"
+    | "Guam"
+    | "Guatemala"
+    | "Guernsey"
+    | "Guinea-Bissau"
+    | "Guinea"
+    | "Guyana"
+    | "Haiti"
+    | "Heard & McDonald Islands"
+    | "Honduras"
+    | "Hong Kong SAR China"
+    | "Hungary"
+    | "Iceland"
+    | "India"
+    | "Indonesia"
+    | "Iran"
+    | "Iraq"
+    | "Ireland"
+    | "Isle of Man"
+    | "Israel"
+    | "Italy"
+    | "Jamaica"
+    | "Japan"
+    | "Jersey"
+    | "Jordan"
+    | "Kazakhstan"
+    | "Kenya"
+    | "Kiribati"
+    | "Kuwait"
+    | "Kyrgyzstan"
+    | "Laos"
+    | "Latvia"
+    | "Lebanon"
+    | "Lesotho"
+    | "Liberia"
+    | "Libya"
+    | "Liechtenstein"
+    | "Lithuania"
+    | "Luxembourg"
+    | "Macao SAR China"
+    | "Madagascar"
+    | "Malawi"
+    | "Malaysia"
+    | "Maldives"
+    | "Mali"
+    | "Malta"
+    | "Marshall Islands"
+    | "Martinique"
+    | "Mauritania"
+    | "Mauritius"
+    | "Mayotte"
+    | "Mexico"
+    | "Micronesia"
+    | "Moldova"
+    | "Monaco"
+    | "Mongolia"
+    | "Montenegro"
+    | "Montserrat"
+    | "Morocco"
+    | "Mozambique"
+    | "Myanmar (Burma)"
+    | "Namibia"
+    | "Nauru"
+    | "Nepal"
+    | "Netherlands"
+    | "New Caledonia"
+    | "New Zealand"
+    | "Nicaragua"
+    | "Niger"
+    | "Nigeria"
+    | "Niue"
+    | "Norfolk Island"
+    | "North Korea"
+    | "North Macedonia"
+    | "Northern Mariana Islands"
+    | "Norway"
+    | "Oman"
+    | "Pakistan"
+    | "Palau"
+    | "Palestinian Territories"
+    | "Panama"
+    | "Papua New Guinea"
+    | "Paraguay"
+    | "Peru"
+    | "Philippines"
+    | "Pitcairn Islands"
+    | "Poland"
+    | "Portugal"
+    | "Puerto Rico"
+    | "Qatar"
+    | "R\xE9union"
+    | "Romania"
+    | "Russia"
+    | "Rwanda"
+    | "Samoa"
+    | "San Marino"
+    | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+    | "Saudi Arabia"
+    | "Senegal"
+    | "Serbia"
+    | "Seychelles"
+    | "Sierra Leone"
+    | "Singapore"
+    | "Sint Maarten"
+    | "Slovakia"
+    | "Slovenia"
+    | "Solomon Islands"
+    | "Somalia"
+    | "South Africa"
+    | "South Georgia & South Sandwich Islands"
+    | "South Korea"
+    | "South Sudan"
+    | "Spain"
+    | "Sri Lanka"
+    | "St. Barth\xE9lemy"
+    | "St. Helena"
+    | "St. Kitts & Nevis"
+    | "St. Lucia"
+    | "St. Martin"
+    | "St. Pierre & Miquelon"
+    | "St. Vincent & Grenadines"
+    | "Sudan"
+    | "Suriname"
+    | "Svalbard & Jan Mayen"
+    | "Sweden"
+    | "Switzerland"
+    | "Syria"
+    | "Taiwan"
+    | "Tajikistan"
+    | "Tanzania"
+    | "Thailand"
+    | "Timor-Leste"
+    | "Togo"
+    | "Tokelau"
+    | "Tonga"
+    | "Trinidad & Tobago"
+    | "Tunisia"
+    | "T\xFCrkiye"
+    | "Turkmenistan"
+    | "Turks & Caicos Islands"
+    | "Tuvalu"
+    | "U.S. Outlying Islands"
+    | "U.S. Virgin Islands"
+    | "Uganda"
+    | "Ukraine"
+    | "United Arab Emirates"
+    | "United Kingdom"
+    | "United States"
+    | "Uruguay"
+    | "Uzbekistan"
+    | "Vanuatu"
+    | "Vatican City"
+    | "Venezuela"
+    | "Vietnam"
+    | "Wallis & Futuna"
+    | "Western Sahara"
+    | "Yemen"
+    | "Zambia"
+    | "Zimbabwe";
+  administrativeArea: string | null;
+  region: string | null;
+  primaryDiscipline:
+    | "Dynamic freestyle"
+    | "Endurance"
+    | "Freestyle"
+    | "Hand balancing"
+    | "Static strength"
+    | "Strength";
+  primaryCategory:
+    | "endurance"
+    | "freestyle"
+    | "hybrid-all-around"
+    | "power-strength"
+    | "skills-static";
+  secondaryDisciplines: Array<
+    | "Dynamic freestyle"
+    | "Endurance"
+    | "Freestyle"
+    | "Hand balancing"
+    | "Static strength"
+    | "Strength"
+  > | null;
+  specialties: Array<
+    | "coaching"
+    | "content-creation"
+    | "dip-strength"
+    | "dynamic-freestyle"
+    | "endurance"
+    | "hand-balancing"
+    | "muscle-ups"
+    | "pull-strength"
+    | "static-combinations"
+    | "statics"
+    | "team-competition"
+    | "weighted-calisthenics"
+  > | null;
+  updatedAt: string;
+  verification: AthleteVerification | null;
+  socialLinks: Array<{
+    platform:
+      | "facebook"
+      | "instagram"
+      | "sponsor-merch"
+      | "threads"
+      | "tiktok"
+      | "website"
+      | "x"
+      | "youtube";
+    url: string;
+    handle: string | null;
+    confirmationStatus: "confirmed" | "unconfirmed";
+  }> | null;
+  shortBio: string | null;
+  portableProfile: PortableText | null;
+  quote: string | null;
+  trainingBase: string | null;
+  yearsActive: string | null;
+  styleLabel: string | null;
+  featured: boolean | null;
+  rankingEligible: boolean | null;
+  visualVariant: "frame" | "motion" | "signal";
+  disciplineCode: string | null;
+  profileLabel: string | null;
+  prototypeStatus:
+    "fictional-prototype" | "not-official" | "sample-record" | null;
+  statistics: Array<
+    {
+      _key: string;
+    } & AthleteStatistic
+  > | null;
+  achievements: Array<
+    {
+      _key: string;
+    } & AthleteAchievement
+  > | null;
+  timeline: Array<
+    {
+      _key: string;
+    } & TimelineEntry
+  > | null;
+  competitionHistory: Array<{
+    eventSlug: string | null;
+    eventName: string;
+    date: string;
+    country:
+      | "Afghanistan"
+      | "\xC5land Islands"
+      | "Albania"
+      | "Algeria"
+      | "American Samoa"
+      | "Andorra"
+      | "Angola"
+      | "Anguilla"
+      | "Antarctica"
+      | "Antigua & Barbuda"
+      | "Argentina"
+      | "Armenia"
+      | "Aruba"
+      | "Australia"
+      | "Austria"
+      | "Azerbaijan"
+      | "Bahamas"
+      | "Bahrain"
+      | "Bangladesh"
+      | "Barbados"
+      | "Belarus"
+      | "Belgium"
+      | "Belize"
+      | "Benin"
+      | "Bermuda"
+      | "Bhutan"
+      | "Bolivia"
+      | "Bosnia & Herzegovina"
+      | "Botswana"
+      | "Bouvet Island"
+      | "Brazil"
+      | "British Indian Ocean Territory"
+      | "British Virgin Islands"
+      | "Brunei"
+      | "Bulgaria"
+      | "Burkina Faso"
+      | "Burundi"
+      | "Cambodia"
+      | "Cameroon"
+      | "Canada"
+      | "Cape Verde"
+      | "Caribbean Netherlands"
+      | "Cayman Islands"
+      | "Central African Republic"
+      | "Chad"
+      | "Chile"
+      | "China"
+      | "Christmas Island"
+      | "Cocos (Keeling) Islands"
+      | "Colombia"
+      | "Comoros"
+      | "Congo - Brazzaville"
+      | "Congo - Kinshasa"
+      | "Cook Islands"
+      | "Costa Rica"
+      | "C\xF4te d\u2019Ivoire"
+      | "Croatia"
+      | "Cuba"
+      | "Cura\xE7ao"
+      | "Cyprus"
+      | "Czechia"
+      | "Denmark"
+      | "Djibouti"
+      | "Dominica"
+      | "Dominican Republic"
+      | "Ecuador"
+      | "Egypt"
+      | "El Salvador"
+      | "Equatorial Guinea"
+      | "Eritrea"
+      | "Estonia"
+      | "Eswatini"
+      | "Ethiopia"
+      | "Falkland Islands"
+      | "Faroe Islands"
+      | "Fiji"
+      | "Finland"
+      | "France"
+      | "French Guiana"
+      | "French Polynesia"
+      | "French Southern Territories"
+      | "Gabon"
+      | "Gambia"
+      | "Georgia"
+      | "Germany"
+      | "Ghana"
+      | "Gibraltar"
+      | "Greece"
+      | "Greenland"
+      | "Grenada"
+      | "Guadeloupe"
+      | "Guam"
+      | "Guatemala"
+      | "Guernsey"
+      | "Guinea-Bissau"
+      | "Guinea"
+      | "Guyana"
+      | "Haiti"
+      | "Heard & McDonald Islands"
+      | "Honduras"
+      | "Hong Kong SAR China"
+      | "Hungary"
+      | "Iceland"
+      | "India"
+      | "Indonesia"
+      | "Iran"
+      | "Iraq"
+      | "Ireland"
+      | "Isle of Man"
+      | "Israel"
+      | "Italy"
+      | "Jamaica"
+      | "Japan"
+      | "Jersey"
+      | "Jordan"
+      | "Kazakhstan"
+      | "Kenya"
+      | "Kiribati"
+      | "Kuwait"
+      | "Kyrgyzstan"
+      | "Laos"
+      | "Latvia"
+      | "Lebanon"
+      | "Lesotho"
+      | "Liberia"
+      | "Libya"
+      | "Liechtenstein"
+      | "Lithuania"
+      | "Luxembourg"
+      | "Macao SAR China"
+      | "Madagascar"
+      | "Malawi"
+      | "Malaysia"
+      | "Maldives"
+      | "Mali"
+      | "Malta"
+      | "Marshall Islands"
+      | "Martinique"
+      | "Mauritania"
+      | "Mauritius"
+      | "Mayotte"
+      | "Mexico"
+      | "Micronesia"
+      | "Moldova"
+      | "Monaco"
+      | "Mongolia"
+      | "Montenegro"
+      | "Montserrat"
+      | "Morocco"
+      | "Mozambique"
+      | "Myanmar (Burma)"
+      | "Namibia"
+      | "Nauru"
+      | "Nepal"
+      | "Netherlands"
+      | "New Caledonia"
+      | "New Zealand"
+      | "Nicaragua"
+      | "Niger"
+      | "Nigeria"
+      | "Niue"
+      | "Norfolk Island"
+      | "North Korea"
+      | "North Macedonia"
+      | "Northern Mariana Islands"
+      | "Norway"
+      | "Oman"
+      | "Pakistan"
+      | "Palau"
+      | "Palestinian Territories"
+      | "Panama"
+      | "Papua New Guinea"
+      | "Paraguay"
+      | "Peru"
+      | "Philippines"
+      | "Pitcairn Islands"
+      | "Poland"
+      | "Portugal"
+      | "Puerto Rico"
+      | "Qatar"
+      | "R\xE9union"
+      | "Romania"
+      | "Russia"
+      | "Rwanda"
+      | "Samoa"
+      | "San Marino"
+      | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+      | "Saudi Arabia"
+      | "Senegal"
+      | "Serbia"
+      | "Seychelles"
+      | "Sierra Leone"
+      | "Singapore"
+      | "Sint Maarten"
+      | "Slovakia"
+      | "Slovenia"
+      | "Solomon Islands"
+      | "Somalia"
+      | "South Africa"
+      | "South Georgia & South Sandwich Islands"
+      | "South Korea"
+      | "South Sudan"
+      | "Spain"
+      | "Sri Lanka"
+      | "St. Barth\xE9lemy"
+      | "St. Helena"
+      | "St. Kitts & Nevis"
+      | "St. Lucia"
+      | "St. Martin"
+      | "St. Pierre & Miquelon"
+      | "St. Vincent & Grenadines"
+      | "Sudan"
+      | "Suriname"
+      | "Svalbard & Jan Mayen"
+      | "Sweden"
+      | "Switzerland"
+      | "Syria"
+      | "Taiwan"
+      | "Tajikistan"
+      | "Tanzania"
+      | "Thailand"
+      | "Timor-Leste"
+      | "Togo"
+      | "Tokelau"
+      | "Tonga"
+      | "Trinidad & Tobago"
+      | "Tunisia"
+      | "T\xFCrkiye"
+      | "Turkmenistan"
+      | "Turks & Caicos Islands"
+      | "Tuvalu"
+      | "U.S. Outlying Islands"
+      | "U.S. Virgin Islands"
+      | "Uganda"
+      | "Ukraine"
+      | "United Arab Emirates"
+      | "United Kingdom"
+      | "United States"
+      | "Uruguay"
+      | "Uzbekistan"
+      | "Vanuatu"
+      | "Vatican City"
+      | "Venezuela"
+      | "Vietnam"
+      | "Wallis & Futuna"
+      | "Western Sahara"
+      | "Yemen"
+      | "Zambia"
+      | "Zimbabwe";
+    administrativeArea: string | null;
+    city: string | null;
+    divisionCategory: string;
+    placement: string | null;
+    score: string | null;
+    verificationStatus:
+      "disputed" | "sample" | "source-reviewed" | "unverified" | "verified";
+    sourceLabel: string | null;
+    sourceUrl: string | null;
+    videoUrl: string | null;
+  }> | null;
+  profileImage: {
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  } | null;
+  coverImage: {
+    asset: {
+      _id: string;
+      _ref: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+          aspectRatio: number;
+        } | null;
+        lqip: string | null;
+      } | null;
+    } | null;
+    crop: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    } | null;
+    hotspot: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
+    alt: string | null;
+    caption: string | null;
+    credit: string | null;
+    decorative: boolean | null;
+  } | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    noIndex: boolean | null;
+    socialImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  } | null;
+  relatedStories: Array<{
+    slug: string;
+    title: string;
+    excerpt: string;
+    category:
+      | "Analysis"
+      | "Athlete Journal"
+      | "Competition"
+      | "Culture"
+      | "Field Note"
+      | "Training";
+    authorName: string;
+    publishedAt: string;
+    readTimeMinutes: number;
+    location: string | null;
+    featured: boolean | null;
+    issueNumber: string | null;
+    eyebrow: string | null;
+    heroVisualVariant: "field" | "frame" | "signal";
+    prototypeStatus: "fictional-prototype" | "not-official" | "sample-record";
+    heroImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  }> | null;
+  relatedAthletes: Array<{
+    slug: string;
+    name: string;
+    initials: string;
+    profileNumber: string;
+    profileStatus: string;
+    city: string | null;
+    state: string | null;
+    country:
+      | "Afghanistan"
+      | "\xC5land Islands"
+      | "Albania"
+      | "Algeria"
+      | "American Samoa"
+      | "Andorra"
+      | "Angola"
+      | "Anguilla"
+      | "Antarctica"
+      | "Antigua & Barbuda"
+      | "Argentina"
+      | "Armenia"
+      | "Aruba"
+      | "Australia"
+      | "Austria"
+      | "Azerbaijan"
+      | "Bahamas"
+      | "Bahrain"
+      | "Bangladesh"
+      | "Barbados"
+      | "Belarus"
+      | "Belgium"
+      | "Belize"
+      | "Benin"
+      | "Bermuda"
+      | "Bhutan"
+      | "Bolivia"
+      | "Bosnia & Herzegovina"
+      | "Botswana"
+      | "Bouvet Island"
+      | "Brazil"
+      | "British Indian Ocean Territory"
+      | "British Virgin Islands"
+      | "Brunei"
+      | "Bulgaria"
+      | "Burkina Faso"
+      | "Burundi"
+      | "Cambodia"
+      | "Cameroon"
+      | "Canada"
+      | "Cape Verde"
+      | "Caribbean Netherlands"
+      | "Cayman Islands"
+      | "Central African Republic"
+      | "Chad"
+      | "Chile"
+      | "China"
+      | "Christmas Island"
+      | "Cocos (Keeling) Islands"
+      | "Colombia"
+      | "Comoros"
+      | "Congo - Brazzaville"
+      | "Congo - Kinshasa"
+      | "Cook Islands"
+      | "Costa Rica"
+      | "C\xF4te d\u2019Ivoire"
+      | "Croatia"
+      | "Cuba"
+      | "Cura\xE7ao"
+      | "Cyprus"
+      | "Czechia"
+      | "Denmark"
+      | "Djibouti"
+      | "Dominica"
+      | "Dominican Republic"
+      | "Ecuador"
+      | "Egypt"
+      | "El Salvador"
+      | "Equatorial Guinea"
+      | "Eritrea"
+      | "Estonia"
+      | "Eswatini"
+      | "Ethiopia"
+      | "Falkland Islands"
+      | "Faroe Islands"
+      | "Fiji"
+      | "Finland"
+      | "France"
+      | "French Guiana"
+      | "French Polynesia"
+      | "French Southern Territories"
+      | "Gabon"
+      | "Gambia"
+      | "Georgia"
+      | "Germany"
+      | "Ghana"
+      | "Gibraltar"
+      | "Greece"
+      | "Greenland"
+      | "Grenada"
+      | "Guadeloupe"
+      | "Guam"
+      | "Guatemala"
+      | "Guernsey"
+      | "Guinea-Bissau"
+      | "Guinea"
+      | "Guyana"
+      | "Haiti"
+      | "Heard & McDonald Islands"
+      | "Honduras"
+      | "Hong Kong SAR China"
+      | "Hungary"
+      | "Iceland"
+      | "India"
+      | "Indonesia"
+      | "Iran"
+      | "Iraq"
+      | "Ireland"
+      | "Isle of Man"
+      | "Israel"
+      | "Italy"
+      | "Jamaica"
+      | "Japan"
+      | "Jersey"
+      | "Jordan"
+      | "Kazakhstan"
+      | "Kenya"
+      | "Kiribati"
+      | "Kuwait"
+      | "Kyrgyzstan"
+      | "Laos"
+      | "Latvia"
+      | "Lebanon"
+      | "Lesotho"
+      | "Liberia"
+      | "Libya"
+      | "Liechtenstein"
+      | "Lithuania"
+      | "Luxembourg"
+      | "Macao SAR China"
+      | "Madagascar"
+      | "Malawi"
+      | "Malaysia"
+      | "Maldives"
+      | "Mali"
+      | "Malta"
+      | "Marshall Islands"
+      | "Martinique"
+      | "Mauritania"
+      | "Mauritius"
+      | "Mayotte"
+      | "Mexico"
+      | "Micronesia"
+      | "Moldova"
+      | "Monaco"
+      | "Mongolia"
+      | "Montenegro"
+      | "Montserrat"
+      | "Morocco"
+      | "Mozambique"
+      | "Myanmar (Burma)"
+      | "Namibia"
+      | "Nauru"
+      | "Nepal"
+      | "Netherlands"
+      | "New Caledonia"
+      | "New Zealand"
+      | "Nicaragua"
+      | "Niger"
+      | "Nigeria"
+      | "Niue"
+      | "Norfolk Island"
+      | "North Korea"
+      | "North Macedonia"
+      | "Northern Mariana Islands"
+      | "Norway"
+      | "Oman"
+      | "Pakistan"
+      | "Palau"
+      | "Palestinian Territories"
+      | "Panama"
+      | "Papua New Guinea"
+      | "Paraguay"
+      | "Peru"
+      | "Philippines"
+      | "Pitcairn Islands"
+      | "Poland"
+      | "Portugal"
+      | "Puerto Rico"
+      | "Qatar"
+      | "R\xE9union"
+      | "Romania"
+      | "Russia"
+      | "Rwanda"
+      | "Samoa"
+      | "San Marino"
+      | "S\xE3o Tom\xE9 & Pr\xEDncipe"
+      | "Saudi Arabia"
+      | "Senegal"
+      | "Serbia"
+      | "Seychelles"
+      | "Sierra Leone"
+      | "Singapore"
+      | "Sint Maarten"
+      | "Slovakia"
+      | "Slovenia"
+      | "Solomon Islands"
+      | "Somalia"
+      | "South Africa"
+      | "South Georgia & South Sandwich Islands"
+      | "South Korea"
+      | "South Sudan"
+      | "Spain"
+      | "Sri Lanka"
+      | "St. Barth\xE9lemy"
+      | "St. Helena"
+      | "St. Kitts & Nevis"
+      | "St. Lucia"
+      | "St. Martin"
+      | "St. Pierre & Miquelon"
+      | "St. Vincent & Grenadines"
+      | "Sudan"
+      | "Suriname"
+      | "Svalbard & Jan Mayen"
+      | "Sweden"
+      | "Switzerland"
+      | "Syria"
+      | "Taiwan"
+      | "Tajikistan"
+      | "Tanzania"
+      | "Thailand"
+      | "Timor-Leste"
+      | "Togo"
+      | "Tokelau"
+      | "Tonga"
+      | "Trinidad & Tobago"
+      | "Tunisia"
+      | "T\xFCrkiye"
+      | "Turkmenistan"
+      | "Turks & Caicos Islands"
+      | "Tuvalu"
+      | "U.S. Outlying Islands"
+      | "U.S. Virgin Islands"
+      | "Uganda"
+      | "Ukraine"
+      | "United Arab Emirates"
+      | "United Kingdom"
+      | "United States"
+      | "Uruguay"
+      | "Uzbekistan"
+      | "Vanuatu"
+      | "Vatican City"
+      | "Venezuela"
+      | "Vietnam"
+      | "Wallis & Futuna"
+      | "Western Sahara"
+      | "Yemen"
+      | "Zambia"
+      | "Zimbabwe";
+    region: string | null;
+    primaryDiscipline:
+      | "Dynamic freestyle"
+      | "Endurance"
+      | "Freestyle"
+      | "Hand balancing"
+      | "Static strength"
+      | "Strength";
+    secondaryDisciplines: Array<
+      | "Dynamic freestyle"
+      | "Endurance"
+      | "Freestyle"
+      | "Hand balancing"
+      | "Static strength"
+      | "Strength"
+    > | null;
+    shortBio: string | null;
+    quote: string | null;
+    trainingBase: string | null;
+    yearsActive: string | null;
+    styleLabel: string | null;
+    featured: boolean | null;
+    rankingEligible: boolean | null;
+    visualVariant: "frame" | "motion" | "signal";
+    disciplineCode: string | null;
+    profileImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  }> | null;
+  relatedCompetitions: Array<{
+    slug: string;
+    name: string;
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
+    contentStatus:
+      | "fictional-prototype"
+      | "not-official"
+      | "published-record"
+      | "sample-record";
+    startDate: string;
+    endDate: string | null;
+    city: string | null;
+    administrativeArea: string | null;
+    state: string | null;
+    country: string | null;
+    venueName: string | null;
+    venueType: string | null;
+    summary: string | null;
+    disciplines: Array<
+      | "dynamic"
+      | "endurance"
+      | "freestyle"
+      | "mixed"
+      | "skills"
+      | "static-strength"
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+    > | null;
+    primaryDiscipline:
+      | "dynamic"
+      | "endurance"
+      | "freestyle"
+      | "mixed"
+      | "skills"
+      | "static-strength"
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
+    featured: boolean | null;
+    registrationStatus:
+      | "closed"
+      | "not-open"
+      | "open"
+      | "preview-only"
+      | "sold-out"
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
+    resultsStatus:
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
+    capacityLabel: string | null;
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
+    heroImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  }>;
+  relatedVideos: Array<{
+    slug: string;
+    title: string;
+    shortTitle: string;
+    episodeNumber: number;
+    seriesSlug: string;
+    seriesTitle: string;
+    category:
+      | "Athlete Profile"
+      | "Cali Central Original"
+      | "Competition Highlight"
+      | "Competition"
+      | "Culture"
+      | "Documentary"
+      | "Interview"
+      | "Short Clip"
+      | "Technique"
+      | "Training";
+    format:
+      | "Editorial Breakdown"
+      | "Event Preview"
+      | "Field Report"
+      | "Interview/Profile Study"
+      | "Short Documentary"
+      | "Technique Breakdown"
+      | "Visual Study";
+    status: "archive-sample" | "preview" | "published-prototype";
+    durationSeconds: number;
+    publishedAt: string;
+    location: string | null;
+    summary: string;
+    featured: boolean | null;
+    visualVariant:
+      | "competition"
+      | "field"
+      | "handstand"
+      | "motion"
+      | "portrait"
+      | "static"
+      | "team";
+    posterLabel: string | null;
+    frameCode: string;
+    tags: Array<string> | null;
+    availabilityLabel: string;
+    sourcePlatform:
+      | "Cali Central"
+      | "Facebook"
+      | "Instagram"
+      | "Threads"
+      | "TikTok"
+      | "Website"
+      | "X"
+      | "YouTube"
+      | null;
+    sourceAccount: string | null;
+    originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
+    ownershipStatus:
+      "cali-central-original" | "source-unavailable" | "third-party-attributed";
+    discoverContext: string | null;
+    platformMetrics: Array<{
+      platform:
+        | "Cali Central"
+        | "Facebook"
+        | "Instagram"
+        | "Threads"
+        | "TikTok"
+        | "Website"
+        | "X"
+        | "YouTube";
+      label: "Engagement" | "Plays" | "Views";
+      value: number;
+      observedAt: string | null;
+      sourceUrl: string | null;
+    }> | null;
+    posterImage: {
+      asset: {
+        _id: string;
+        _ref: string;
+        url: string;
+        metadata: {
+          dimensions: {
+            width: number;
+            height: number;
+            aspectRatio: number;
+          } | null;
+          lqip: string | null;
+        } | null;
+      } | null;
+      crop: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+      } | null;
+      hotspot: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      } | null;
+      alt: string | null;
+      caption: string | null;
+      credit: string | null;
+      decorative: boolean | null;
+    } | null;
+  }>;
+} | null;
+
+// Source: sanity/queries.ts
 // Variable: RANKING_CATEGORIES_QUERY
-// Query: *[    _type == "rankingCategory" &&    status == "published" &&    methodologyStatus == "approved" &&    defined(slug.current)  ] | order(displayOrder asc, title asc)[0...40]{    "slug": slug.current,    title,    subtitle,    discipline,    division,    region,    scope,    status,    methodologyStatus,    seasonLabel,    seasonStart,    seasonEnd,    updatedAt,    description,    displayOrder,    methodologyNote,    prototypeStatus,    entries[0...200]{      rank,      "athleteSlug": athlete->slug.current,      "athleteName": athlete->name,      "athleteRegion": athlete->region,      points,      movementDirection,      movementAmount,      movementLabel,      status,      sources[]{        "competitionSlug": competition->slug.current,        "competitionName": competition->name,        resultKey,        sourceName,        sourceUrl,        verificationStatus      }    }  }
+// Query: *[    _type == "rankingCategory" &&    status == "published" &&    methodologyStatus == "approved" &&    defined(slug.current)  ] | order(displayOrder asc, title asc)[0...40]{    "slug": slug.current,    title,    subtitle,    discipline,    division,    region,    scope,    status,    methodologyStatus,    seasonLabel,    seasonStart,    seasonEnd,    updatedAt,    description,    displayOrder,    methodologyNote,    prototypeStatus,    entries[      athlete->verification.profileStatus == "approved" ||      athlete->prototypeStatus in ["fictional-prototype", "sample-record"]    ][0...200]{      rank,      "athleteSlug": athlete->slug.current,      "athleteName": athlete->name,      "athleteRegion": athlete->region,      points,      movementDirection,      movementAmount,      movementLabel,      status,      sources[        !defined(competition._ref) ||        (          (            competition->publicStatus == "published" &&            (              coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||              (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))            )          ) ||          (            !defined(competition->publicStatus) &&            coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]          )        )      ]{        "competitionSlug": competition->slug.current,        "competitionName": competition->name,        resultKey,        sourceName,        sourceUrl,        verificationStatus      }    }  }
 export type RANKING_CATEGORIES_QUERY_RESULT = Array<{
   slug: string;
   title: string;
@@ -6298,13 +12006,15 @@ export type RANKING_CATEGORIES_QUERY_RESULT = Array<{
 
 // Source: sanity/queries.ts
 // Variable: COMPETITIONS_QUERY
-// Query: *[    _type == "competition" &&    defined(slug.current)  ] | order(startDate asc, name asc)[0...240]{    "slug": slug.current,    name,    shortName,    eventNumber,    status,    "contentStatus": coalesce(contentStatus, prototypeStatus),    startDate,    endDate,    city,    administrativeArea,    state,    country,    region,    venueName,    venueType,    summary,    disciplines,    primaryDiscipline,    featured,    registrationStatus,    registrationDeadline,    scheduleStatus,    resultsStatus,    capacityLabel,    organizerName,    organizerVerificationStatus,    actionLinks[]{      label,      url,      linkType,      affiliate,      partnerName,      disclosure    },    competitionFormat,    results[]{      "key": _key,      placement,      "athleteSlug": athlete->slug.current,      "athleteName": coalesce(athlete->name, displayName),      "athleteRegion": athlete->region,      region,      category,      division,      ruleset,      bodyweightDisplay,      scoreDisplay,      resultLabel,      movementNote,      verificationStatus,      sourceType,      sourceName,      sourceUrl,      videoUrl,      verifiedAt    },    visualVariant,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex    }  }
+// Query: *[    _type == "competition" &&    defined(slug.current) &&    (      (        publicStatus == "published" &&        (          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))        )      ) ||      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])    )  ] | order(startDate asc, name asc)[0...240]{    "canonicalId": _id,    "slug": slug.current,    name,    shortName,    eventNumber,    status,    "contentStatus": coalesce(contentStatus, prototypeStatus),    startDate,    endDate,    city,    administrativeArea,    state,    country,    region,    venueName,    venueType,    summary,    disciplines,    primaryDiscipline,    featured,    registrationStatus,    registrationDeadline,    scheduleStatus,    resultsStatus,    capacityLabel,    organizerName,    organizerVerificationStatus,    actionLinks[]{      label,      url,      linkType,      affiliate,      partnerName,      disclosure    },    competitionFormat,    results[]{      "key": _key,      placement,      "athleteSlug": select(        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current      ),      "athleteName": coalesce(        select(          athlete->verification.profileStatus == "approved" ||          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name        ),        displayName      ),      "athleteRegion": select(        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->region      ),      region,      category,      division,      ruleset,      bodyweightDisplay,      scoreDisplay,      resultLabel,      movementNote,      verificationStatus,      sourceType,      sourceName,      sourceUrl,      videoUrl,      verifiedAt    },    visualVariant,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex    }  }
 export type COMPETITIONS_QUERY_RESULT = Array<{
+  canonicalId: string;
   slug: string;
   name: string;
-  shortName: string;
-  eventNumber: string;
-  status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+  shortName: string | null;
+  eventNumber: string | null;
+  status:
+    "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
   contentStatus:
     | "fictional-prototype"
     | "not-official"
@@ -6312,24 +12022,36 @@ export type COMPETITIONS_QUERY_RESULT = Array<{
     | "sample-record";
   startDate: string;
   endDate: string | null;
-  city: string;
+  city: string | null;
   administrativeArea: string | null;
   state: string | null;
-  country: string;
+  country: string | null;
   region: string | null;
-  venueName: string;
+  venueName: string | null;
   venueType: string | null;
-  summary: string;
+  summary: string | null;
   disciplines: Array<
-    "dynamic" | "endurance" | "freestyle" | "mixed" | "static-strength" | "team"
-  >;
+    | "dynamic"
+    | "endurance"
+    | "freestyle"
+    | "mixed"
+    | "skills"
+    | "static-strength"
+    | "streetlifting"
+    | "team"
+    | "weighted-calisthenics"
+  > | null;
   primaryDiscipline:
     | "dynamic"
     | "endurance"
     | "freestyle"
     | "mixed"
+    | "skills"
     | "static-strength"
-    | "team";
+    | "streetlifting"
+    | "team"
+    | "weighted-calisthenics"
+    | null;
   featured: boolean | null;
   registrationStatus:
     | "closed"
@@ -6337,15 +12059,16 @@ export type COMPETITIONS_QUERY_RESULT = Array<{
     | "open"
     | "preview-only"
     | "sold-out"
-    | "unavailable";
+    | "unavailable"
+    | null;
   registrationDeadline: string | null;
-  scheduleStatus: "completed" | "pending" | "provisional" | "published";
+  scheduleStatus: "completed" | "pending" | "provisional" | "published" | null;
   resultsStatus:
-    "not-available" | "pending" | "sample-results" | "verified-results";
+    "not-available" | "pending" | "sample-results" | "verified-results" | null;
   capacityLabel: string | null;
-  organizerName: string;
+  organizerName: string | null;
   organizerVerificationStatus:
-    "reviewed" | "sample" | "unverified" | "verified";
+    "reviewed" | "sample" | "unverified" | "verified" | null;
   actionLinks: Array<{
     label: string;
     url: string;
@@ -6361,7 +12084,7 @@ export type COMPETITIONS_QUERY_RESULT = Array<{
     partnerName: string | null;
     disclosure: string | null;
   }> | null;
-  competitionFormat: string;
+  competitionFormat: string | null;
   results: Array<{
     key: string;
     placement: number;
@@ -6395,7 +12118,7 @@ export type COMPETITIONS_QUERY_RESULT = Array<{
     videoUrl: string | null;
     verifiedAt: string | null;
   }> | null;
-  visualVariant: "field" | "frame" | "signal";
+  visualVariant: "field" | "frame" | "signal" | null;
   heroImage: {
     asset: {
       _id: string;
@@ -6436,18 +12159,20 @@ export type COMPETITIONS_QUERY_RESULT = Array<{
 
 // Source: sanity/queries.ts
 // Variable: COMPETITION_SLUGS_QUERY
-// Query: *[    _type == "competition" &&    defined(slug.current)  ] | order(startDate asc, name asc)[0...240].slug.current
+// Query: *[    _type == "competition" &&    defined(slug.current) &&    (      (        publicStatus == "published" &&        (          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))        )      ) ||      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])    )  ] | order(startDate asc, name asc)[0...240].slug.current
 export type COMPETITION_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: sanity/queries.ts
 // Variable: COMPETITION_PAGE_QUERY
-// Query: *[    _type == "competition" &&    slug.current == $slug  ][0]{    "slug": slug.current,    name,    shortName,    eventNumber,    status,    "contentStatus": coalesce(contentStatus, prototypeStatus),    startDate,    endDate,    city,    administrativeArea,    state,    country,    region,    venueName,    venueType,    summary,    "portableDescription": description,    disciplines,    primaryDiscipline,    divisions[]{      "slug": coalesce(slug.current, _key),      name,      discipline,      level,      format,      participantLimit,      description    },    featured,    registrationStatus,    registrationDeadline,    scheduleStatus,    resultsStatus,    capacityLabel,    organizerName,    organizerVerificationStatus,    actionLinks[]{      label,      url,      linkType,      affiliate,      partnerName,      disclosure    },    competitionFormat,    visualVariant,    schedule[]{      time,      "label": coalesce(label, title),      description,      stage,      status    },    participants[]{      "athleteSlug": athlete->slug.current,      "athleteName": coalesce(athlete->name, displayName),      city,      discipline,      seed,      status    },    results[]{      "key": _key,      placement,      "athleteSlug": athlete->slug.current,      "athleteName": coalesce(athlete->name, displayName),      "athleteRegion": athlete->region,      region,      category,      division,      ruleset,      bodyweightDisplay,      scoreDisplay,      resultLabel,      movementNote,      verificationStatus,      sourceType,      sourceName,      sourceUrl,      videoUrl,      verifiedAt    },    timeline,    notices,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedCompetitions[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      region,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+// Query: *[    _type == "competition" &&    slug.current == $slug &&    (      (        publicStatus == "published" &&        (          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))        )      ) ||      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])    )  ][0]{    "canonicalId": _id,    "slug": slug.current,    name,    shortName,    eventNumber,    status,    "contentStatus": coalesce(contentStatus, prototypeStatus),    startDate,    endDate,    city,    administrativeArea,    state,    country,    region,    venueName,    venueType,    summary,    "portableDescription": description,    disciplines,    primaryDiscipline,    divisions[]{      "slug": coalesce(slug.current, _key),      name,      discipline,      level,      format,      participantLimit,      description    },    featured,    registrationStatus,    registrationDeadline,    scheduleStatus,    resultsStatus,    capacityLabel,    organizerName,    organizerVerificationStatus,    actionLinks[]{      label,      url,      linkType,      affiliate,      partnerName,      disclosure    },    competitionFormat,    visualVariant,    schedule[]{      time,      "label": coalesce(label, title),      description,      stage,      status    },    participants[]{      "athleteSlug": select(        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current      ),      "athleteName": coalesce(        select(          athlete->verification.profileStatus == "approved" ||          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name        ),        displayName      ),      city,      discipline,      seed,      status    },    results[]{      "key": _key,      placement,      "athleteSlug": select(        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current      ),      "athleteName": coalesce(        select(          athlete->verification.profileStatus == "approved" ||          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name        ),        displayName      ),      "athleteRegion": select(        athlete->verification.profileStatus == "approved" ||        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->region      ),      region,      category,      division,      ruleset,      bodyweightDisplay,      scoreDisplay,      resultLabel,      movementNote,      verificationStatus,      sourceType,      sourceName,      sourceUrl,      videoUrl,      verifiedAt    },    timeline,    notices,    heroImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[      defined(@->slug.current) &&      (        @->verification.profileStatus == "approved" ||        @->prototypeStatus in ["fictional-prototype", "sample-record"]      )    ][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedCompetitions[      defined(@->slug.current) &&      (        (          @->publicStatus == "published" &&          (            coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))          )        ) ||        (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])      )    ][0...3]->{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      region,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    "relatedVideos": *[      _type == "video" &&      defined(slug.current) &&      references(^._id)    ] | order(publishedAt desc)[0...3]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
 export type COMPETITION_PAGE_QUERY_RESULT = {
+  canonicalId: string;
   slug: string;
   name: string;
-  shortName: string;
-  eventNumber: string;
-  status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+  shortName: string | null;
+  eventNumber: string | null;
+  status:
+    "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
   contentStatus:
     | "fictional-prototype"
     | "not-official"
@@ -6455,25 +12180,37 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
     | "sample-record";
   startDate: string;
   endDate: string | null;
-  city: string;
+  city: string | null;
   administrativeArea: string | null;
   state: string | null;
-  country: string;
+  country: string | null;
   region: string | null;
-  venueName: string;
+  venueName: string | null;
   venueType: string | null;
-  summary: string;
-  portableDescription: PortableText;
+  summary: string | null;
+  portableDescription: PortableText | null;
   disciplines: Array<
-    "dynamic" | "endurance" | "freestyle" | "mixed" | "static-strength" | "team"
-  >;
+    | "dynamic"
+    | "endurance"
+    | "freestyle"
+    | "mixed"
+    | "skills"
+    | "static-strength"
+    | "streetlifting"
+    | "team"
+    | "weighted-calisthenics"
+  > | null;
   primaryDiscipline:
     | "dynamic"
     | "endurance"
     | "freestyle"
     | "mixed"
+    | "skills"
     | "static-strength"
-    | "team";
+    | "streetlifting"
+    | "team"
+    | "weighted-calisthenics"
+    | null;
   divisions: Array<{
     slug: string;
     name: string;
@@ -6482,13 +12219,16 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics";
     level: string | null;
     format: string;
     participantLimit: number | null;
     description: string | null;
-  }>;
+  }> | null;
   featured: boolean | null;
   registrationStatus:
     | "closed"
@@ -6496,15 +12236,16 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
     | "open"
     | "preview-only"
     | "sold-out"
-    | "unavailable";
+    | "unavailable"
+    | null;
   registrationDeadline: string | null;
-  scheduleStatus: "completed" | "pending" | "provisional" | "published";
+  scheduleStatus: "completed" | "pending" | "provisional" | "published" | null;
   resultsStatus:
-    "not-available" | "pending" | "sample-results" | "verified-results";
+    "not-available" | "pending" | "sample-results" | "verified-results" | null;
   capacityLabel: string | null;
-  organizerName: string;
+  organizerName: string | null;
   organizerVerificationStatus:
-    "reviewed" | "sample" | "unverified" | "verified";
+    "reviewed" | "sample" | "unverified" | "verified" | null;
   actionLinks: Array<{
     label: string;
     url: string;
@@ -6520,8 +12261,8 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
     partnerName: string | null;
     disclosure: string | null;
   }> | null;
-  competitionFormat: string;
-  visualVariant: "field" | "frame" | "signal";
+  competitionFormat: string | null;
+  visualVariant: "field" | "frame" | "signal" | null;
   schedule: Array<{
     time: string;
     label: string;
@@ -6538,8 +12279,11 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics";
     seed: string | null;
     status: "invited" | "preview" | "sample-entry" | "withdrawn";
   }> | null;
@@ -7023,9 +12767,10 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
   relatedCompetitions: Array<{
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -7033,29 +12778,36 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
+    country: string | null;
     region: string | null;
-    venueName: string;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -7063,14 +12815,20 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -7159,6 +12917,8 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
       | null;
     sourceAccount: string | null;
     originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
     ownershipStatus:
       "cali-central-original" | "source-unavailable" | "third-party-attributed";
     discoverContext: string | null;
@@ -7212,8 +12972,114 @@ export type COMPETITION_PAGE_QUERY_RESULT = {
 } | null;
 
 // Source: sanity/queries.ts
+// Variable: ADMIN_COMPETITIONS_QUERY
+// Query: {    "counts": {      "total": count(*[_type == "competition"]),      "samples": count(*[        _type == "competition" &&        coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]      ]),      "real": count(*[        _type == "competition" &&        coalesce(contentStatus, prototypeStatus) == "published-record"      ]),      "sourceConfirmed": count(*[        _type == "competition" &&        source.verificationStatus in ["source-confirmed", "official"]      ]),      "upcoming": count(*[        _type == "competition" &&        startDate >= $today      ]),      "past": count(*[        _type == "competition" &&        startDate < $today      ])    },    "total": count(*[      _type == "competition" &&      ($q == "" || name match $q || organizerName match $q || city match $q || country match $q || _id match $q) &&      ($status == "" || status == $status) &&      (        $publicStatus == "" ||        publicStatus == $publicStatus ||        (          $publicStatus == "legacy-public" &&          !defined(publicStatus) &&          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]        )      ) &&      ($verification == "" || source.verificationStatus == $verification) &&      ($country == "" || country == $country) &&      (        $dateScope == "" ||        ($dateScope == "upcoming" && startDate >= $today) ||        ($dateScope == "past" && startDate < $today)      ) &&      (        $recordKind == "" ||        ($recordKind == "sample" && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]) ||        ($recordKind == "real" && coalesce(contentStatus, prototypeStatus) == "published-record")      )    ]),    "items": *[      _type == "competition" &&      ($q == "" || name match $q || organizerName match $q || city match $q || country match $q || _id match $q) &&      ($status == "" || status == $status) &&      (        $publicStatus == "" ||        publicStatus == $publicStatus ||        (          $publicStatus == "legacy-public" &&          !defined(publicStatus) &&          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]        )      ) &&      ($verification == "" || source.verificationStatus == $verification) &&      ($country == "" || country == $country) &&      (        $dateScope == "" ||        ($dateScope == "upcoming" && startDate >= $today) ||        ($dateScope == "past" && startDate < $today)      ) &&      (        $recordKind == "" ||        ($recordKind == "sample" && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]) ||        ($recordKind == "real" && coalesce(contentStatus, prototypeStatus) == "published-record")      )    ] | order(startDate desc, name asc, _id asc)[$offset...$end]{      "canonicalId": _id,      "slug": slug.current,      name,      eventSeries,      editorialPriority,      featured,      status,      publicStatus,      "legacyPublic": !defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"],      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      venueName,      organizerName,      organizerVerificationStatus,      disciplines,      primaryDiscipline,      competitionFormat,      externalProviderId,      externalProviderUrl,      "organization": organization->{        "canonicalId": _id,        name      },      "source": source{        "title": sourceTitle,        "type": sourceType,        url,        externalRecordId,        checkedAt,        verificationStatus,        "provider": provider->{          "canonicalId": _id,          name,          status        }      },      "updatedAt": _updatedAt    }  }
+export type ADMIN_COMPETITIONS_QUERY_RESULT = {
+  counts: {
+    total: number;
+    samples: number;
+    real: number;
+    sourceConfirmed: number;
+    upcoming: number;
+    past: number;
+  };
+  total: number;
+  items: Array<{
+    canonicalId: string;
+    slug: string;
+    name: string;
+    eventSeries: string | null;
+    editorialPriority:
+      | "continental-championship"
+      | "major-event"
+      | "major-open"
+      | "national-championship"
+      | "qualifier"
+      | "standard"
+      | "world-championship"
+      | null;
+    featured: boolean | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
+    publicStatus: "archived" | "draft" | "published" | null;
+    legacyPublic: false | true;
+    contentStatus:
+      | "fictional-prototype"
+      | "not-official"
+      | "published-record"
+      | "sample-record";
+    startDate: string;
+    endDate: string | null;
+    city: string | null;
+    administrativeArea: string | null;
+    state: string | null;
+    country: string | null;
+    venueName: string | null;
+    organizerName: string | null;
+    organizerVerificationStatus:
+      "reviewed" | "sample" | "unverified" | "verified" | null;
+    disciplines: Array<
+      | "dynamic"
+      | "endurance"
+      | "freestyle"
+      | "mixed"
+      | "skills"
+      | "static-strength"
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+    > | null;
+    primaryDiscipline:
+      | "dynamic"
+      | "endurance"
+      | "freestyle"
+      | "mixed"
+      | "skills"
+      | "static-strength"
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
+    competitionFormat: string | null;
+    externalProviderId: string | null;
+    externalProviderUrl: string | null;
+    organization: {
+      canonicalId: string;
+      name: string;
+    } | null;
+    source: {
+      title: string;
+      type:
+        | "athlete-submitted"
+        | "editor-confirmed"
+        | "official-result-sheet"
+        | "official-results-page"
+        | "organization-ranking-page"
+        | "organizer-source"
+        | "other";
+      url: string | null;
+      externalRecordId: string | null;
+      checkedAt: string;
+      verificationStatus:
+        | "disputed"
+        | "official"
+        | "source-confirmed"
+        | "submitted"
+        | "superseded"
+        | "unverified";
+      provider: {
+        canonicalId: string;
+        name: string;
+        status: "active" | "inactive" | "under-review";
+      } | null;
+    } | null;
+    updatedAt: string;
+  }>;
+};
+
+// Source: sanity/queries.ts
 // Variable: VIDEOS_PAGE_QUERY
-// Query: {    "series": *[      _type == "videoSeries" &&      defined(slug.current)    ] | order(displayOrder asc, title asc)[0...40]{      "slug": slug.current,      title,      description,      categoryFocus,      displayOrder    },    "videos": *[      _type == "video" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...180]{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      },      seo{        metaTitle,        metaDescription,        noIndex      }    },    "featuredVideo": coalesce(      *[        _type == "video" &&        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "video" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    )  }
+// Query: {    "series": *[      _type == "videoSeries" &&      defined(slug.current)    ] | order(displayOrder asc, title asc)[0...40]{      "slug": slug.current,      title,      description,      categoryFocus,      displayOrder    },    "videos": *[      _type == "video" &&      defined(slug.current)    ] | order(featured desc, publishedAt desc)[0...180]{      "canonicalId": _id,      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      relatedAthletes[        defined(@->slug.current) &&        (          @->verification.profileStatus == "approved" ||          @->prototypeStatus in ["fictional-prototype", "sample-record"]        )      ]->{"slug": slug.current},      relatedCompetitions[        defined(@->slug.current) &&        (          (            @->publicStatus == "published" &&            (              coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||              (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))            )          ) ||          (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])        )      ]->{"slug": slug.current},      relatedStories[]->{"slug": slug.current},      relatedVideos[]->{"slug": slug.current},      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      },      seo{        metaTitle,        metaDescription,        noIndex      }    },    "featuredVideo": coalesce(      *[        _type == "video" &&        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&        defined(slug.current)      ][0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        relatedAthletes[          defined(@->slug.current) &&          (            @->verification.profileStatus == "approved" ||            @->prototypeStatus in ["fictional-prototype", "sample-record"]          )        ]->{"slug": slug.current},        relatedCompetitions[          defined(@->slug.current) &&          (            (              @->publicStatus == "published" &&              (                coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||                (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))              )            ) ||            (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])          )        ]->{"slug": slug.current},        relatedStories[]->{"slug": slug.current},        relatedVideos[]->{"slug": slug.current},        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        origin,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      },      *[        _type == "video" &&        featured == true &&        defined(slug.current)      ] | order(publishedAt desc)[0]{        "slug": slug.current,        title,        shortTitle,        episodeNumber,        "seriesSlug": series->slug.current,        "seriesTitle": series->title,        category,        format,        status,        durationSeconds,        publishedAt,        location,        summary,        featured,        visualVariant,        posterLabel,        frameCode,        tags,        relatedAthletes[          defined(@->slug.current) &&          (            @->verification.profileStatus == "approved" ||            @->prototypeStatus in ["fictional-prototype", "sample-record"]          )        ]->{"slug": slug.current},        relatedCompetitions[          defined(@->slug.current) &&          (            (              @->publicStatus == "published" &&              (                coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||                (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))              )            ) ||            (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])          )        ]->{"slug": slug.current},        relatedStories[]->{"slug": slug.current},        relatedVideos[]->{"slug": slug.current},        availabilityLabel,        sourcePlatform,        sourceAccount,        originalPostUrl,        origin,        ownershipStatus,        discoverContext,        platformMetrics[]{platform, label, value, observedAt, sourceUrl},        posterImage{          asset->{            _id,            "_ref": _id,            url,            metadata{              dimensions{width, height, aspectRatio},              lqip            }          },          crop{top, bottom, left, right},          hotspot{x, y, width, height},          alt,          caption,          credit,          decorative        }      }    )  }
 export type VIDEOS_PAGE_QUERY_RESULT = {
   series: Array<{
     slug: string;
@@ -7234,6 +13100,7 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
     displayOrder: number;
   }>;
   videos: Array<{
+    canonicalId: string;
     slug: string;
     title: string;
     shortTitle: string;
@@ -7276,6 +13143,18 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
     posterLabel: string | null;
     frameCode: string;
     tags: Array<string> | null;
+    relatedAthletes: Array<{
+      slug: string;
+    }> | null;
+    relatedCompetitions: Array<{
+      slug: string;
+    }> | null;
+    relatedStories: Array<{
+      slug: string;
+    }> | null;
+    relatedVideos: Array<{
+      slug: string;
+    }> | null;
     availabilityLabel: string;
     sourcePlatform:
       | "Cali Central"
@@ -7289,6 +13168,8 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
       | null;
     sourceAccount: string | null;
     originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
     ownershipStatus:
       "cali-central-original" | "source-unavailable" | "third-party-attributed";
     discoverContext: string | null;
@@ -7388,6 +13269,18 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
         posterLabel: string | null;
         frameCode: string;
         tags: Array<string> | null;
+        relatedAthletes: Array<{
+          slug: string;
+        }> | null;
+        relatedCompetitions: Array<{
+          slug: string;
+        }> | null;
+        relatedStories: Array<{
+          slug: string;
+        }> | null;
+        relatedVideos: Array<{
+          slug: string;
+        }> | null;
         availabilityLabel: string;
         sourcePlatform:
           | "Cali Central"
@@ -7401,6 +13294,8 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
           | null;
         sourceAccount: string | null;
         originalPostUrl: string | null;
+        origin:
+          "cali-central-original" | "community-submission" | "external-source";
         ownershipStatus:
           | "cali-central-original"
           | "source-unavailable"
@@ -7496,6 +13391,18 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
         posterLabel: string | null;
         frameCode: string;
         tags: Array<string> | null;
+        relatedAthletes: Array<{
+          slug: string;
+        }> | null;
+        relatedCompetitions: Array<{
+          slug: string;
+        }> | null;
+        relatedStories: Array<{
+          slug: string;
+        }> | null;
+        relatedVideos: Array<{
+          slug: string;
+        }> | null;
         availabilityLabel: string;
         sourcePlatform:
           | "Cali Central"
@@ -7509,6 +13416,8 @@ export type VIDEOS_PAGE_QUERY_RESULT = {
           | null;
         sourceAccount: string | null;
         originalPostUrl: string | null;
+        origin:
+          "cali-central-original" | "community-submission" | "external-source";
         ownershipStatus:
           | "cali-central-original"
           | "source-unavailable"
@@ -7571,8 +13480,9 @@ export type VIDEO_SLUGS_QUERY_RESULT = Array<string>;
 
 // Source: sanity/queries.ts
 // Variable: VIDEO_PAGE_QUERY
-// Query: *[    _type == "video" &&    slug.current == $slug  ][0]{    "slug": slug.current,    title,    shortTitle,    episodeNumber,    "seriesSlug": series->slug.current,    "seriesTitle": series->title,    category,    format,    status,    durationSeconds,    publishedAt,    location,    summary,    "portableDescription": description,    editorialNotes,    featured,    visualVariant,    posterLabel,    frameCode,    chapters,    transcript,    credits,    tags,    availabilityLabel,    sourcePlatform,    sourceAccount,    originalPostUrl,    ownershipStatus,    discoverContext,    platformMetrics[]{platform, label, value, observedAt, sourceUrl},    posterImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedCompetitions[defined(@->slug.current)][0...3]->{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      region,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedVideos[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
+// Query: *[    _type == "video" &&    slug.current == $slug  ][0]{    "canonicalId": _id,    "slug": slug.current,    title,    shortTitle,    episodeNumber,    "seriesSlug": series->slug.current,    "seriesTitle": series->title,    category,    format,    status,    durationSeconds,    publishedAt,    location,    summary,    "portableDescription": description,    editorialNotes,    featured,    visualVariant,    posterLabel,    frameCode,    chapters,    transcript,    credits,    tags,    availabilityLabel,    sourcePlatform,    sourceAccount,    originalPostUrl,    origin,    ownershipStatus,    discoverContext,    platformMetrics[]{platform, label, value, observedAt, sourceUrl},    posterImage{      asset->{        _id,        "_ref": _id,        url,        metadata{          dimensions{width, height, aspectRatio},          lqip        }      },      crop{top, bottom, left, right},      hotspot{x, y, width, height},      alt,      caption,      credit,      decorative    },    seo{      metaTitle,      metaDescription,      noIndex,      socialImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedStories[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      excerpt,      category,      "authorName": author->name,      publishedAt,      readTimeMinutes,      location,      featured,      issueNumber,      eyebrow,      heroVisualVariant,      prototypeStatus,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedAthletes[      defined(@->slug.current) &&      (        @->verification.profileStatus == "approved" ||        @->prototypeStatus in ["fictional-prototype", "sample-record"]      )    ][0...3]->{      "slug": slug.current,      name,      initials,      profileNumber,      profileStatus,      city,      state,      country,      region,      primaryDiscipline,      secondaryDisciplines,      shortBio,      quote,      trainingBase,      yearsActive,      styleLabel,      featured,      rankingEligible,      visualVariant,      disciplineCode,      profileImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedCompetitions[      defined(@->slug.current) &&      (        (          @->publicStatus == "published" &&          (            coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||            (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))          )        ) ||        (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])      )    ][0...3]->{      "slug": slug.current,      name,      shortName,      eventNumber,      status,      "contentStatus": coalesce(contentStatus, prototypeStatus),      startDate,      endDate,      city,      administrativeArea,      state,      country,      region,      venueName,      venueType,      summary,      disciplines,      primaryDiscipline,      featured,      registrationStatus,      scheduleStatus,      resultsStatus,      capacityLabel,      organizerName,      competitionFormat,      visualVariant,      heroImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    },    relatedVideos[defined(@->slug.current)][0...3]->{      "slug": slug.current,      title,      shortTitle,      episodeNumber,      "seriesSlug": series->slug.current,      "seriesTitle": series->title,      category,      format,      status,      durationSeconds,      publishedAt,      location,      summary,      featured,      visualVariant,      posterLabel,      frameCode,      tags,      availabilityLabel,      sourcePlatform,      sourceAccount,      originalPostUrl,      origin,      ownershipStatus,      discoverContext,      platformMetrics[]{platform, label, value, observedAt, sourceUrl},      posterImage{        asset->{          _id,          "_ref": _id,          url,          metadata{            dimensions{width, height, aspectRatio},            lqip          }        },        crop{top, bottom, left, right},        hotspot{x, y, width, height},        alt,        caption,        credit,        decorative      }    }  }
 export type VIDEO_PAGE_QUERY_RESULT = {
+  canonicalId: string;
   slug: string;
   title: string;
   shortTitle: string;
@@ -7649,6 +13559,7 @@ export type VIDEO_PAGE_QUERY_RESULT = {
     | null;
   sourceAccount: string | null;
   originalPostUrl: string | null;
+  origin: "cali-central-original" | "community-submission" | "external-source";
   ownershipStatus:
     "cali-central-original" | "source-unavailable" | "third-party-attributed";
   discoverContext: string | null;
@@ -8104,9 +14015,10 @@ export type VIDEO_PAGE_QUERY_RESULT = {
   relatedCompetitions: Array<{
     slug: string;
     name: string;
-    shortName: string;
-    eventNumber: string;
-    status: "cancelled" | "completed" | "postponed" | "preview" | "upcoming";
+    shortName: string | null;
+    eventNumber: string | null;
+    status:
+      "cancelled" | "completed" | "postponed" | "preview" | "upcoming" | null;
     contentStatus:
       | "fictional-prototype"
       | "not-official"
@@ -8114,29 +14026,36 @@ export type VIDEO_PAGE_QUERY_RESULT = {
       | "sample-record";
     startDate: string;
     endDate: string | null;
-    city: string;
+    city: string | null;
     administrativeArea: string | null;
     state: string | null;
-    country: string;
+    country: string | null;
     region: string | null;
-    venueName: string;
+    venueName: string | null;
     venueType: string | null;
-    summary: string;
+    summary: string | null;
     disciplines: Array<
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
+      | "streetlifting"
       | "team"
-    >;
+      | "weighted-calisthenics"
+    > | null;
     primaryDiscipline:
       | "dynamic"
       | "endurance"
       | "freestyle"
       | "mixed"
+      | "skills"
       | "static-strength"
-      | "team";
+      | "streetlifting"
+      | "team"
+      | "weighted-calisthenics"
+      | null;
     featured: boolean | null;
     registrationStatus:
       | "closed"
@@ -8144,14 +14063,20 @@ export type VIDEO_PAGE_QUERY_RESULT = {
       | "open"
       | "preview-only"
       | "sold-out"
-      | "unavailable";
-    scheduleStatus: "completed" | "pending" | "provisional" | "published";
+      | "unavailable"
+      | null;
+    scheduleStatus:
+      "completed" | "pending" | "provisional" | "published" | null;
     resultsStatus:
-      "not-available" | "pending" | "sample-results" | "verified-results";
+      | "not-available"
+      | "pending"
+      | "sample-results"
+      | "verified-results"
+      | null;
     capacityLabel: string | null;
-    organizerName: string;
-    competitionFormat: string;
-    visualVariant: "field" | "frame" | "signal";
+    organizerName: string | null;
+    competitionFormat: string | null;
+    visualVariant: "field" | "frame" | "signal" | null;
     heroImage: {
       asset: {
         _id: string;
@@ -8240,6 +14165,8 @@ export type VIDEO_PAGE_QUERY_RESULT = {
       | null;
     sourceAccount: string | null;
     originalPostUrl: string | null;
+    origin:
+      "cali-central-original" | "community-submission" | "external-source";
     ownershipStatus:
       "cali-central-original" | "source-unavailable" | "third-party-attributed";
     discoverContext: string | null;
@@ -8297,19 +14224,43 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     '\n  *[\n    _id == "siteSettings"\n  ][0]{\n    siteTitle,\n    shortTitle,\n    siteDescription,\n    prototypeNotice,\n    footerStatement,\n    homepageHeroEyebrow,\n    homepageHeroTitle,\n    homepageHeroBody,\n    defaultSeo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': SITE_SETTINGS_QUERY_RESULT;
-    '\n  {\n    "settings": *[\n      _id == "siteSettings"\n    ][0]{\n      homepageHeroEyebrow,\n      homepageHeroTitle,\n      homepageHeroBody\n    },\n    "featuredStory": coalesce(\n      *[\n        _type == "story" &&\n        _id == *[_id == "siteSettings"][0].featuredStory._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "story" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "story" &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "stories": *[\n      _type == "story" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...4]{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      heroVisualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "athlete": coalesce(\n      *[\n        _type == "athlete" &&\n        _id == *[_id == "siteSettings"][0].featuredAthlete._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "athlete" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(profileNumber asc)[0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "athlete" &&\n        defined(slug.current)\n      ] | order(name asc)[0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "featuredCompetition": *[\n      _type == "competition" &&\n      _id == *[_id == "siteSettings"][0].featuredCompetition._ref &&\n      defined(slug.current)\n    ][0]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "competitions": *[\n      _type == "competition" &&\n      status == "upcoming" &&\n      defined(slug.current)\n    ] | order(startDate asc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "featuredVideo": coalesce(\n      *[\n        _type == "video" &&\n        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "video" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "videos": *[\n      _type == "video" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...4]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "rankingCategory": coalesce(\n      *[\n        _type == "rankingCategory" &&\n        _id == *[_id == "siteSettings"][0].featuredRankingCategory._ref &&\n        status == "published" &&\n        methodologyStatus == "approved" &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        subtitle,\n        discipline,\n        division,\n        region,\n        scope,\n        status,\n        methodologyStatus,\n        seasonLabel,\n        seasonStart,\n        seasonEnd,\n        updatedAt,\n        description,\n        displayOrder,\n        methodologyNote,\n        prototypeStatus,\n        entries[0...12]{\n          rank,\n          "athleteSlug": athlete->slug.current,\n          "athleteName": athlete->name,\n          "athleteRegion": athlete->region,\n          points,\n          movementDirection,\n          movementAmount,\n          movementLabel,\n          status,\n          sources[]{\n            "competitionSlug": competition->slug.current,\n            "competitionName": competition->name,\n            resultKey,\n            sourceName,\n            sourceUrl,\n            verificationStatus\n          }\n        }\n      },\n      *[\n        _type == "rankingCategory" &&\n        status == "published" &&\n        methodologyStatus == "approved" &&\n        defined(slug.current)\n      ] | order(displayOrder asc)[0]{\n        "slug": slug.current,\n        title,\n        subtitle,\n        discipline,\n        division,\n        region,\n        scope,\n        status,\n        methodologyStatus,\n        seasonLabel,\n        seasonStart,\n        seasonEnd,\n        updatedAt,\n        description,\n        displayOrder,\n        methodologyNote,\n        prototypeStatus,\n        entries[0...12]{\n          rank,\n          "athleteSlug": athlete->slug.current,\n          "athleteName": athlete->name,\n          "athleteRegion": athlete->region,\n          points,\n          movementDirection,\n          movementAmount,\n          movementLabel,\n          status,\n          sources[]{\n            "competitionSlug": competition->slug.current,\n            "competitionName": competition->name,\n            resultKey,\n            sourceName,\n            sourceUrl,\n            verificationStatus\n          }\n        }\n      }\n    )\n  }\n': HOMEPAGE_QUERY_RESULT;
-    '\n  *[\n    _type == "story" &&\n    defined(slug.current)\n  ] | order(featured desc, publishedAt desc)[0...120]{\n    "slug": slug.current,\n    title,\n    excerpt,\n    category,\n    "authorName": author->name,\n    publishedAt,\n    readTimeMinutes,\n    location,\n    featured,\n    issueNumber,\n    eyebrow,\n    heroVisualVariant,\n    prototypeStatus,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': STORIES_QUERY_RESULT;
+    '\n  *[\n    _type == "organization" &&\n    defined(slug.current) &&\n    publicStatus == "published"\n  ] | order(name asc)[0...300]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    organizationType,\n    description,\n    website,\n    country,\n    administrativeArea,\n    city,\n    geographicScope,\n    disciplines,\n    socialLinks[]{label, url},\n    "lifecycleStatus": status,\n    prototypeStatus,\n    logo{\n      asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': ORGANIZATIONS_QUERY_RESULT;
+    '\n  *[\n    _type == "organization" &&\n    defined(slug.current) &&\n    publicStatus == "published"\n  ].slug.current\n': ORGANIZATION_SLUGS_QUERY_RESULT;
+    '\n  *[\n    _type == "organization" &&\n    slug.current == $slug &&\n    publicStatus == "published"\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    organizationType,\n    description,\n    website,\n    country,\n    administrativeArea,\n    city,\n    geographicScope,\n    disciplines,\n    socialLinks[]{label, url},\n    "lifecycleStatus": status,\n    prototypeStatus,\n    logo{\n      asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}},\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': ORGANIZATION_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "product" &&\n    defined(slug.current) &&\n    status == "published" &&\n    brand->publicStatus == "published"\n  ] | order(featured desc, name asc)[0...300]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    "brand": brand->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}},\n    "retailer": select(retailer->publicStatus == "published" => retailer->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}),\n    category,\n    subcategory,\n    images[]{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, crop{top, bottom, left, right}, hotspot{x, y, width, height}, alt, caption, credit, decorative},\n    shortDescription,\n    editorialSummary,\n    useCases,\n    disciplines,\n    trainingLevel,\n    environments,\n    portable,\n    priceDisplay,\n    currency,\n    standardProductUrl,\n    affiliateUrl,\n    affiliateNetwork,\n    affiliateStatus,\n    countryAvailability,\n    featured,\n    editorPick,\n    sponsored,\n    commercialRelationship,\n    lastCheckedAt,\n    availabilityNote,\n    disclosure,\n    prototypeStatus,\n    seo{metaTitle, metaDescription, noIndex, socialImage{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}\n  }\n': PRODUCTS_QUERY_RESULT;
+    '\n  *[\n    _type == "product" &&\n    defined(slug.current) &&\n    status == "published" &&\n    brand->publicStatus == "published"\n  ].slug.current\n': PRODUCT_SLUGS_QUERY_RESULT;
+    '\n  *[\n    _type == "product" &&\n    slug.current == $slug &&\n    status == "published" &&\n    brand->publicStatus == "published"\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    "brand": brand->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}},\n    "retailer": select(retailer->publicStatus == "published" => retailer->{"canonicalId": _id, "slug": slug.current, name, organizationType, logo{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}),\n    category,\n    subcategory,\n    images[]{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, crop{top, bottom, left, right}, hotspot{x, y, width, height}, alt, caption, credit, decorative},\n    shortDescription,\n    editorialSummary,\n    useCases,\n    disciplines,\n    trainingLevel,\n    environments,\n    portable,\n    priceDisplay,\n    currency,\n    standardProductUrl,\n    affiliateUrl,\n    affiliateNetwork,\n    affiliateStatus,\n    countryAvailability,\n    featured,\n    editorPick,\n    sponsored,\n    commercialRelationship,\n    lastCheckedAt,\n    availabilityNote,\n    disclosure,\n    prototypeStatus,\n    seo{metaTitle, metaDescription, noIndex, socialImage{asset->{_id, "_ref": _id, url, metadata{dimensions{width, height, aspectRatio}, lqip}}, alt, decorative}}\n  }\n': PRODUCT_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "team" &&\n    defined(slug.current) &&\n    publicStatus in ["approved-prospective", "official", "active", "inactive"]\n  ] | order(featured desc, name asc)[0...200]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    shortName,\n    code,\n    teamType,\n    publicStatus,\n    leagueAdmissionStatus,\n    country,\n    administrativeArea,\n    city,\n    trainingBase,\n    foundingYear,\n    description,\n    disciplines,\n    branding{primaryColor, secondaryColor, accentColor, uniformNotes, approvalStatus},\n    socialLinks[]{label, url},\n    featured,\n    prototypeStatus,\n    seo{metaTitle, metaDescription, noIndex},\n    "seasonLabel": currentSeason->seasonLabel,\n    "roster": currentSeason->members[\n      membershipStatus == "active" &&\n      consentStatus == "accepted" &&\n      (\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n      )\n    ]{\n      "canonicalId": _key,\n      role,\n      specialty,\n      athleteNumber,\n      captain,\n      athlete->{"canonicalId": _id, "slug": slug.current, name}\n    }\n  }\n': TEAMS_QUERY_RESULT;
+    '\n  *[\n    _type == "team" &&\n    defined(slug.current) &&\n    publicStatus in ["approved-prospective", "official", "active", "inactive"]\n  ].slug.current\n': TEAM_SLUGS_QUERY_RESULT;
+    '\n  *[\n    _type == "team" &&\n    slug.current == $slug &&\n    publicStatus in ["approved-prospective", "official", "active", "inactive"]\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    shortName,\n    code,\n    teamType,\n    publicStatus,\n    leagueAdmissionStatus,\n    country,\n    administrativeArea,\n    city,\n    trainingBase,\n    foundingYear,\n    description,\n    disciplines,\n    branding{primaryColor, secondaryColor, accentColor, uniformNotes, approvalStatus},\n    socialLinks[]{label, url},\n    featured,\n    prototypeStatus,\n    seo{metaTitle, metaDescription, noIndex},\n    "seasonLabel": currentSeason->seasonLabel,\n    "roster": currentSeason->members[\n      membershipStatus == "active" &&\n      consentStatus == "accepted" &&\n      (\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n      )\n    ]{\n      "canonicalId": _key,\n      role,\n      specialty,\n      athleteNumber,\n      captain,\n      athlete->{"canonicalId": _id, "slug": slug.current, name}\n    }\n  }\n': TEAM_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "rankingSnapshot" &&\n    publicationStatus == "published" &&\n    rankingSystem->status == "active" &&\n    rankingSystem->provider->status == "active" &&\n    source.verificationStatus in ["source-confirmed", "official"] &&\n    defined(source.url)\n  ] | order(rankingDate desc)[0...50]{\n    "canonicalId": _id,\n    rankingDate,\n    sourcePublishedAt,\n    checkedAt,\n    season,\n    methodologyVersion,\n    "systemName": rankingSystem->name,\n    "systemSlug": rankingSystem->slug.current,\n    "rankingKind": rankingSystem->rankingKind,\n    "discipline": rankingSystem->discipline,\n    "movement": rankingSystem->movement,\n    "category": rankingSystem->category,\n    "division": rankingSystem->division,\n    "weightClass": rankingSystem->weightClass,\n    "sexDivision": rankingSystem->sexDivision,\n    "ageGroup": rankingSystem->ageGroup,\n    "geographicScope": rankingSystem->geographicScope,\n    "provider": rankingSystem->provider->{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      "organizationId": organization->_id,\n      website,\n      description,\n      status,\n      disciplines,\n      geographicScope,\n      integrationMethod,\n      attributionRequirement,\n      lastReviewedAt\n    },\n    entries[\n      athlete->verification.profileStatus == "approved" ||\n      athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n    ][0...500]{\n      "canonicalId": _key,\n      sourceDisplayName,\n      position,\n      points,\n      rating,\n      previousPosition,\n      status,\n      athlete->{"canonicalId": _id, "slug": slug.current, name}\n    },\n    "provenance": source{\n      "title": sourceTitle,\n      "type": sourceType,\n      url,\n      externalRecordId,\n      publishedAt,\n      checkedAt,\n      verificationStatus\n    }\n  }\n': ATHLETE_RANKING_SNAPSHOTS_QUERY_RESULT;
+    '\n  *[_type == "athlete"] | order(name asc)[0...1000]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    country,\n    prototypeStatus,\n    rankingEligible,\n    verification{\n      identityStatus,\n      profileStatus\n    }\n  }\n': ADMIN_ATHLETES_QUERY_RESULT;
+    '\n  {\n    "items": *[\n      _type == "athlete" &&\n      ($q == "" || name match $q || _id match $q || country match $q) &&\n      ($profileStatus == "" || verification.profileStatus == $profileStatus) &&\n      ($prototypeStatus == "" || ($prototypeStatus == "real" && !defined(prototypeStatus)) || prototypeStatus == $prototypeStatus) &&\n      ($country == "" || country == $country) &&\n      (\n        $sourceStatus == "all" ||\n        ($sourceStatus == "linked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) > 0) ||\n        ($sourceStatus == "unlinked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) == 0)\n      ) &&\n      (\n        $rankingStatus == "all" ||\n        ($rankingStatus == "linked" && count(*[_type == "rankingSnapshot" && references(^._id)]) > 0) ||\n        ($rankingStatus == "unlinked" && count(*[_type == "rankingSnapshot" && references(^._id)]) == 0)\n      )\n    ] | order(name asc, _id asc)[$offset...$end]{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      country,\n      prototypeStatus,\n      rankingEligible,\n      "externalIdentityCount": count(*[_type == "externalAthleteIdentity" && references(^._id)]),\n      "rankingSnapshotCount": count(*[_type == "rankingSnapshot" && references(^._id)]),\n      verification{\n        identityStatus,\n        profileStatus\n      }\n    },\n    "total": count(*[\n      _type == "athlete" &&\n      ($q == "" || name match $q || _id match $q || country match $q) &&\n      ($profileStatus == "" || verification.profileStatus == $profileStatus) &&\n      ($prototypeStatus == "" || ($prototypeStatus == "real" && !defined(prototypeStatus)) || prototypeStatus == $prototypeStatus) &&\n      ($country == "" || country == $country) &&\n      (\n        $sourceStatus == "all" ||\n        ($sourceStatus == "linked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) > 0) ||\n        ($sourceStatus == "unlinked" && count(*[_type == "externalAthleteIdentity" && references(^._id)]) == 0)\n      ) &&\n      (\n        $rankingStatus == "all" ||\n        ($rankingStatus == "linked" && count(*[_type == "rankingSnapshot" && references(^._id)]) > 0) ||\n        ($rankingStatus == "unlinked" && count(*[_type == "rankingSnapshot" && references(^._id)]) == 0)\n      )\n    ]),\n    "awaitingProfileReview": count(*[\n      _type == "athlete" && verification.profileStatus == "not-reviewed"\n    ]),\n    "sampleRecords": count(*[\n      _type == "athlete" && prototypeStatus == "sample-record"\n    ]),\n    "countries": array::unique(*[\n      _type == "athlete" && defined(country)\n    ].country)\n  }\n': ADMIN_ATHLETE_DIRECTORY_QUERY_RESULT;
+    '\n  {\n    "athlete": *[\n      _type == "athlete" && (_id == $id || slug.current == $id)\n    ][0]{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      country,\n      prototypeStatus,\n      rankingEligible,\n      verification{\n        identityStatus,\n        profileStatus\n      }\n    },\n    "identities": *[\n      _type == "externalAthleteIdentity" &&\n      (athlete._ref == $id || athlete->slug.current == $id)\n    ] | order(provider->name asc, providerDisplayName asc)[0...100]{\n      "canonicalId": _id,\n      providerAthleteId,\n      providerAthleteUrl,\n      providerDisplayName,\n      matchingStatus,\n      reviewStatus,\n      "athlete": athlete->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name\n      },\n      "provider": provider->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name,\n        website,\n        status,\n        disciplines,\n        geographicScope,\n        integrationMethod,\n        attributionRequirement,\n        lastReviewedAt\n      }\n    },\n    "rankings": *[\n      _type == "rankingSnapshot" &&\n      count(entries[athlete._ref == $id || athlete->slug.current == $id]) > 0\n    ] | order(rankingDate desc, _id asc)[0...100]{\n      "canonicalId": _id,\n      publicationStatus,\n      rankingDate,\n      sourcePublishedAt,\n      checkedAt,\n      season,\n      methodologyVersion,\n      "entryCount": count(entries),\n      "system": rankingSystem->{\n        "canonicalId": _id,\n        name,\n        "slug": slug.current,\n        status,\n        rankingKind,\n        discipline,\n        movement,\n        category,\n        division,\n        weightClass,\n        sexDivision,\n        ageGroup,\n        geographicScope,\n        methodologyVersion,\n        "provider": provider->{\n          "canonicalId": _id,\n          "slug": slug.current,\n          name,\n          website,\n          status,\n          disciplines,\n          geographicScope,\n          integrationMethod,\n          attributionRequirement,\n          lastReviewedAt\n        }\n      },\n      entries[athlete._ref == $id || athlete->slug.current == $id][0...20]{\n        "canonicalId": _key,\n        providerAthleteId,\n        sourceDisplayName,\n        position,\n        points,\n        rating,\n        previousPosition,\n        status,\n        athlete->{\n          "canonicalId": _id,\n          "slug": slug.current,\n          name\n        }\n      },\n      "provenance": source{\n        "title": sourceTitle,\n        "type": sourceType,\n        url,\n        externalRecordId,\n        publishedAt,\n        checkedAt,\n        verificationStatus\n      }\n    }\n  }\n': ADMIN_ATHLETE_DETAIL_QUERY_RESULT;
+    '\n  *[_type == "rankingProvider"] | order(name asc)[0...200]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    website,\n    status,\n    disciplines,\n    geographicScope,\n    integrationMethod,\n    attributionRequirement,\n    lastReviewedAt\n  }\n': ADMIN_RANKING_PROVIDERS_QUERY_RESULT;
+    '\n  *[_type == "rankingSystem"] | order(name asc)[0...500]{\n    "canonicalId": _id,\n    name,\n    "slug": slug.current,\n    status,\n    rankingKind,\n    discipline,\n    movement,\n    category,\n    division,\n    weightClass,\n    sexDivision,\n    ageGroup,\n    geographicScope,\n    methodologyVersion,\n    "provider": provider->{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      website,\n      status,\n      disciplines,\n      geographicScope,\n      integrationMethod,\n      attributionRequirement,\n      lastReviewedAt\n    }\n  }\n': ADMIN_RANKING_SYSTEMS_QUERY_RESULT;
+    '\n  *[_type == "rankingSnapshot"] | order(rankingDate desc)[0...500]{\n    "canonicalId": _id,\n    publicationStatus,\n    rankingDate,\n    sourcePublishedAt,\n    checkedAt,\n    season,\n    methodologyVersion,\n    "system": rankingSystem->{\n      "canonicalId": _id,\n      name,\n      "slug": slug.current,\n      status,\n      rankingKind,\n      discipline,\n      movement,\n      category,\n      division,\n      weightClass,\n      sexDivision,\n      ageGroup,\n      geographicScope,\n      methodologyVersion,\n      "provider": provider->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name,\n        website,\n        status,\n        disciplines,\n        geographicScope,\n        integrationMethod,\n        attributionRequirement,\n        lastReviewedAt\n      }\n    },\n    entries[0...1000]{\n      "canonicalId": _key,\n      providerAthleteId,\n      sourceDisplayName,\n      position,\n      points,\n      rating,\n      previousPosition,\n      status,\n      athlete->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name\n      }\n    },\n    "provenance": source{\n      "title": sourceTitle,\n      "type": sourceType,\n      url,\n      externalRecordId,\n      publishedAt,\n      checkedAt,\n      verificationStatus,\n      "provider": provider->{\n        "canonicalId": _id,\n        name\n      }\n    }\n  }\n': ADMIN_ATHLETE_RANKING_SNAPSHOTS_QUERY_RESULT;
+    '\n  {\n    "canonicalAthletes": count(*[_type == "athlete"]),\n    "rankingLinkedAthletes": count(array::unique(\n      *[_type == "rankingSnapshot"].entries[defined(athlete._ref)].athlete._ref\n    )),\n    "snapshots": count(*[_type == "rankingSnapshot"]),\n    "draftSnapshots": count(*[\n      _type == "rankingSnapshot" && publicationStatus == "draft"\n    ]),\n    "draftSystems": count(*[\n      _type == "rankingSystem" && status == "draft"\n    ]),\n    "providersUnderReview": count(*[\n      _type == "rankingProvider" && status == "under-review"\n    ]),\n    "candidateIdentities": count(*[\n      _type == "externalAthleteIdentity" && matchingStatus == "candidate"\n    ])\n  }\n': ADMIN_RANKING_OVERVIEW_QUERY_RESULT;
+    '\n  {\n    "items": *[\n      _type == "rankingSnapshot" &&\n      ($q == "" || _id match $q || rankingSystem->name match $q || rankingSystem->provider->name match $q) &&\n      ($status == "" || publicationStatus == $status) &&\n      ($providerId == "" || rankingSystem->provider._ref == $providerId)\n    ] | order(rankingDate desc, _id asc)[$offset...$end]{\n      "canonicalId": _id,\n      publicationStatus,\n      rankingDate,\n      sourcePublishedAt,\n      checkedAt,\n      season,\n      methodologyVersion,\n      "entryCount": count(entries),\n      "system": rankingSystem->{\n        "canonicalId": _id,\n        name,\n        "slug": slug.current,\n        status,\n        rankingKind,\n        discipline,\n        movement,\n        category,\n        division,\n        weightClass,\n        sexDivision,\n        ageGroup,\n        geographicScope,\n        methodologyVersion,\n        "provider": provider->{\n          "canonicalId": _id,\n          "slug": slug.current,\n          name,\n          website,\n          status,\n          disciplines,\n          geographicScope,\n          integrationMethod,\n          attributionRequirement,\n          lastReviewedAt\n        }\n      },\n      entries[0...12]{\n        "canonicalId": _key,\n        providerAthleteId,\n        sourceDisplayName,\n        position,\n        points,\n        rating,\n        previousPosition,\n        status,\n        athlete->{\n          "canonicalId": _id,\n          "slug": slug.current,\n          name\n        }\n      },\n      "provenance": source{\n        "title": sourceTitle,\n        "type": sourceType,\n        url,\n        externalRecordId,\n        publishedAt,\n        checkedAt,\n        verificationStatus\n      }\n    },\n    "total": count(*[\n      _type == "rankingSnapshot" &&\n      ($q == "" || _id match $q || rankingSystem->name match $q || rankingSystem->provider->name match $q) &&\n      ($status == "" || publicationStatus == $status) &&\n      ($providerId == "" || rankingSystem->provider._ref == $providerId)\n    ])\n  }\n': ADMIN_RANKING_SNAPSHOT_DIRECTORY_QUERY_RESULT;
+    '\n  *[_type == "rankingSnapshot" && _id == $id][0]{\n    "canonicalId": _id,\n    publicationStatus,\n    rankingDate,\n    sourcePublishedAt,\n    checkedAt,\n    season,\n    methodologyVersion,\n    "entryCount": count(entries),\n    "system": rankingSystem->{\n      "canonicalId": _id,\n      name,\n      "slug": slug.current,\n      status,\n      rankingKind,\n      discipline,\n      movement,\n      category,\n      division,\n      weightClass,\n      sexDivision,\n      ageGroup,\n      geographicScope,\n      methodologyVersion,\n      "provider": provider->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name,\n        website,\n        status,\n        disciplines,\n        geographicScope,\n        integrationMethod,\n        attributionRequirement,\n        lastReviewedAt\n      }\n    },\n    entries[0...1000]{\n      "canonicalId": _key,\n      providerAthleteId,\n      sourceDisplayName,\n      position,\n      points,\n      rating,\n      previousPosition,\n      status,\n      athlete->{\n        "canonicalId": _id,\n        "slug": slug.current,\n        name\n      }\n    },\n    "provenance": source{\n      "title": sourceTitle,\n      "type": sourceType,\n      url,\n      externalRecordId,\n      publishedAt,\n      checkedAt,\n      verificationStatus\n    }\n  }\n': ADMIN_RANKING_SNAPSHOT_DETAIL_QUERY_RESULT;
+    '\n  *[_type == "externalAthleteIdentity"] | order(providerDisplayName asc)[0...2000]{\n    "canonicalId": _id,\n    providerAthleteId,\n    providerAthleteUrl,\n    providerDisplayName,\n    matchingStatus,\n    reviewStatus,\n    athlete->{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name\n    },\n    "provider": provider->{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      website,\n      status,\n      disciplines,\n      geographicScope,\n      integrationMethod,\n      attributionRequirement,\n      lastReviewedAt\n    }\n  }\n': ADMIN_EXTERNAL_ATHLETE_IDENTITIES_QUERY_RESULT;
+    '\n  {\n    "settings": *[\n      _id == "siteSettings"\n    ][0]{\n      homepageHeroEyebrow,\n      homepageHeroTitle,\n      homepageHeroBody\n    },\n    "featuredStory": coalesce(\n      *[\n        _type == "story" &&\n        _id == *[_id == "siteSettings"][0].featuredStory._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "story" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "story" &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        excerpt,\n        category,\n        publishedAt,\n        readTimeMinutes,\n        location,\n        heroVisualVariant,\n        heroImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "stories": *[\n      _type == "story" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...4]{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      heroVisualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "athlete": coalesce(\n      *[\n        _type == "athlete" &&\n        _id == *[_id == "siteSettings"][0].featuredAthlete._ref &&\n        defined(slug.current) &&\n        (\n          verification.profileStatus == "approved" ||\n          prototypeStatus in ["fictional-prototype", "sample-record"]\n        )\n      ][0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "athlete" &&\n        featured == true &&\n        defined(slug.current) &&\n        (\n          verification.profileStatus == "approved" ||\n          prototypeStatus in ["fictional-prototype", "sample-record"]\n        )\n      ] | order(profileNumber asc)[0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "athlete" &&\n        defined(slug.current) &&\n        (\n          verification.profileStatus == "approved" ||\n          prototypeStatus in ["fictional-prototype", "sample-record"]\n        )\n      ] | order(name asc)[0]{\n        "slug": slug.current,\n        name,\n        initials,\n        profileNumber,\n        profileStatus,\n        city,\n        state,\n        country,\n        region,\n        primaryDiscipline,\n        secondaryDisciplines,\n        shortBio,\n        quote,\n        trainingBase,\n        yearsActive,\n        styleLabel,\n        featured,\n        rankingEligible,\n        visualVariant,\n        disciplineCode,\n        profileImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "featuredCompetition": *[\n      _type == "competition" &&\n      _id == *[_id == "siteSettings"][0].featuredCompetition._ref &&\n      defined(slug.current) &&\n      (\n        (\n          publicStatus == "published" &&\n          (\n            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n          )\n        ) ||\n        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n      )\n    ][0]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "competitions": *[\n      _type == "competition" &&\n      status == "upcoming" &&\n      defined(slug.current) &&\n      (\n        (\n          publicStatus == "published" &&\n          (\n            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n          )\n        ) ||\n        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n      )\n    ] | order(startDate asc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "featuredVideo": coalesce(\n      *[\n        _type == "video" &&\n        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        origin,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "video" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        origin,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    ),\n    "videos": *[\n      _type == "video" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...4]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "rankingCategory": coalesce(\n      *[\n        _type == "rankingCategory" &&\n        _id == *[_id == "siteSettings"][0].featuredRankingCategory._ref &&\n        status == "published" &&\n        methodologyStatus == "approved" &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        subtitle,\n        discipline,\n        division,\n        region,\n        scope,\n        status,\n        methodologyStatus,\n        seasonLabel,\n        seasonStart,\n        seasonEnd,\n        updatedAt,\n        description,\n        displayOrder,\n        methodologyNote,\n        prototypeStatus,\n        entries[\n          athlete->verification.profileStatus == "approved" ||\n          athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n        ][0...12]{\n          rank,\n          "athleteSlug": athlete->slug.current,\n          "athleteName": athlete->name,\n          "athleteRegion": athlete->region,\n          points,\n          movementDirection,\n          movementAmount,\n          movementLabel,\n          status,\n          sources[\n            !defined(competition._ref) ||\n            (\n              (\n                competition->publicStatus == "published" &&\n                (\n                  coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n                  (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))\n                )\n              ) ||\n              (\n                !defined(competition->publicStatus) &&\n                coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]\n              )\n            )\n          ]{\n            "competitionSlug": competition->slug.current,\n            "competitionName": competition->name,\n            resultKey,\n            sourceName,\n            sourceUrl,\n            verificationStatus\n          }\n        }\n      },\n      *[\n        _type == "rankingCategory" &&\n        status == "published" &&\n        methodologyStatus == "approved" &&\n        defined(slug.current)\n      ] | order(displayOrder asc)[0]{\n        "slug": slug.current,\n        title,\n        subtitle,\n        discipline,\n        division,\n        region,\n        scope,\n        status,\n        methodologyStatus,\n        seasonLabel,\n        seasonStart,\n        seasonEnd,\n        updatedAt,\n        description,\n        displayOrder,\n        methodologyNote,\n        prototypeStatus,\n        entries[\n          athlete->verification.profileStatus == "approved" ||\n          athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n        ][0...12]{\n          rank,\n          "athleteSlug": athlete->slug.current,\n          "athleteName": athlete->name,\n          "athleteRegion": athlete->region,\n          points,\n          movementDirection,\n          movementAmount,\n          movementLabel,\n          status,\n          sources[\n            !defined(competition._ref) ||\n            (\n              (\n                competition->publicStatus == "published" &&\n                (\n                  coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n                  (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))\n                )\n              ) ||\n              (\n                !defined(competition->publicStatus) &&\n                coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]\n              )\n            )\n          ]{\n            "competitionSlug": competition->slug.current,\n            "competitionName": competition->name,\n            resultKey,\n            sourceName,\n            sourceUrl,\n            verificationStatus\n          }\n        }\n      }\n    )\n  }\n': HOMEPAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "story" &&\n    defined(slug.current)\n  ] | order(featured desc, publishedAt desc)[0...120]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    title,\n    excerpt,\n    category,\n    "authorName": author->name,\n    publishedAt,\n    readTimeMinutes,\n    location,\n    featured,\n    issueNumber,\n    eyebrow,\n    heroVisualVariant,\n    prototypeStatus,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': STORIES_QUERY_RESULT;
     '\n  *[\n    _type == "story" &&\n    defined(slug.current)\n  ] | order(featured desc, publishedAt desc)[0...120].slug.current\n': STORY_SLUGS_QUERY_RESULT;
-    '\n  *[\n    _type == "story" &&\n    slug.current == $slug\n  ][0]{\n    "slug": slug.current,\n    title,\n    excerpt,\n    category,\n    "authorName": author->name,\n    publishedAt,\n    readTimeMinutes,\n    location,\n    featured,\n    issueNumber,\n    eyebrow,\n    heroVisualVariant,\n    prototypeStatus,\n    tags,\n    "portableBody": body[]{\n      ...,\n      _type == "block" => {\n        markDefs[]{\n          ...,\n          _type == "internalStoryLink" => {\n            "_type": "internalLink",\n            "storySlug": story->slug.current\n          }\n        }\n      },\n      _type == "accessibleImage" => {\n        "_type": "editorialImage",\n        "image": {\n          "asset": asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          "crop": crop{top, bottom, left, right},\n          "hotspot": hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    },\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedAthletes": *[\n      _type == "athlete" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(name asc)[0...3]{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedCompetitions": *[\n      _type == "competition" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(startDate desc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': STORY_PAGE_QUERY_RESULT;
-    '\n  *[\n    _type == "athlete" &&\n    defined(slug.current)\n  ] | order(featured desc, name asc)[0...240]{\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex\n    }\n  }\n': ATHLETES_QUERY_RESULT;
+    '\n  *[\n    _type == "story" &&\n    slug.current == $slug\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    title,\n    excerpt,\n    category,\n    "authorName": author->name,\n    publishedAt,\n    readTimeMinutes,\n    location,\n    featured,\n    issueNumber,\n    eyebrow,\n    heroVisualVariant,\n    prototypeStatus,\n    tags,\n    "portableBody": body[]{\n      ...,\n      _type == "block" => {\n        markDefs[]{\n          ...,\n          _type == "internalStoryLink" => {\n            "_type": "internalLink",\n            "storySlug": story->slug.current\n          }\n        }\n      },\n      _type == "accessibleImage" => {\n        "_type": "editorialImage",\n        "image": {\n          "asset": asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          "crop": crop{top, bottom, left, right},\n          "hotspot": hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    },\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedAthletes": *[\n      _type == "athlete" &&\n      defined(slug.current) &&\n      (\n        verification.profileStatus == "approved" ||\n        prototypeStatus in ["fictional-prototype", "sample-record"]\n      ) &&\n      references(^._id)\n    ] | order(name asc)[0...3]{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedCompetitions": *[\n      _type == "competition" &&\n      defined(slug.current) &&\n      (\n        (\n          publicStatus == "published" &&\n          (\n            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n          )\n        ) ||\n        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n      ) &&\n      references(^._id)\n    ] | order(startDate desc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': STORY_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "athlete" &&\n    defined(slug.current)\n  ] | order(featured desc, name asc)[0...240]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex\n    }\n  }\n': ATHLETES_QUERY_RESULT;
     '\n  *[\n    _type == "athlete" &&\n    defined(slug.current)\n  ] | order(featured desc, name asc)[0...240].slug.current\n': ATHLETE_SLUGS_QUERY_RESULT;
-    '\n  *[\n    _type == "athlete" &&\n    slug.current == $slug\n  ][0]{\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    "portableProfile": fullProfile,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileLabel,\n    prototypeStatus,\n    statistics,\n    achievements,\n    timeline,\n    competitionHistory[]{\n      "eventSlug": competition->slug.current,\n      "eventName": coalesce(eventName, competition->name),\n      date,\n      country,\n      administrativeArea,\n      city,\n      divisionCategory,\n      placement,\n      score,\n      verificationStatus,\n      sourceLabel,\n      sourceUrl,\n      videoUrl\n    },\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    coverImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedCompetitions": *[\n      _type == "competition" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(startDate desc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': ATHLETE_PAGE_QUERY_RESULT;
-    '\n  *[\n    _type == "rankingCategory" &&\n    status == "published" &&\n    methodologyStatus == "approved" &&\n    defined(slug.current)\n  ] | order(displayOrder asc, title asc)[0...40]{\n    "slug": slug.current,\n    title,\n    subtitle,\n    discipline,\n    division,\n    region,\n    scope,\n    status,\n    methodologyStatus,\n    seasonLabel,\n    seasonStart,\n    seasonEnd,\n    updatedAt,\n    description,\n    displayOrder,\n    methodologyNote,\n    prototypeStatus,\n    entries[0...200]{\n      rank,\n      "athleteSlug": athlete->slug.current,\n      "athleteName": athlete->name,\n      "athleteRegion": athlete->region,\n      points,\n      movementDirection,\n      movementAmount,\n      movementLabel,\n      status,\n      sources[]{\n        "competitionSlug": competition->slug.current,\n        "competitionName": competition->name,\n        resultKey,\n        sourceName,\n        sourceUrl,\n        verificationStatus\n      }\n    }\n  }\n': RANKING_CATEGORIES_QUERY_RESULT;
-    '\n  *[\n    _type == "competition" &&\n    defined(slug.current)\n  ] | order(startDate asc, name asc)[0...240]{\n    "slug": slug.current,\n    name,\n    shortName,\n    eventNumber,\n    status,\n    "contentStatus": coalesce(contentStatus, prototypeStatus),\n    startDate,\n    endDate,\n    city,\n    administrativeArea,\n    state,\n    country,\n    region,\n    venueName,\n    venueType,\n    summary,\n    disciplines,\n    primaryDiscipline,\n    featured,\n    registrationStatus,\n    registrationDeadline,\n    scheduleStatus,\n    resultsStatus,\n    capacityLabel,\n    organizerName,\n    organizerVerificationStatus,\n    actionLinks[]{\n      label,\n      url,\n      linkType,\n      affiliate,\n      partnerName,\n      disclosure\n    },\n    competitionFormat,\n    results[]{\n      "key": _key,\n      placement,\n      "athleteSlug": athlete->slug.current,\n      "athleteName": coalesce(athlete->name, displayName),\n      "athleteRegion": athlete->region,\n      region,\n      category,\n      division,\n      ruleset,\n      bodyweightDisplay,\n      scoreDisplay,\n      resultLabel,\n      movementNote,\n      verificationStatus,\n      sourceType,\n      sourceName,\n      sourceUrl,\n      videoUrl,\n      verifiedAt\n    },\n    visualVariant,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex\n    }\n  }\n': COMPETITIONS_QUERY_RESULT;
-    '\n  *[\n    _type == "competition" &&\n    defined(slug.current)\n  ] | order(startDate asc, name asc)[0...240].slug.current\n': COMPETITION_SLUGS_QUERY_RESULT;
-    '\n  *[\n    _type == "competition" &&\n    slug.current == $slug\n  ][0]{\n    "slug": slug.current,\n    name,\n    shortName,\n    eventNumber,\n    status,\n    "contentStatus": coalesce(contentStatus, prototypeStatus),\n    startDate,\n    endDate,\n    city,\n    administrativeArea,\n    state,\n    country,\n    region,\n    venueName,\n    venueType,\n    summary,\n    "portableDescription": description,\n    disciplines,\n    primaryDiscipline,\n    divisions[]{\n      "slug": coalesce(slug.current, _key),\n      name,\n      discipline,\n      level,\n      format,\n      participantLimit,\n      description\n    },\n    featured,\n    registrationStatus,\n    registrationDeadline,\n    scheduleStatus,\n    resultsStatus,\n    capacityLabel,\n    organizerName,\n    organizerVerificationStatus,\n    actionLinks[]{\n      label,\n      url,\n      linkType,\n      affiliate,\n      partnerName,\n      disclosure\n    },\n    competitionFormat,\n    visualVariant,\n    schedule[]{\n      time,\n      "label": coalesce(label, title),\n      description,\n      stage,\n      status\n    },\n    participants[]{\n      "athleteSlug": athlete->slug.current,\n      "athleteName": coalesce(athlete->name, displayName),\n      city,\n      discipline,\n      seed,\n      status\n    },\n    results[]{\n      "key": _key,\n      placement,\n      "athleteSlug": athlete->slug.current,\n      "athleteName": coalesce(athlete->name, displayName),\n      "athleteRegion": athlete->region,\n      region,\n      category,\n      division,\n      ruleset,\n      bodyweightDisplay,\n      scoreDisplay,\n      resultLabel,\n      movementNote,\n      verificationStatus,\n      sourceType,\n      sourceName,\n      sourceUrl,\n      videoUrl,\n      verifiedAt\n    },\n    timeline,\n    notices,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedCompetitions[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      region,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': COMPETITION_PAGE_QUERY_RESULT;
-    '\n  {\n    "series": *[\n      _type == "videoSeries" &&\n      defined(slug.current)\n    ] | order(displayOrder asc, title asc)[0...40]{\n      "slug": slug.current,\n      title,\n      description,\n      categoryFocus,\n      displayOrder\n    },\n    "videos": *[\n      _type == "video" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...180]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      },\n      seo{\n        metaTitle,\n        metaDescription,\n        noIndex\n      }\n    },\n    "featuredVideo": coalesce(\n      *[\n        _type == "video" &&\n        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "video" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    )\n  }\n': VIDEOS_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "athlete" &&\n    defined(slug.current) &&\n    (\n      verification.profileStatus == "approved" ||\n      prototypeStatus in ["fictional-prototype", "sample-record"]\n    )\n  ] | order(featured desc, name asc)[0...240]{\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex\n    }\n  }\n': PUBLIC_ATHLETES_QUERY_RESULT;
+    '\n  *[\n    _type == "athlete" &&\n    defined(slug.current) &&\n    (\n      verification.profileStatus == "approved" ||\n      prototypeStatus in ["fictional-prototype", "sample-record"]\n    )\n  ] | order(featured desc, name asc)[0...240].slug.current\n': PUBLIC_ATHLETE_SLUGS_QUERY_RESULT;
+    '\n  *[\n    _type == "athlete" &&\n    slug.current == $slug &&\n    (\n      verification.profileStatus == "approved" ||\n      prototypeStatus in ["fictional-prototype", "sample-record"]\n    )\n  ][0]{\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    "portableProfile": fullProfile,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileLabel,\n    prototypeStatus,\n    statistics,\n    achievements,\n    timeline,\n    competitionHistory[\n      !defined(competition._ref) ||\n      (\n        (\n          competition->publicStatus == "published" &&\n          (\n            coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))\n          )\n        ) ||\n        (\n          !defined(competition->publicStatus) &&\n          coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]\n        )\n      )\n    ]{\n      "eventSlug": competition->slug.current,\n      "eventName": coalesce(eventName, competition->name),\n      date,\n      country,\n      administrativeArea,\n      city,\n      divisionCategory,\n      placement,\n      score,\n      verificationStatus,\n      sourceLabel,\n      sourceUrl,\n      videoUrl\n    },\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    coverImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[\n      defined(@->slug.current) &&\n      (\n        @->verification.profileStatus == "approved" ||\n        @->prototypeStatus in ["fictional-prototype", "sample-record"]\n      )\n    ][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedCompetitions": *[\n      _type == "competition" &&\n      defined(slug.current) &&\n      (\n        (\n          publicStatus == "published" &&\n          (\n            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n          )\n        ) ||\n        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n      ) &&\n      references(^._id)\n    ] | order(startDate desc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': PUBLIC_ATHLETE_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "athlete" &&\n    slug.current == $slug\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    initials,\n    profileNumber,\n    profileStatus,\n    city,\n    state,\n    country,\n    administrativeArea,\n    region,\n    primaryDiscipline,\n    primaryCategory,\n    secondaryDisciplines,\n    specialties,\n    "updatedAt": _updatedAt,\n    verification,\n    socialLinks[]{\n      platform,\n      url,\n      handle,\n      confirmationStatus\n    },\n    shortBio,\n    "portableProfile": fullProfile,\n    quote,\n    trainingBase,\n    yearsActive,\n    styleLabel,\n    featured,\n    rankingEligible,\n    visualVariant,\n    disciplineCode,\n    profileLabel,\n    prototypeStatus,\n    statistics,\n    achievements,\n    timeline,\n    competitionHistory[]{\n      "eventSlug": competition->slug.current,\n      "eventName": coalesce(eventName, competition->name),\n      date,\n      country,\n      administrativeArea,\n      city,\n      divisionCategory,\n      placement,\n      score,\n      verificationStatus,\n      sourceLabel,\n      sourceUrl,\n      videoUrl\n    },\n    profileImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    coverImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedCompetitions": *[\n      _type == "competition" &&\n      defined(slug.current) &&\n      (\n        (\n          publicStatus == "published" &&\n          (\n            coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n          )\n        ) ||\n        (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n      ) &&\n      references(^._id)\n    ] | order(startDate desc)[0...3]{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': ATHLETE_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "rankingCategory" &&\n    status == "published" &&\n    methodologyStatus == "approved" &&\n    defined(slug.current)\n  ] | order(displayOrder asc, title asc)[0...40]{\n    "slug": slug.current,\n    title,\n    subtitle,\n    discipline,\n    division,\n    region,\n    scope,\n    status,\n    methodologyStatus,\n    seasonLabel,\n    seasonStart,\n    seasonEnd,\n    updatedAt,\n    description,\n    displayOrder,\n    methodologyNote,\n    prototypeStatus,\n    entries[\n      athlete->verification.profileStatus == "approved" ||\n      athlete->prototypeStatus in ["fictional-prototype", "sample-record"]\n    ][0...200]{\n      rank,\n      "athleteSlug": athlete->slug.current,\n      "athleteName": athlete->name,\n      "athleteRegion": athlete->region,\n      points,\n      movementDirection,\n      movementAmount,\n      movementLabel,\n      status,\n      sources[\n        !defined(competition._ref) ||\n        (\n          (\n            competition->publicStatus == "published" &&\n            (\n              coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n              (competition->source.verificationStatus in ["source-confirmed", "official"] && defined(competition->source.url))\n            )\n          ) ||\n          (\n            !defined(competition->publicStatus) &&\n            coalesce(competition->contentStatus, competition->prototypeStatus) in ["fictional-prototype", "sample-record"]\n          )\n        )\n      ]{\n        "competitionSlug": competition->slug.current,\n        "competitionName": competition->name,\n        resultKey,\n        sourceName,\n        sourceUrl,\n        verificationStatus\n      }\n    }\n  }\n': RANKING_CATEGORIES_QUERY_RESULT;
+    '\n  *[\n    _type == "competition" &&\n    defined(slug.current) &&\n    (\n      (\n        publicStatus == "published" &&\n        (\n          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n        )\n      ) ||\n      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n    )\n  ] | order(startDate asc, name asc)[0...240]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    shortName,\n    eventNumber,\n    status,\n    "contentStatus": coalesce(contentStatus, prototypeStatus),\n    startDate,\n    endDate,\n    city,\n    administrativeArea,\n    state,\n    country,\n    region,\n    venueName,\n    venueType,\n    summary,\n    disciplines,\n    primaryDiscipline,\n    featured,\n    registrationStatus,\n    registrationDeadline,\n    scheduleStatus,\n    resultsStatus,\n    capacityLabel,\n    organizerName,\n    organizerVerificationStatus,\n    actionLinks[]{\n      label,\n      url,\n      linkType,\n      affiliate,\n      partnerName,\n      disclosure\n    },\n    competitionFormat,\n    results[]{\n      "key": _key,\n      placement,\n      "athleteSlug": select(\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current\n      ),\n      "athleteName": coalesce(\n        select(\n          athlete->verification.profileStatus == "approved" ||\n          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name\n        ),\n        displayName\n      ),\n      "athleteRegion": select(\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->region\n      ),\n      region,\n      category,\n      division,\n      ruleset,\n      bodyweightDisplay,\n      scoreDisplay,\n      resultLabel,\n      movementNote,\n      verificationStatus,\n      sourceType,\n      sourceName,\n      sourceUrl,\n      videoUrl,\n      verifiedAt\n    },\n    visualVariant,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex\n    }\n  }\n': COMPETITIONS_QUERY_RESULT;
+    '\n  *[\n    _type == "competition" &&\n    defined(slug.current) &&\n    (\n      (\n        publicStatus == "published" &&\n        (\n          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n        )\n      ) ||\n      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n    )\n  ] | order(startDate asc, name asc)[0...240].slug.current\n': COMPETITION_SLUGS_QUERY_RESULT;
+    '\n  *[\n    _type == "competition" &&\n    slug.current == $slug &&\n    (\n      (\n        publicStatus == "published" &&\n        (\n          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n          (source.verificationStatus in ["source-confirmed", "official"] && defined(source.url))\n        )\n      ) ||\n      (!defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"])\n    )\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    name,\n    shortName,\n    eventNumber,\n    status,\n    "contentStatus": coalesce(contentStatus, prototypeStatus),\n    startDate,\n    endDate,\n    city,\n    administrativeArea,\n    state,\n    country,\n    region,\n    venueName,\n    venueType,\n    summary,\n    "portableDescription": description,\n    disciplines,\n    primaryDiscipline,\n    divisions[]{\n      "slug": coalesce(slug.current, _key),\n      name,\n      discipline,\n      level,\n      format,\n      participantLimit,\n      description\n    },\n    featured,\n    registrationStatus,\n    registrationDeadline,\n    scheduleStatus,\n    resultsStatus,\n    capacityLabel,\n    organizerName,\n    organizerVerificationStatus,\n    actionLinks[]{\n      label,\n      url,\n      linkType,\n      affiliate,\n      partnerName,\n      disclosure\n    },\n    competitionFormat,\n    visualVariant,\n    schedule[]{\n      time,\n      "label": coalesce(label, title),\n      description,\n      stage,\n      status\n    },\n    participants[]{\n      "athleteSlug": select(\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current\n      ),\n      "athleteName": coalesce(\n        select(\n          athlete->verification.profileStatus == "approved" ||\n          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name\n        ),\n        displayName\n      ),\n      city,\n      discipline,\n      seed,\n      status\n    },\n    results[]{\n      "key": _key,\n      placement,\n      "athleteSlug": select(\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->slug.current\n      ),\n      "athleteName": coalesce(\n        select(\n          athlete->verification.profileStatus == "approved" ||\n          athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->name\n        ),\n        displayName\n      ),\n      "athleteRegion": select(\n        athlete->verification.profileStatus == "approved" ||\n        athlete->prototypeStatus in ["fictional-prototype", "sample-record"] => athlete->region\n      ),\n      region,\n      category,\n      division,\n      ruleset,\n      bodyweightDisplay,\n      scoreDisplay,\n      resultLabel,\n      movementNote,\n      verificationStatus,\n      sourceType,\n      sourceName,\n      sourceUrl,\n      videoUrl,\n      verifiedAt\n    },\n    timeline,\n    notices,\n    heroImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[\n      defined(@->slug.current) &&\n      (\n        @->verification.profileStatus == "approved" ||\n        @->prototypeStatus in ["fictional-prototype", "sample-record"]\n      )\n    ][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedCompetitions[\n      defined(@->slug.current) &&\n      (\n        (\n          @->publicStatus == "published" &&\n          (\n            coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))\n          )\n        ) ||\n        (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])\n      )\n    ][0...3]->{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      region,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    "relatedVideos": *[\n      _type == "video" &&\n      defined(slug.current) &&\n      references(^._id)\n    ] | order(publishedAt desc)[0...3]{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': COMPETITION_PAGE_QUERY_RESULT;
+    '\n  {\n    "counts": {\n      "total": count(*[_type == "competition"]),\n      "samples": count(*[\n        _type == "competition" &&\n        coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]\n      ]),\n      "real": count(*[\n        _type == "competition" &&\n        coalesce(contentStatus, prototypeStatus) == "published-record"\n      ]),\n      "sourceConfirmed": count(*[\n        _type == "competition" &&\n        source.verificationStatus in ["source-confirmed", "official"]\n      ]),\n      "upcoming": count(*[\n        _type == "competition" &&\n        startDate >= $today\n      ]),\n      "past": count(*[\n        _type == "competition" &&\n        startDate < $today\n      ])\n    },\n    "total": count(*[\n      _type == "competition" &&\n      ($q == "" || name match $q || organizerName match $q || city match $q || country match $q || _id match $q) &&\n      ($status == "" || status == $status) &&\n      (\n        $publicStatus == "" ||\n        publicStatus == $publicStatus ||\n        (\n          $publicStatus == "legacy-public" &&\n          !defined(publicStatus) &&\n          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]\n        )\n      ) &&\n      ($verification == "" || source.verificationStatus == $verification) &&\n      ($country == "" || country == $country) &&\n      (\n        $dateScope == "" ||\n        ($dateScope == "upcoming" && startDate >= $today) ||\n        ($dateScope == "past" && startDate < $today)\n      ) &&\n      (\n        $recordKind == "" ||\n        ($recordKind == "sample" && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]) ||\n        ($recordKind == "real" && coalesce(contentStatus, prototypeStatus) == "published-record")\n      )\n    ]),\n    "items": *[\n      _type == "competition" &&\n      ($q == "" || name match $q || organizerName match $q || city match $q || country match $q || _id match $q) &&\n      ($status == "" || status == $status) &&\n      (\n        $publicStatus == "" ||\n        publicStatus == $publicStatus ||\n        (\n          $publicStatus == "legacy-public" &&\n          !defined(publicStatus) &&\n          coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]\n        )\n      ) &&\n      ($verification == "" || source.verificationStatus == $verification) &&\n      ($country == "" || country == $country) &&\n      (\n        $dateScope == "" ||\n        ($dateScope == "upcoming" && startDate >= $today) ||\n        ($dateScope == "past" && startDate < $today)\n      ) &&\n      (\n        $recordKind == "" ||\n        ($recordKind == "sample" && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"]) ||\n        ($recordKind == "real" && coalesce(contentStatus, prototypeStatus) == "published-record")\n      )\n    ] | order(startDate desc, name asc, _id asc)[$offset...$end]{\n      "canonicalId": _id,\n      "slug": slug.current,\n      name,\n      eventSeries,\n      editorialPriority,\n      featured,\n      status,\n      publicStatus,\n      "legacyPublic": !defined(publicStatus) && coalesce(contentStatus, prototypeStatus) in ["fictional-prototype", "sample-record"],\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      venueName,\n      organizerName,\n      organizerVerificationStatus,\n      disciplines,\n      primaryDiscipline,\n      competitionFormat,\n      externalProviderId,\n      externalProviderUrl,\n      "organization": organization->{\n        "canonicalId": _id,\n        name\n      },\n      "source": source{\n        "title": sourceTitle,\n        "type": sourceType,\n        url,\n        externalRecordId,\n        checkedAt,\n        verificationStatus,\n        "provider": provider->{\n          "canonicalId": _id,\n          name,\n          status\n        }\n      },\n      "updatedAt": _updatedAt\n    }\n  }\n': ADMIN_COMPETITIONS_QUERY_RESULT;
+    '\n  {\n    "series": *[\n      _type == "videoSeries" &&\n      defined(slug.current)\n    ] | order(displayOrder asc, title asc)[0...40]{\n      "slug": slug.current,\n      title,\n      description,\n      categoryFocus,\n      displayOrder\n    },\n    "videos": *[\n      _type == "video" &&\n      defined(slug.current)\n    ] | order(featured desc, publishedAt desc)[0...180]{\n      "canonicalId": _id,\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      relatedAthletes[\n        defined(@->slug.current) &&\n        (\n          @->verification.profileStatus == "approved" ||\n          @->prototypeStatus in ["fictional-prototype", "sample-record"]\n        )\n      ]->{"slug": slug.current},\n      relatedCompetitions[\n        defined(@->slug.current) &&\n        (\n          (\n            @->publicStatus == "published" &&\n            (\n              coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n              (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))\n            )\n          ) ||\n          (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])\n        )\n      ]->{"slug": slug.current},\n      relatedStories[]->{"slug": slug.current},\n      relatedVideos[]->{"slug": slug.current},\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      },\n      seo{\n        metaTitle,\n        metaDescription,\n        noIndex\n      }\n    },\n    "featuredVideo": coalesce(\n      *[\n        _type == "video" &&\n        _id == *[_id == "siteSettings"][0].featuredVideo._ref &&\n        defined(slug.current)\n      ][0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        relatedAthletes[\n          defined(@->slug.current) &&\n          (\n            @->verification.profileStatus == "approved" ||\n            @->prototypeStatus in ["fictional-prototype", "sample-record"]\n          )\n        ]->{"slug": slug.current},\n        relatedCompetitions[\n          defined(@->slug.current) &&\n          (\n            (\n              @->publicStatus == "published" &&\n              (\n                coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n                (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))\n              )\n            ) ||\n            (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])\n          )\n        ]->{"slug": slug.current},\n        relatedStories[]->{"slug": slug.current},\n        relatedVideos[]->{"slug": slug.current},\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        origin,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      },\n      *[\n        _type == "video" &&\n        featured == true &&\n        defined(slug.current)\n      ] | order(publishedAt desc)[0]{\n        "slug": slug.current,\n        title,\n        shortTitle,\n        episodeNumber,\n        "seriesSlug": series->slug.current,\n        "seriesTitle": series->title,\n        category,\n        format,\n        status,\n        durationSeconds,\n        publishedAt,\n        location,\n        summary,\n        featured,\n        visualVariant,\n        posterLabel,\n        frameCode,\n        tags,\n        relatedAthletes[\n          defined(@->slug.current) &&\n          (\n            @->verification.profileStatus == "approved" ||\n            @->prototypeStatus in ["fictional-prototype", "sample-record"]\n          )\n        ]->{"slug": slug.current},\n        relatedCompetitions[\n          defined(@->slug.current) &&\n          (\n            (\n              @->publicStatus == "published" &&\n              (\n                coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n                (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))\n              )\n            ) ||\n            (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])\n          )\n        ]->{"slug": slug.current},\n        relatedStories[]->{"slug": slug.current},\n        relatedVideos[]->{"slug": slug.current},\n        availabilityLabel,\n        sourcePlatform,\n        sourceAccount,\n        originalPostUrl,\n        origin,\n        ownershipStatus,\n        discoverContext,\n        platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n        posterImage{\n          asset->{\n            _id,\n            "_ref": _id,\n            url,\n            metadata{\n              dimensions{width, height, aspectRatio},\n              lqip\n            }\n          },\n          crop{top, bottom, left, right},\n          hotspot{x, y, width, height},\n          alt,\n          caption,\n          credit,\n          decorative\n        }\n      }\n    )\n  }\n': VIDEOS_PAGE_QUERY_RESULT;
     '\n  *[\n    _type == "video" &&\n    defined(slug.current)\n  ] | order(featured desc, publishedAt desc)[0...180].slug.current\n': VIDEO_SLUGS_QUERY_RESULT;
-    '\n  *[\n    _type == "video" &&\n    slug.current == $slug\n  ][0]{\n    "slug": slug.current,\n    title,\n    shortTitle,\n    episodeNumber,\n    "seriesSlug": series->slug.current,\n    "seriesTitle": series->title,\n    category,\n    format,\n    status,\n    durationSeconds,\n    publishedAt,\n    location,\n    summary,\n    "portableDescription": description,\n    editorialNotes,\n    featured,\n    visualVariant,\n    posterLabel,\n    frameCode,\n    chapters,\n    transcript,\n    credits,\n    tags,\n    availabilityLabel,\n    sourcePlatform,\n    sourceAccount,\n    originalPostUrl,\n    ownershipStatus,\n    discoverContext,\n    platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n    posterImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedCompetitions[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      region,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedVideos[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': VIDEO_PAGE_QUERY_RESULT;
+    '\n  *[\n    _type == "video" &&\n    slug.current == $slug\n  ][0]{\n    "canonicalId": _id,\n    "slug": slug.current,\n    title,\n    shortTitle,\n    episodeNumber,\n    "seriesSlug": series->slug.current,\n    "seriesTitle": series->title,\n    category,\n    format,\n    status,\n    durationSeconds,\n    publishedAt,\n    location,\n    summary,\n    "portableDescription": description,\n    editorialNotes,\n    featured,\n    visualVariant,\n    posterLabel,\n    frameCode,\n    chapters,\n    transcript,\n    credits,\n    tags,\n    availabilityLabel,\n    sourcePlatform,\n    sourceAccount,\n    originalPostUrl,\n    origin,\n    ownershipStatus,\n    discoverContext,\n    platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n    posterImage{\n      asset->{\n        _id,\n        "_ref": _id,\n        url,\n        metadata{\n          dimensions{width, height, aspectRatio},\n          lqip\n        }\n      },\n      crop{top, bottom, left, right},\n      hotspot{x, y, width, height},\n      alt,\n      caption,\n      credit,\n      decorative\n    },\n    seo{\n      metaTitle,\n      metaDescription,\n      noIndex,\n      socialImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedStories[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      excerpt,\n      category,\n      "authorName": author->name,\n      publishedAt,\n      readTimeMinutes,\n      location,\n      featured,\n      issueNumber,\n      eyebrow,\n      heroVisualVariant,\n      prototypeStatus,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedAthletes[\n      defined(@->slug.current) &&\n      (\n        @->verification.profileStatus == "approved" ||\n        @->prototypeStatus in ["fictional-prototype", "sample-record"]\n      )\n    ][0...3]->{\n      "slug": slug.current,\n      name,\n      initials,\n      profileNumber,\n      profileStatus,\n      city,\n      state,\n      country,\n      region,\n      primaryDiscipline,\n      secondaryDisciplines,\n      shortBio,\n      quote,\n      trainingBase,\n      yearsActive,\n      styleLabel,\n      featured,\n      rankingEligible,\n      visualVariant,\n      disciplineCode,\n      profileImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedCompetitions[\n      defined(@->slug.current) &&\n      (\n        (\n          @->publicStatus == "published" &&\n          (\n            coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"] ||\n            (@->source.verificationStatus in ["source-confirmed", "official"] && defined(@->source.url))\n          )\n        ) ||\n        (!defined(@->publicStatus) && coalesce(@->contentStatus, @->prototypeStatus) in ["fictional-prototype", "sample-record"])\n      )\n    ][0...3]->{\n      "slug": slug.current,\n      name,\n      shortName,\n      eventNumber,\n      status,\n      "contentStatus": coalesce(contentStatus, prototypeStatus),\n      startDate,\n      endDate,\n      city,\n      administrativeArea,\n      state,\n      country,\n      region,\n      venueName,\n      venueType,\n      summary,\n      disciplines,\n      primaryDiscipline,\n      featured,\n      registrationStatus,\n      scheduleStatus,\n      resultsStatus,\n      capacityLabel,\n      organizerName,\n      competitionFormat,\n      visualVariant,\n      heroImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    },\n    relatedVideos[defined(@->slug.current)][0...3]->{\n      "slug": slug.current,\n      title,\n      shortTitle,\n      episodeNumber,\n      "seriesSlug": series->slug.current,\n      "seriesTitle": series->title,\n      category,\n      format,\n      status,\n      durationSeconds,\n      publishedAt,\n      location,\n      summary,\n      featured,\n      visualVariant,\n      posterLabel,\n      frameCode,\n      tags,\n      availabilityLabel,\n      sourcePlatform,\n      sourceAccount,\n      originalPostUrl,\n      origin,\n      ownershipStatus,\n      discoverContext,\n      platformMetrics[]{platform, label, value, observedAt, sourceUrl},\n      posterImage{\n        asset->{\n          _id,\n          "_ref": _id,\n          url,\n          metadata{\n            dimensions{width, height, aspectRatio},\n            lqip\n          }\n        },\n        crop{top, bottom, left, right},\n        hotspot{x, y, width, height},\n        alt,\n        caption,\n        credit,\n        decorative\n      }\n    }\n  }\n': VIDEO_PAGE_QUERY_RESULT;
   }
 }

@@ -54,17 +54,15 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function DraftModeRuntime() {
-  const [{ DraftModeClientRuntime }, { SanityLive }] = await Promise.all([
-    import("@/components/sanity/draft-mode-client-runtime"),
-    import("@/sanity/lib/live"),
-  ]);
-
-  return (
-    <>
-      <SanityLive />
-      <DraftModeClientRuntime />
-    </>
+  const { DraftModeClientRuntime } = await import(
+    "@/components/sanity/draft-mode-client-runtime"
   );
+  return <DraftModeClientRuntime />;
+}
+
+async function SanityLiveRuntime() {
+  const { SanityLive } = await import("@/sanity/lib/live");
+  return <SanityLive />;
 }
 
 export default async function SiteLayout({
@@ -85,7 +83,7 @@ export default async function SiteLayout({
       >
         Skip to main content
       </a>
-      <SiteHeader navigation={settings.navigation} />
+      <SiteHeader />
       <main id="main-content" className="flex-1">
         {children}
       </main>
@@ -94,9 +92,8 @@ export default async function SiteLayout({
         prototypeNotice={settings.prototypeNotice}
         footerStatement={settings.footerStatement}
       />
-      {isSanityConfigured && preview.isEnabled ? (
-        <DraftModeRuntime />
-      ) : null}
+      {isSanityConfigured ? <SanityLiveRuntime /> : null}
+      {isSanityConfigured && preview.isEnabled ? <DraftModeRuntime /> : null}
     </div>
   );
 }
