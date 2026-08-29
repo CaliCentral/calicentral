@@ -1,5 +1,6 @@
 import "server-only";
 
+import { resolveEffectiveRole } from "@/lib/auth/identity";
 import type { PortalRole, PortalUser } from "@/lib/auth/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -38,12 +39,25 @@ export async function getSupabasePortalUser(): Promise<PortalUser | null> {
   const accessStatus = member.access_status;
   if (accessStatus !== "active" && accessStatus !== "pending" && accessStatus !== "suspended" && accessStatus !== "archived") return null;
 
+  // Mirrors the Auth.js session callback's use of resolveEffectiveRole: a
+  // CALI_CENTRAL_ADMIN_EMAILS/CALI_CENTRAL_EDITOR_EMAILS match elevates the
+  // app-layer PortalUser.role (page-level requireEditor/requireAdmin gating)
+  // the same way regardless of which auth backend is active. This does not
+  // grant any Postgres RLS capability by itself -- private.has_role()/
+  // has_capability() only ever consult member_roles/member_capabilities, so a
+  // bootstrap admin still needs an explicit member_roles row before any RLS
+  // write policy accepts their writes. That is intentional: RLS capability
+  // grants must remain an explicit, auditable database action, never an
+  // env-var-driven bypass.
+  const storedRole = highestPortalRole(roles ?? []);
+  const role = resolveEffectiveRole(storedRole, authData.user.email);
+
   return {
     id: member.id,
     displayName: profile?.display_name ?? authData.user.user_metadata.full_name ?? "Member",
     email: authData.user.email,
     avatarUrl: profile?.avatar_url ?? null,
-    role: highestPortalRole(roles ?? []),
+    role,
     accessStatus,
     authProvider: "google",
     profileConfigured: profile?.profile_configured === true,
