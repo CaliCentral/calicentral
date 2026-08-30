@@ -66,7 +66,7 @@ function validateArbitraryHostRefusedEvenWithBothFlags() {
     ["--write", "--confirm-local-migration", "--confirm-preview-migration"],
   );
   assert.equal(result.failed, true, "a write to any host other than localhost or the one approved preview project must be refused, with no override flag");
-  assert.match(result.stderr, /refuses writes/, "the refusal must be the categorical host-refusal message, not a flag-specific one");
+  assert.match(result.stderr, /refuses to contact/, "the refusal must be the categorical host-refusal message, not a flag-specific one");
 }
 
 function validateDryRunNeverNeedsAnyCredentialCheck() {

@@ -2,6 +2,7 @@ import {
   applyMigrationPlan,
   countBy,
   emitReport,
+  fetchExistingMemberEmails,
   getArgument,
   isRecord,
   readJsonRecords,
@@ -32,6 +33,16 @@ const providerLabelsById = new Map<string, string>();
 const resolveProviderLabel = (value: unknown): string | null => {
   const refId = referenceId(value);
   return refId ? (providerLabelsById.get(refId) ?? null) : null;
+};
+
+// Populated once per run in main(), from whatever real Supabase target is
+// configured (empty against a fixture-only dry run with no target at all).
+// A contributorProfile whose email is already a real member here must not
+// get a new member/profile/member_roles row planned for it -- see
+// fetchExistingMemberEmails in common.ts for why.
+let existingMemberEmails: ReadonlySet<string> = new Set();
+const isExistingMember = (email: string | null): boolean => {
+  return email !== null && existingMemberEmails.has(email.toLowerCase());
 };
 
 function isDocument(value: unknown): value is SanityDocument {
@@ -357,11 +368,27 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
     });
     case "contributorProfile": {
       const memberId = id;
+      const email = text(document.normalizedEmail);
+      if (isExistingMember(email)) {
+        // A real member with this email already exists in the target --
+        // most likely the project owner's own account, provisioned by an
+        // actual Supabase Auth sign-in, not by this migration. That real
+        // account is authoritative; creating a second, migration-derived
+        // member row for the same email would either collide on the
+        // email_normalized unique constraint (hard-failing the whole write)
+        // or, had this check not existed, leave a dangling
+        // profiles/member_roles row pointing at a member insert skipped
+        // out from under it. Excluded, not merged into the existing row --
+        // this migration tool has no safe way to decide which fields of an
+        // already-live real account should be overwritten by Sanity data.
+        warnings.push(`Contributor profile ${document._id} matches an existing real member in the target by email; skipping member/profile/member_roles creation to avoid a duplicate account. The existing account is left untouched.`);
+        return [];
+      }
       return [
         { sourceKey: document._id, table: "members", row: {
           // The live schema's field is providerAccountId, not principalId.
           id: memberId, legacy_principal_id: text(document.providerAccountId) ?? document._id,
-          email_normalized: text(document.normalizedEmail), access_status: text(document.accessStatus) ?? "pending",
+          email_normalized: email, access_status: text(document.accessStatus) ?? "pending",
           last_signed_in_at: text(document.lastSignedInAt),
         }},
         { sourceKey: document._id, table: "profiles", row: {
@@ -449,6 +476,7 @@ async function main() {
   const documents = values.filter(isDocument);
   const warnings: string[] = [];
   const errors: string[] = [];
+  existingMemberEmails = await fetchExistingMemberEmails();
   if (documents.length !== values.length) errors.push(`${values.length - documents.length} input records were not valid Sanity documents.`);
 
   // Draft and published Sanity documents share one canonical id (the "drafts."

@@ -137,28 +137,76 @@ function sortByWriteOrder(tables: readonly string[]): string[] {
 // unconditionally, with no override flag.
 const APPROVED_PREVIEW_HOSTNAME = "pwgpthnhopmquvuqqqys.supabase.co";
 
-export async function applyMigrationPlan(report: MigrationReport): Promise<void> {
-  if (!hasArgument("write")) return;
+// Shared by every function in this module that touches a real Supabase
+// target, read or write: the only hosts this tool will ever talk to are
+// localhost/127.0.0.1 or the one approved preview project, hardcoded above,
+// never read from an env var someone could point anywhere. A read (like the
+// member-email lookup below) is lower-stakes than a write, but it still
+// touches real account data, so it gets the identical refusal, not a
+// looser one -- there's no reason a lookup should be allowed to reach a
+// host a write to the same target would be refused for.
+function requireApprovedHost(url: string): { readonly hostname: string; readonly isLocal: boolean } {
+  const hostname = new URL(url).hostname;
+  const isLocal = ["localhost", "127.0.0.1"].includes(hostname);
+  if (!isLocal && hostname !== APPROVED_PREVIEW_HOSTNAME) {
+    throw new Error(`This migration tool refuses to contact any Supabase host other than localhost/127.0.0.1 or the approved preview project (${APPROVED_PREVIEW_HOSTNAME}). Got: ${hostname}.`);
+  }
+  return { hostname, isLocal };
+}
 
+// Validates the write is approved (host + the matching confirmation flag)
+// WITHOUT touching the network -- callers that need to do something
+// network-bound before the actual write (like the member-email lookup
+// below) must call this first and let it throw before ever opening a
+// connection, so a deliberately-invalid credential used only to test this
+// gate never gets far enough to attempt a real request.
+export function assertWriteApproved(): { readonly url: string; readonly serviceRoleKey: string; readonly isLocal: boolean } {
   const url = process.env.SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !serviceRoleKey) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for a write.");
 
-  const parsedUrl = new URL(url);
-  const isLocal = ["localhost", "127.0.0.1"].includes(parsedUrl.hostname);
-  const isApprovedPreview = parsedUrl.hostname === APPROVED_PREVIEW_HOSTNAME;
+  // requireApprovedHost already refuses any host that is neither localhost
+  // nor the approved preview project, so isLocal === false here specifically
+  // means the approved preview host.
+  const { isLocal } = requireApprovedHost(url);
 
   if (isLocal) {
     if (!hasArgument("confirm-local-migration")) {
       throw new Error("Local writes require --write --confirm-local-migration.");
     }
-  } else if (isApprovedPreview) {
-    if (!hasArgument("confirm-preview-migration")) {
-      throw new Error(`Preview writes require --write --confirm-preview-migration, and only ever target ${APPROVED_PREVIEW_HOSTNAME}.`);
-    }
-  } else {
-    throw new Error(`This migration tool refuses writes to any Supabase host other than localhost/127.0.0.1 or the approved preview project (${APPROVED_PREVIEW_HOSTNAME}). Got: ${parsedUrl.hostname}. A real production migration requires a separately approved tool/run.`);
+  } else if (!hasArgument("confirm-preview-migration")) {
+    throw new Error(`Preview writes require --write --confirm-preview-migration, and only ever target ${APPROVED_PREVIEW_HOSTNAME}.`);
   }
+  return { url, serviceRoleKey, isLocal };
+}
+
+// A contributorProfile document can correspond to a real member that
+// already exists in the target -- most commonly the project owner's own
+// account, provisioned by a real Supabase Auth sign-in rather than by this
+// migration tool. members.email_normalized is unique, so inserting a new
+// member row for the same email would either hard-fail the whole batch (if
+// the insert isn't the one caught by an onConflict arbiter) or, worse,
+// silently orphan a dependent profiles/member_roles row if the member
+// insert alone were quietly skipped. The caller must know about this
+// *before* planning those three rows, not discover it as a write failure.
+// Queried once per run, only for an actual --write attempt against an
+// already-gate-approved target (never for a plain dry run, and never before
+// assertWriteApproved has already validated the host/flags) -- a dry run
+// has no real write to protect and must never touch the network on its
+// own.
+export async function fetchExistingMemberEmails(): Promise<ReadonlySet<string>> {
+  if (!hasArgument("write")) return new Set();
+  const { url, serviceRoleKey } = assertWriteApproved();
+
+  const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await client.from("members").select("email_normalized").not("email_normalized", "is", null);
+  if (error) throw new Error(`Failed reading existing member emails from the target: ${error.message}`);
+  return new Set((data ?? []).map((row) => (row.email_normalized as string).toLowerCase()));
+}
+
+export async function applyMigrationPlan(report: MigrationReport): Promise<void> {
+  if (!hasArgument("write")) return;
+  const { url, serviceRoleKey } = assertWriteApproved();
   if (report.errors.length) throw new Error("Migration plan contains validation errors; no rows were written.");
 
   const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
