@@ -41,6 +41,10 @@ const repeated = planOfficialStreetliftingImport({
   competitions: [competition], results: [], rankings: [ranking([result("1", "athlete-a", "Same Name", 1), result("2", "athlete-b", "Same Name", 2)])], observedOn: "2026-08-30",
 });
 assert.deepEqual(repeated, first, "unchanged source planning must be deterministic");
+const unchangedLater = planOfficialStreetliftingImport({
+  competitions: [competition], results: [], rankings: [ranking([result("1", "athlete-a", "Same Name", 1), result("2", "athlete-b", "Same Name", 2)])], observedOn: "2026-08-31",
+});
+assert.equal(unchangedLater.rankingSnapshots[0].id, first.rankingSnapshots[0].id, "an unchanged ranking must not create a duplicate snapshot on a later check");
 
 const matched = planOfficialStreetliftingImport({
   competitions: [competition], results: [result("1", "athlete-a", "Same Name", 1)], rankings: [], observedOn: "2026-08-30",

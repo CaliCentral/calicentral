@@ -157,7 +157,7 @@ export function planOfficialStreetliftingImport(input: {
       score: entry.score,
     })));
     return {
-      id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-snapshot", `${systemKey}:${input.observedOn}:${contentHash}`),
+      id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-snapshot", `${systemKey}:${contentHash}`),
       systemId,
       sourceUrl: ranking.sourceUrl,
       observedOn: input.observedOn,
