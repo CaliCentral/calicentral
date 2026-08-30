@@ -21,6 +21,7 @@
     "test:competitions": "node --import tsx scripts/validate-competitions.ts",
     "test:source-registry": "node --import tsx scripts/validate-source-registry.ts",
     "test:official-streetlifting-provider": "node --import tsx scripts/validate-official-streetlifting-provider.ts",
+    "test:official-streetlifting-plan": "node --import tsx scripts/validate-official-streetlifting-plan.ts",
     "test:auth": "node --require ./scripts/test-shims/allow-server-only.cjs --import tsx scripts/validate-auth-bootstrap.ts",
     "test:admin": "node --import tsx scripts/validate-admin-editorial.ts",
     "test:rate-limit": "node --require ./scripts/test-shims/allow-server-only.cjs --import tsx scripts/validate-rate-limit.ts",
