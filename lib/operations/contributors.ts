@@ -36,7 +36,12 @@ import {
   type ContributorProfileUpdateInput,
 } from "@/lib/operations/validation";
 import { useSupabaseAuth } from "@/lib/supabase/config";
-import { getSupabaseOwnContributorProfile } from "@/lib/operations/supabase-read";
+import {
+  getSupabaseAssignableReviewers,
+  getSupabaseContributorForAdmin,
+  getSupabaseContributorForEditor,
+  getSupabaseOwnContributorProfile,
+} from "@/lib/operations/supabase-read";
 
 const OWN_PROFILE_PROJECTION = `{
   "id": _id,
@@ -615,6 +620,9 @@ export async function getContributorForAdmin(
   contributorId: string,
 ): Promise<AdminContributorDetail | null> {
   const id = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return getSupabaseContributorForAdmin(id);
+  }
   const client = requireOperationsClient();
   return normalizeAdminContributor(
     await client.fetch<unknown>(
@@ -636,6 +644,9 @@ export async function getContributorForEditor(
   contributorId: string,
 ): Promise<EditorContributorSummary | null> {
   const id = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return getSupabaseContributorForEditor(id);
+  }
   const client = requireOperationsClient();
   return normalizeEditorContributor(
     await client.fetch<unknown>(
@@ -648,6 +659,9 @@ export async function getContributorForEditor(
 export async function getAssignableReviewers(): Promise<
   ContributorReference[]
 > {
+  if (useSupabaseAuth) {
+    return [...(await getSupabaseAssignableReviewers())];
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<
     Array<{

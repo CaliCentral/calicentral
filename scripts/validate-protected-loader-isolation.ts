@@ -20,6 +20,13 @@ for (const [source, name, supabaseFunction] of [
   [submissions, "countAdminSubmissions", "countSupabaseAdminSubmissions"],
   [submissions, "getAdminActionableSubmissionCounts", "getSupabaseAdminActionableSubmissionCounts"],
   [submissions, "getAdminDashboard", "getSupabaseAdminDashboard"],
+  [submissions, "getSubmissionForContributor", "getSupabaseSubmissionForContributor"],
+  [submissions, "getSubmissionForReview", "getSupabaseSubmissionForReview"],
+  [submissions, "getAuditEvents", "getSupabaseAuditEvents"],
+  [submissions, "getContributorAuditEvents", "getSupabaseContributorAuditEvents"],
+  [contributors, "getContributorForAdmin", "getSupabaseContributorForAdmin"],
+  [contributors, "getContributorForEditor", "getSupabaseContributorForEditor"],
+  [contributors, "getAssignableReviewers", "getSupabaseAssignableReviewers"],
 ] as const) {
   const body = functionBody(source, name);
   const providerBranch = body.indexOf("if (useSupabaseAuth)");

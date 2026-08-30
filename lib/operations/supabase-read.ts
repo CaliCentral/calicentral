@@ -1,5 +1,11 @@
 import "server-only";
 
+import { getBootstrapRole } from "@/lib/auth/config";
+import {
+  normalizeAdminSubmissionDetail,
+  normalizeContributorSubmissionDetail,
+} from "@/lib/operations/normalize";
+import { higherRole } from "@/lib/operations/permissions";
 import { SupabaseRepositoryError } from "@/lib/supabase/repository";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -8,13 +14,18 @@ import {
   CONTRIBUTOR_ROLES,
   SUBMISSION_PRIORITIES,
   SUBMISSION_TYPES,
+  type AdminContributorDetail,
   type AdminDashboard,
+  type AdminSubmissionDetail,
   type AdminSubmissionSummary,
   type AuditEvent,
   type ContributorReference,
   type ContributorRole,
+  type ContributorSubmissionDetail,
   type ContributorSubmissionSummary,
+  type EditorContributorSummary,
   type OwnContributorProfile,
+  type PrivateEditorialNote,
   type SubmissionPriority,
   type SubmissionStatus,
   type SubmissionType,
@@ -294,6 +305,7 @@ function mapAuditEvent(
   const actorId = stringValue(row.actor_member_id);
   const actor = actorId ? references.get(actorId) : undefined;
   const targetType = row.target_type === "submission" ? "submission" : "contributor";
+  const metadata = isRecord(row.metadata) ? row.metadata : undefined;
   return {
     id: String(row.id),
     eventType: eventType as AuditEvent["eventType"],
@@ -304,7 +316,290 @@ function mapAuditEvent(
     ...(targetType === "submission" ? { submissionId: targetId } : { contributorId: targetId }),
     summary,
     createdAt,
+    ...(metadata
+      ? {
+          metadata: {
+            previousValue: stringValue(metadata.previousValue),
+            nextValue: stringValue(metadata.nextValue),
+            noteKind: stringValue(metadata.noteKind),
+          },
+        }
+      : {}),
   };
+}
+
+function privateNoteAuthorIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.flatMap((raw) => {
+    if (!isRecord(raw) || !isRecord(raw.author)) return [];
+    const id = stringValue(raw.author._ref);
+    return id ? [id] : [];
+  });
+}
+
+function mapPrivateEditorialNotes(
+  value: unknown,
+  references: ReadonlyMap<string, ContributorReference>,
+): PrivateEditorialNote[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.flatMap((raw) => {
+    if (!isRecord(raw)) return [];
+    const key = stringValue(raw.key) ?? stringValue(raw._key);
+    const authorId = isRecord(raw.author) ? stringValue(raw.author._ref) : undefined;
+    const author = authorId ? references.get(authorId) : undefined;
+    if (!key || !author) return [];
+    return [{
+      key,
+      text: stringValue(raw.text) ?? "",
+      author,
+      createdAt: stringValue(raw.createdAt) ?? "",
+    }];
+  });
+}
+
+function submissionDetailSource(row: {
+  readonly id: string;
+  readonly submission_type: SubmissionType;
+  readonly status: SubmissionStatus;
+  readonly payload: unknown;
+  readonly contributor_feedback: string;
+  readonly assigned_to: string | null;
+  readonly created_at: string;
+  readonly updated_at: string;
+}): JsonRecord {
+  const payload = isRecord(row.payload) ? row.payload : {};
+  return {
+    ...payload,
+    id: row.id,
+    submissionType: row.submission_type,
+    status: row.status,
+    contributorVisibleFeedback: row.contributor_feedback,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+async function loadEditorContributorSummary(
+  memberId: string,
+): Promise<EditorContributorSummary | null> {
+  const own = await getSupabaseOwnContributorProfile(memberId);
+  if (!own) {
+    return null;
+  }
+  const client = await createSupabaseServerClient();
+  const [totalResult, activeResult] = await Promise.all([
+    client.from("submissions").select("id", { count: "exact", head: true }).eq("owner_member_id", memberId),
+    client
+      .from("submissions")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_member_id", memberId)
+      .in("status", ["submitted", "inReview", "revisionRequested"]),
+  ]);
+  if (totalResult.error) failure(totalResult.error.message);
+  if (activeResult.error) failure(activeResult.error.message);
+  return {
+    ...own,
+    submissionCount: totalResult.count ?? 0,
+    activeReviewCount: activeResult.count ?? 0,
+  };
+}
+
+export async function getSupabaseSubmissionForContributor(
+  submissionId: string,
+  contributorId: string,
+): Promise<ContributorSubmissionDetail | null> {
+  const client = await createSupabaseServerClient();
+  const { data, error } = await client
+    .from("submissions")
+    .select("id, submission_type, status, payload, contributor_feedback, assigned_to, created_at, updated_at")
+    .eq("id", submissionId)
+    .eq("owner_member_id", contributorId)
+    .maybeSingle();
+  if (error) failure(error.message);
+  if (!data) return null;
+  return normalizeContributorSubmissionDetail({
+    ...submissionDetailSource(data),
+    assignedForReview: data.assigned_to !== null,
+  });
+}
+
+export async function getSupabaseSubmissionForReview(
+  submissionId: string,
+): Promise<AdminSubmissionDetail | null> {
+  const client = await createSupabaseServerClient();
+  const { data, error } = await client
+    .from("submissions")
+    .select(
+      "id, owner_member_id, submission_type, status, payload, contributor_feedback, private_editorial_notes, assigned_to, created_at, updated_at",
+    )
+    .eq("id", submissionId)
+    .maybeSingle();
+  if (error) failure(error.message);
+  if (!data) return null;
+
+  const auditResult = await client
+    .from("audit_events")
+    .select("id, event_type, actor_member_id, target_type, target_id, summary, created_at, metadata")
+    .eq("target_type", "submission")
+    .eq("target_id", submissionId)
+    .order("created_at", { ascending: false })
+    .limit(150);
+  if (auditResult.error) failure(auditResult.error.message);
+  const auditRows = auditResult.data ?? [];
+
+  const referenceIds = [
+    ...(data.assigned_to ? [data.assigned_to] : []),
+    ...privateNoteAuthorIds(data.private_editorial_notes),
+    ...auditRows.flatMap((row) => (row.actor_member_id ? [row.actor_member_id] : [])),
+  ];
+  const [submitter, references] = await Promise.all([
+    loadEditorContributorSummary(data.owner_member_id),
+    loadContributorReferences(referenceIds),
+  ]);
+  if (!submitter) return null;
+
+  return normalizeAdminSubmissionDetail({
+    ...submissionDetailSource(data),
+    submitter,
+    ...(data.assigned_to && references.get(data.assigned_to)
+      ? { assignedReviewer: references.get(data.assigned_to) }
+      : {}),
+    privateEditorialNotes: mapPrivateEditorialNotes(data.private_editorial_notes, references),
+    auditEvents: auditRows.flatMap((row) => {
+      const event = mapAuditEvent(row, references);
+      return event ? [event] : [];
+    }),
+    linkedDocuments: [],
+  });
+}
+
+export async function getSupabaseAuditEvents(limit = 150): Promise<AuditEvent[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 250);
+  const client = await createSupabaseServerClient();
+  const { data, error } = await client
+    .from("audit_events")
+    .select("id, event_type, actor_member_id, target_type, target_id, summary, created_at, metadata")
+    .order("created_at", { ascending: false })
+    .limit(safeLimit);
+  if (error) failure(error.message);
+  const rows = data ?? [];
+  const references = await loadContributorReferences(
+    rows.flatMap((row) => (row.actor_member_id ? [row.actor_member_id] : [])),
+  );
+  return rows.flatMap((row) => {
+    const event = mapAuditEvent(row, references);
+    return event ? [event] : [];
+  });
+}
+
+export async function getSupabaseContributorAuditEvents(
+  contributorId: string,
+  limit = 100,
+): Promise<AuditEvent[]> {
+  const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 150);
+  const client = await createSupabaseServerClient();
+  const { data, error } = await client
+    .from("audit_events")
+    .select("id, event_type, actor_member_id, target_type, target_id, summary, created_at, metadata")
+    .eq("target_type", "contributor")
+    .eq("target_id", contributorId)
+    .order("created_at", { ascending: false })
+    .limit(safeLimit);
+  if (error) failure(error.message);
+  const rows = data ?? [];
+  const references = await loadContributorReferences(
+    rows.flatMap((row) => (row.actor_member_id ? [row.actor_member_id] : [])),
+  );
+  return rows.flatMap((row) => {
+    const event = mapAuditEvent(row, references);
+    return event ? [event] : [];
+  });
+}
+
+export async function getSupabaseContributorForEditor(
+  contributorId: string,
+): Promise<EditorContributorSummary | null> {
+  return loadEditorContributorSummary(contributorId);
+}
+
+export async function getSupabaseContributorForAdmin(
+  contributorId: string,
+): Promise<AdminContributorDetail | null> {
+  const editor = await loadEditorContributorSummary(contributorId);
+  if (!editor) return null;
+  const client = await createSupabaseServerClient();
+  const { data, error } = await client
+    .from("members")
+    .select("auth_user_id, created_at, updated_at")
+    .eq("id", contributorId)
+    .maybeSingle();
+  if (error) failure(error.message);
+  if (!data) return null;
+  return {
+    ...editor,
+    revisionId: data.updated_at,
+    // Supabase Auth (not a per-record Sanity-style provider/account pair) is
+    // the sole identity provider in this mode; internalNotes has no Supabase
+    // column yet -- this surfaces as empty rather than failing the page.
+    authProvider: "supabase",
+    providerAccountId: data.auth_user_id ?? "",
+    internalNotes: "",
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
+export async function getSupabaseAssignableReviewers(): Promise<
+  readonly ContributorReference[]
+> {
+  const client = await createSupabaseServerClient();
+  const { data: activeMembers, error: membersError } = await client
+    .from("members")
+    .select("id, email_normalized")
+    .eq("access_status", "active")
+    .limit(MAX_OPERATIONAL_LIST_RESULTS);
+  if (membersError) failure(membersError.message);
+  const ids = (activeMembers ?? []).map((member) => member.id);
+  if (!ids.length) return [];
+
+  const [profilesResult, rolesResult] = await Promise.all([
+    client.from("profiles").select("member_id, display_name, avatar_url").in("member_id", ids),
+    client.from("member_roles").select("member_id, role_name, revoked_at").in("member_id", ids).is("revoked_at", null),
+  ]);
+  if (profilesResult.error) failure(profilesResult.error.message);
+  if (rolesResult.error) failure(rolesResult.error.message);
+
+  const profiles = new Map(
+    (profilesResult.data ?? []).map((profile) => [profile.member_id, profile]),
+  );
+  const roles = new Map<string, string[]>();
+  for (const row of rolesResult.data ?? []) {
+    roles.set(row.member_id, [...(roles.get(row.member_id) ?? []), row.role_name]);
+  }
+
+  return (activeMembers ?? [])
+    .flatMap((member) => {
+      const profile = profiles.get(member.id);
+      if (!profile) return [];
+      const storedRole = highestRole(roles.get(member.id) ?? []);
+      const bootstrapRole = member.email_normalized
+        ? getBootstrapRole(member.email_normalized)
+        : null;
+      const effectiveRole = bootstrapRole ? higherRole(storedRole, bootstrapRole) : storedRole;
+      if (effectiveRole === "contributor") return [];
+      return [{
+        id: member.id,
+        displayName: profile.display_name,
+        role: effectiveRole,
+        accessStatus: "active" as const,
+        ...(profile.avatar_url ? { avatarUrl: profile.avatar_url } : {}),
+      }];
+    })
+    .sort((left, right) => left.displayName.localeCompare(right.displayName));
 }
 
 export async function getSupabaseAdminDashboard(): Promise<AdminDashboard> {

@@ -50,7 +50,11 @@ import {
   getSupabaseAdminActionableSubmissionCounts,
   getSupabaseAdminDashboard,
   getSupabaseAdminSubmissionQueue,
+  getSupabaseAuditEvents,
+  getSupabaseContributorAuditEvents,
   getSupabaseContributorSubmissions,
+  getSupabaseSubmissionForContributor,
+  getSupabaseSubmissionForReview,
 } from "@/lib/operations/supabase-read";
 
 const SUPPORTING_LINK_PROJECTION = `{
@@ -618,6 +622,9 @@ export async function getSubmissionForContributor(
 ): Promise<ContributorSubmissionDetail | null> {
   const id = operationalDocumentIdSchema.parse(submissionId);
   const ownerId = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return getSupabaseSubmissionForContributor(id, ownerId);
+  }
   const client = requireOperationsClient();
   return normalizeContributorSubmissionDetail(
     await client.fetch<unknown>(
@@ -786,6 +793,9 @@ export async function getSubmissionForReview(
   submissionId: string,
 ): Promise<AdminSubmissionDetail | null> {
   const id = operationalDocumentIdSchema.parse(submissionId);
+  if (useSupabaseAuth) {
+    return getSupabaseSubmissionForReview(id);
+  }
   const client = requireOperationsClient();
   return normalizeAdminSubmissionDetail(
     await client.fetch<unknown>(
@@ -817,6 +827,9 @@ export async function getSubmissionForReview(
 }
 
 export async function getAuditEvents(limit = 150): Promise<AuditEvent[]> {
+  if (useSupabaseAuth) {
+    return getSupabaseAuditEvents(limit);
+  }
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 250);
   const client = requireOperationsClient();
   const result = await client.fetch<unknown[]>(
@@ -834,6 +847,9 @@ export async function getContributorAuditEvents(
   limit = 100,
 ): Promise<AuditEvent[]> {
   const id = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return getSupabaseContributorAuditEvents(id, limit);
+  }
   const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 150);
   const client = requireOperationsClient();
   const result = await client.fetch<unknown[]>(
