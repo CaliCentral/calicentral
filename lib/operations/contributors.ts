@@ -35,6 +35,8 @@ import {
   safeHttpUrlSchema,
   type ContributorProfileUpdateInput,
 } from "@/lib/operations/validation";
+import { useSupabaseAuth } from "@/lib/supabase/config";
+import { getSupabaseOwnContributorProfile } from "@/lib/operations/supabase-read";
 
 const OWN_PROFILE_PROJECTION = `{
   "id": _id,
@@ -574,6 +576,9 @@ export async function ensureContributorProfile(
 export async function getOwnContributorProfile(
   contributorId: string,
 ): Promise<OwnContributorProfile | null> {
+  if (useSupabaseAuth) {
+    return getSupabaseOwnContributorProfile(contributorId);
+  }
   const id = operationalDocumentIdSchema.parse(contributorId);
   const client = requireOperationsClient();
   return normalizeOwnContributorProfile(

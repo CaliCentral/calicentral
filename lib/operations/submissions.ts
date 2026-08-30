@@ -43,6 +43,15 @@ import type {
 } from "@/lib/operations/validation";
 import { operationalDocumentIdSchema } from "@/lib/operations/validation";
 import { assertSubmissionTransition } from "@/lib/operations/workflow";
+import { useSupabaseAuth } from "@/lib/supabase/config";
+import {
+  countSupabaseAdminSubmissions,
+  countSupabaseContributorSubmissions,
+  getSupabaseAdminActionableSubmissionCounts,
+  getSupabaseAdminDashboard,
+  getSupabaseAdminSubmissionQueue,
+  getSupabaseContributorSubmissions,
+} from "@/lib/operations/supabase-read";
 
 const SUPPORTING_LINK_PROJECTION = `{
   "key": _key,
@@ -566,6 +575,9 @@ function transitionEvent(
 export async function getContributorSubmissions(
   contributorId: string,
 ): Promise<ContributorSubmissionSummary[]> {
+  if (useSupabaseAuth) {
+    return getSupabaseContributorSubmissions(contributorId);
+  }
   const id = operationalDocumentIdSchema.parse(contributorId);
   const client = requireOperationsClient();
   const result = await client.fetch<unknown[]>(
@@ -584,6 +596,9 @@ export async function getContributorSubmissions(
 export async function countContributorSubmissions(
   contributorId: string,
 ): Promise<number> {
+  if (useSupabaseAuth) {
+    return countSupabaseContributorSubmissions(contributorId);
+  }
   const id = operationalDocumentIdSchema.parse(contributorId);
   const client = requireOperationsClient();
   const count = await client.fetch<number>(
@@ -732,6 +747,9 @@ export async function getContributorAccountOverview(
 export async function getAdminSubmissionQueue(): Promise<
   AdminSubmissionSummary[]
 > {
+  if (useSupabaseAuth) {
+    return getSupabaseAdminSubmissionQueue();
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<unknown[]>(
     `*[_type == "submission"] | order(updatedAt desc)[0...250] {
@@ -756,6 +774,9 @@ export async function getAdminSubmissionQueue(): Promise<
 }
 
 export async function countAdminSubmissions(): Promise<number> {
+  if (useSupabaseAuth) {
+    return countSupabaseAdminSubmissions();
+  }
   const client = requireOperationsClient();
   const count = await client.fetch<number>(`count(*[_type == "submission"])`);
   return Number.isFinite(count) ? Math.max(0, count) : 0;
@@ -837,6 +858,9 @@ export type AdminActionableSubmissionCount = {
 export async function getAdminActionableSubmissionCounts(): Promise<
   readonly AdminActionableSubmissionCount[]
 > {
+  if (useSupabaseAuth) {
+    return getSupabaseAdminActionableSubmissionCounts();
+  }
   const client = requireOperationsClient();
   const countFields = SUBMISSION_TYPES.map(
     (submissionType) =>
@@ -864,6 +888,9 @@ export async function getAdminActionableSubmissionCounts(): Promise<
 }
 
 export async function getAdminDashboard(): Promise<AdminDashboard> {
+  if (useSupabaseAuth) {
+    return getSupabaseAdminDashboard();
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<{
     awaitingReview: number;

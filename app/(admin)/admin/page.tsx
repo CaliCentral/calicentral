@@ -43,7 +43,7 @@ export default async function AdminDashboardPage() {
     <OperationsPage
       eyebrow="Internal / Editorial operations"
       title="Editorial desk overview"
-      description="A secure operational view of contributor intake and moderation. Counts come from Sanity records—not public traffic or invented analytics."
+      description="A secure operational view of contributor intake and moderation. Counts come from the selected protected data provider—not public traffic or invented analytics."
       actions={
         <>
           <Link
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage() {
         className="mt-7"
         eyebrow="Current intake / Submitted or in review"
         title="Actionable work by submission type"
-        description="Counts come from the existing generic Sanity intake. They do not imply that a claim is verified, a team is admitted, a product is endorsed, or a public record has been created."
+        description="Counts come from the protected generic intake. They do not imply that a claim is verified, a team is admitted, a product is endorsed, or a public record has been created."
       >
         <ul className="grid gap-px border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
           {actionableCounts.map(({ submissionType, count }) => (
@@ -116,8 +116,8 @@ export default async function AdminDashboardPage() {
         </ul>
         <div className="mt-5 flex flex-col gap-3 border-t border-white/10 pt-5 text-sm leading-6 text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Community reports remain in the separately protected D1 Trust &amp;
-            Safety queue and are not folded into these Sanity counts.
+            Community reports remain in the separately protected community
+            Trust &amp; Safety queue and are not folded into these intake counts.
           </p>
           <Link
             href="/admin/community"

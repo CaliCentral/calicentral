@@ -60,6 +60,7 @@ export const AUDIT_EVENT_TYPES = [
   "visibleFeedbackUpdated",
   "priorityChanged",
   "contributorRoleChanged",
+  "memberRoleGranted",
   "contributorSuspended",
   "contributorReactivated",
   "contributorArchived",
