@@ -34,8 +34,14 @@ function parseExport(value: unknown): D1Export {
   return result;
 }
 
-function operation(table: string, sourceTable: string, row: Record<string, unknown>, targetRow: Record<string, unknown>): PlannedRow {
-  return { sourceKey: `${sourceTable}:${text(row.id) ?? "composite"}`, table, row: targetRow };
+function operation(
+  table: string,
+  sourceTable: string,
+  row: Record<string, unknown>,
+  targetRow: Record<string, unknown>,
+  onConflict = "legacy_d1_id",
+): PlannedRow {
+  return { sourceKey: `${sourceTable}:${text(row.id) ?? "composite"}`, table, row: targetRow, onConflict };
 }
 
 function normalizeRow(sourceTable: string, row: Record<string, unknown>, warnings: string[]): PlannedRow[] {
@@ -48,7 +54,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
           id: targetMemberId, legacy_principal_id: row.principal_id,
           access_status: row.status === "suspended" || row.status === "archived" ? row.status : "active",
           created_at: row.created_at, updated_at: row.updated_at, archived_at: row.deleted_at,
-        }),
+        }, "id"),
         operation("profiles", sourceTable, row, {
           member_id: targetMemberId, handle: row.handle, display_name: row.display_name,
           avatar_url: row.avatar_url, cover_image_url: row.cover_image_url, biography: row.biography ?? "",
@@ -59,14 +65,14 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
           show_social_accounts: bool(row.show_social_accounts), show_media: bool(row.show_media),
           discoverable: bool(row.discoverable), status: row.status ?? "active",
           created_at: row.created_at, updated_at: row.updated_at,
-        }),
+        }, "member_id"),
       ];
     }
     case "member_social_accounts": return [operation("profile_social_accounts", sourceTable, row, {
       id: id(sourceTable, sourceId), member_id: memberId(row.member_id), platform: row.platform, url: row.url,
       handle: row.handle, verification_status: row.verification_status, visible: bool(row.visible),
       created_at: row.created_at, updated_at: row.updated_at,
-    })];
+    }, "id")];
     case "athlete_profile_controls": {
       const claimId = id("athlete_claims", row.submission_id);
       return [
@@ -74,12 +80,12 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
           id: claimId, athlete_id: canonicalId(row.canonical_athlete_id), claimant_member_id: memberId(row.member_id),
           submission_id: row.submission_id, claim_state: row.status === "active" ? "approved" : "revoked",
           reviewed_at: row.reviewed_at, created_at: row.created_at, updated_at: row.updated_at,
-        }),
+        }, "id"),
         operation("athlete_profile_controls", sourceTable, row, {
           id: id(sourceTable, sourceId), athlete_id: canonicalId(row.canonical_athlete_id), member_id: memberId(row.member_id),
           athlete_claim_id: claimId, status: row.status, reviewed_by_principal: row.reviewed_by_principal_id,
           reviewed_at: row.reviewed_at, revoked_at: row.revoked_at, created_at: row.created_at, updated_at: row.updated_at,
-        }),
+        }, "id"),
       ];
     }
     case "community_posts": return [operation("posts", sourceTable, row, {
@@ -94,7 +100,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
     })];
     case "community_likes": return [operation("likes", sourceTable, row, {
       member_id: memberId(row.member_id), target_type: row.target_type, target_id: row.target_id, created_at: row.created_at,
-    })];
+    }, "member_id,target_type,target_id")];
     case "community_reposts": return [operation("reposts", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, member_id: memberId(row.member_id),
       target_type: row.target_type, target_id: row.target_id,
@@ -103,7 +109,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
     })];
     case "saved_items": return [operation("saves", sourceTable, row, {
       member_id: memberId(row.member_id), target_type: row.target_type, target_id: row.target_id, created_at: row.created_at,
-    })];
+    }, "member_id,target_type,target_id")];
     case "collections": return [operation("collections", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, owner_member_id: memberId(row.owner_member_id),
       ...renamed(row, ["id", "owner_member_id"]),
@@ -111,17 +117,17 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
     case "collection_items": return [operation("collection_items", sourceTable, row, {
       collection_id: id("collections", row.collection_id), target_type: row.target_type, target_id: row.target_id,
       display_order: row.display_order, added_at: row.added_at,
-    })];
+    }, "collection_id,target_type,target_id")];
     case "follows": return [operation("follows", sourceTable, row, {
       follower_member_id: memberId(row.follower_member_id), target_type: row.target_type,
       target_id: row.target_type === "member" ? memberId(row.target_id) : row.target_id, created_at: row.created_at,
-    })];
+    }, "follower_member_id,target_type,target_id")];
     case "blocks": return [operation("blocks", sourceTable, row, {
       blocker_member_id: memberId(row.blocker_member_id), blocked_member_id: memberId(row.blocked_member_id), created_at: row.created_at,
-    })];
+    }, "blocker_member_id,blocked_member_id")];
     case "mutes": return [operation("mutes", sourceTable, row, {
       muter_member_id: memberId(row.muter_member_id), muted_member_id: memberId(row.muted_member_id), created_at: row.created_at,
-    })];
+    }, "muter_member_id,muted_member_id")];
     case "reports": return [operation("reports", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, reporter_member_id: memberId(row.reporter_member_id),
       ...renamed(row, ["id", "reporter_member_id"]),
@@ -129,12 +135,12 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
     case "community_audit_events": return [operation("moderation_events", sourceTable, row, {
       id: id(sourceTable, sourceId), event_type: row.event_type, actor_principal: row.actor_principal_id,
       target_type: row.target_type, target_id: row.target_id, summary: row.summary, created_at: row.created_at,
-    })];
+    }, "id")];
     case "application_audit_events": return [operation("audit_events", sourceTable, row, {
       id: id(sourceTable, sourceId), event_type: row.event_type, actor_principal: row.actor_principal_id,
       target_type: row.target_type, target_id: row.target_id, summary: text(row.event_type) ?? "Migrated application audit event",
       metadata: json(row.metadata_json, {}), created_at: row.created_at,
-    })];
+    }, "id")];
     case "notifications": return [operation("notifications", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, member_id: memberId(row.member_id),
       actor_member_id: row.actor_member_id ? memberId(row.actor_member_id) : null,
@@ -143,7 +149,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
     case "notification_preferences": return [operation("notification_preferences", sourceTable, row, {
       member_id: memberId(row.member_id), social_enabled: bool(row.social_enabled), competition_enabled: bool(row.competition_enabled),
       claim_submission_enabled: bool(row.claim_submission_enabled), email_enabled: bool(row.email_enabled), updated_at: row.updated_at,
-    })];
+    }, "member_id")];
     case "team_memberships": return [operation("team_memberships", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, team_id: canonicalId(row.canonical_team_id),
       member_id: memberId(row.member_id), role: row.role, status: row.status, public_visible: bool(row.public_visible),
@@ -178,7 +184,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
       external_url: row.external_url, media_kind: row.media_kind, alt_text: row.alt_text,
       creator_member_id: row.creator_member_id ? memberId(row.creator_member_id) : null,
       creator_name: row.creator_name, rights_status: row.rights_status, display_order: row.display_order, created_at: row.created_at,
-    })];
+    }, "id")];
     case "claimed_athlete_presentations": return [operation("claimed_athlete_presentations", sourceTable, row, {
       athlete_id: canonicalId(row.canonical_athlete_id), controlling_member_id: memberId(row.controlling_member_id),
       preferred_display_name: row.preferred_display_name, biography: row.biography, website: row.website,
@@ -187,7 +193,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
       profile_media_id: row.profile_media_id ? id("community_media_assets", row.profile_media_id) : null,
       cover_media_id: row.cover_media_id ? id("community_media_assets", row.cover_media_id) : null,
       status: row.status, created_at: row.created_at, updated_at: row.updated_at,
-    })];
+    }, "athlete_id")];
     case "movement_definitions": return [operation("movements", sourceTable, row, {
       id: id(sourceTable, sourceId), legacy_d1_id: sourceId, slug: row.slug, name: row.name, category: row.category,
       measurement_types: json(row.measurement_types_json, []), status: row.status, created_at: row.created_at, updated_at: row.updated_at,
@@ -220,7 +226,7 @@ function normalizeRow(sourceTable: string, row: Record<string, unknown>, warning
         operation("source_records", sourceTable, row, {
           id: sourceRecordId, provider: "d1-personal-record", source_type: "personal-record",
           public_url: row.source_url, external_record_id: text(sourceId), verification_state: row.verification_status ?? "unverified",
-        }),
+        }, "id"),
         record,
       ] : [record];
     }
