@@ -13,10 +13,18 @@ import {
   type AuthProviderId,
 } from "@/lib/auth";
 import { safeAuthReturnPath } from "@/lib/auth/redirects";
+import { authProviderSelection } from "@/lib/auth/provider-selection";
 import { isSanityMutationConfigured } from "@/sanity/lib/write-client";
-import { isSupabaseConfigured, useSupabaseAuth } from "@/lib/supabase/config";
+import {
+  isSupabaseAuthConfigured,
+  isSupabaseConfigured,
+  useSupabaseAuth,
+} from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getSiteOrigin } from "@/lib/site/config";
+import {
+  getSiteOrigin,
+  isTrustedAuthOriginConfigured,
+} from "@/lib/site/config";
 
 export const metadata: Metadata = {
   title: "Account sign in",
@@ -62,8 +70,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     ? (safeErrorMessages[errorCode] ??
       "Sign-in did not complete. No account changes were made.")
     : null;
-  const supabaseEnabled = useSupabaseAuth && isSupabaseConfigured;
-  const authAvailable = supabaseEnabled || isAuthConfigured;
+  const supabaseEnabled =
+    authProviderSelection.mode === "supabase" &&
+    authProviderSelection.configured;
+  const authAvailable = authProviderSelection.configured;
   const providers = supabaseEnabled
     ? ([{ id: "google", label: "Google" }] as const)
     : configuredAuthProviders;
@@ -133,14 +143,27 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 environment. Public Cali Central pages and the Join guide remain
                 available.
               </p>
-              {authConfiguration.googlePartiallyConfigured ||
-              authConfiguration.githubPartiallyConfigured ? (
+              {useSupabaseAuth && !isSupabaseConfigured ? (
+                <p className="mt-3 text-xs leading-5 text-amber-100/80">
+                  The Supabase URL and publishable key are required for this
+                  environment.
+                </p>
+              ) : null}
+              {useSupabaseAuth && !isTrustedAuthOriginConfigured ? (
+                <p className="mt-3 text-xs leading-5 text-amber-100/80">
+                  A canonical NEXT_PUBLIC_SITE_URL origin is also required so
+                  callbacks do not rely on an untrusted request host.
+                </p>
+              ) : null}
+              {!useSupabaseAuth &&
+              (authConfiguration.googlePartiallyConfigured ||
+                authConfiguration.githubPartiallyConfigured) ? (
                 <p className="mt-3 text-xs leading-5 text-amber-100/80">
                   A provider credential pair is incomplete. Both its client ID
                   and secret are required, together with AUTH_SECRET.
                 </p>
               ) : null}
-              {!authConfiguration.authUrlConfigured ? (
+              {!useSupabaseAuth && !authConfiguration.authUrlConfigured ? (
                 <p className="mt-3 text-xs leading-5 text-amber-100/80">
                   A canonical AUTH_URL origin is also required so callbacks do
                   not rely on an untrusted request host.
@@ -206,7 +229,7 @@ function ProviderForm({
     "use server";
 
     if (providerMode === "supabase") {
-      if (!useSupabaseAuth || !isSupabaseConfigured || providerId !== "google") {
+      if (!isSupabaseAuthConfigured || providerId !== "google") {
         redirect("/auth/error?code=Configuration");
       }
       const client = await createSupabaseServerClient();

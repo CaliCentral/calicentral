@@ -91,6 +91,9 @@ const configuredDeploymentOrigin =
     : null;
 
 export const isSiteOriginConfigured = configuredSiteOrigin !== null;
+export const isTrustedAuthOriginConfigured =
+  configuredDeploymentOrigin !== null ||
+  (siteStage === "development" && configuredSiteOrigin !== null);
 export const isSiteOriginConfigurationReady =
   isConfiguredSiteStageValid &&
   (siteStage === "development" ||

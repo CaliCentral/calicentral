@@ -1,5 +1,7 @@
 import "server-only";
 
+import { isTrustedAuthOriginConfigured } from "@/lib/site/config";
+
 const value = (name: string) => process.env[name]?.trim() || null;
 
 export const supabaseConfiguration = Object.freeze({
@@ -18,6 +20,14 @@ export const isSupabaseServiceConfigured = Boolean(
 
 export const useSupabaseAuth =
   process.env.AUTH_MIGRATION_PROVIDER?.trim().toLowerCase() === "supabase";
+
+/**
+ * Supabase OAuth needs the public client configuration and an explicit,
+ * trusted application origin for its callback. Auth.js credentials are not
+ * part of this readiness boundary.
+ */
+export const isSupabaseAuthConfigured =
+  useSupabaseAuth && isSupabaseConfigured && isTrustedAuthOriginConfigured;
 
 export function requireSupabasePublicConfiguration() {
   if (!supabaseConfiguration.url || !supabaseConfiguration.publishableKey) {

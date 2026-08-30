@@ -1,12 +1,22 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { safeAuthReturnPath } from "@/lib/auth/redirects";
-import { isSupabaseConfigured, useSupabaseAuth } from "@/lib/supabase/config";
+import { isSupabaseAuthConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getSiteOrigin,
+  isTrustedAuthOriginConfigured,
+} from "@/lib/site/config";
 
 export async function GET(request: NextRequest) {
-  const origin = request.nextUrl.origin;
-  if (!useSupabaseAuth || !isSupabaseConfigured) {
+  if (!isTrustedAuthOriginConfigured) {
+    return new NextResponse("Account authentication is not configured.", {
+      status: 503,
+    });
+  }
+
+  const origin = getSiteOrigin();
+  if (!isSupabaseAuthConfigured) {
     return NextResponse.redirect(new URL("/auth/error?code=Configuration", origin));
   }
 
