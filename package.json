@@ -15,7 +15,7 @@
     "preview": "npm run cf:build && opennextjs-cloudflare preview",
     "deploy": "npm run cf:build && opennextjs-cloudflare deploy -- --keep-vars",
     "cf-typegen": "wrangler types --config wrangler.typegen.jsonc --env-file .env.example --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "test": "node --import tsx scripts/validate-operations.ts && node --import tsx scripts/validate-media.ts && node --import tsx scripts/validate-wcl.ts && node --import tsx scripts/validate-community.ts && npm run test:p4 && npm run test:rankings && npm run test:competitions && npm run test:auth && npm run test:admin && npm run test:rate-limit && wrangler types --config wrangler.typegen.jsonc --env-file .env.example --env-interface CloudflareEnv cloudflare-env.d.ts --check",
+    "test": "node --import tsx scripts/validate-operations.ts && node --import tsx scripts/validate-media.ts && node --import tsx scripts/validate-wcl.ts && node --import tsx scripts/validate-community.ts && npm run test:p4 && npm run test:rankings && npm run test:competitions && npm run test:auth && npm run test:admin && npm run test:rate-limit && npm run test:migration-credential-isolation && wrangler types --config wrangler.typegen.jsonc --env-file .env.example --env-interface CloudflareEnv cloudflare-env.d.ts --check",
     "test:p4": "node --import tsx scripts/validate-daily-athlete.ts && node --import tsx scripts/validate-community-media-removal.ts",
     "test:rankings": "node --import tsx scripts/validate-rankings.ts",
     "test:competitions": "node --import tsx scripts/validate-competitions.ts",
@@ -23,6 +23,7 @@
     "test:auth": "node --require ./scripts/test-shims/allow-server-only.cjs --import tsx scripts/validate-auth-bootstrap.ts",
     "test:admin": "node --import tsx scripts/validate-admin-editorial.ts",
     "test:rate-limit": "node --require ./scripts/test-shims/allow-server-only.cjs --import tsx scripts/validate-rate-limit.ts",
+    "test:migration-credential-isolation": "node --import tsx scripts/validate-migration-credential-isolation.ts",
     "check": "npm run lint && npm run cf-typegen && npm run typecheck && npm test && npm run cf:build",
     "sanity:schema": "sanity schema extract --enforce-required-fields --path schema.json --force",
     "sanity:typegen": "sanity typegen generate",
@@ -41,6 +42,9 @@
     "test:db": "supabase test db",
     "migrate:sanity": "node --import tsx scripts/migration/sanity-to-supabase.ts",
     "migrate:d1": "node --import tsx scripts/migration/d1-to-supabase.ts",
+    "migrate:sanity:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/sanity-to-supabase.ts",
+    "migrate:d1:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/d1-to-supabase.ts",
+    "preview:snapshot": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/snapshot-preview-counts.ts",
     "test:migrations": "npm run migrate:sanity -- --input=scripts/migration/fixtures/sanity.ndjson && npm run migrate:d1 -- --input=scripts/migration/fixtures/d1.json"
   },
   "dependencies": {
