@@ -10,8 +10,8 @@ import {
 } from "@/components/operations/page-shell";
 import { StatusLabel } from "@/components/operations/status-label";
 import { ContributorSubmissionList } from "@/components/operations/submission-list";
+import { getAccountOverview } from "@/lib/account/overview";
 import { requireContributor } from "@/lib/auth";
-import { getContributorAccountOverview } from "@/lib/operations/submissions";
 import { formatOperationsDate } from "@/lib/presentation/operations";
 import { getCommunityRepository } from "@/lib/community/runtime";
 import { getTrainingRepository } from "@/lib/training/runtime";
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default async function AccountPage() {
   const user = await requireContributor("/account");
-  const overview = await getContributorAccountOverview(user.id);
+  const overview = await getAccountOverview(user);
 
   if (!overview) {
     notFound();
@@ -60,10 +60,10 @@ export default async function AccountPage() {
             Start a submission
           </Link>
           <Link
-            href="/account/profile"
+            href={user.profileConfigured ? "/account/profile" : "/account/onboarding"}
             className="inline-flex min-h-12 items-center border border-white/20 px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
-            Edit profile
+            {user.profileConfigured ? "Edit profile" : "Finish setup"}
           </Link>
         </>
       }

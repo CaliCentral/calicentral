@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(21);
+select plan(25);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-000000000101', 'member-a@example.test', '{"name":"Member A"}'),
@@ -18,6 +18,11 @@ update public.profiles set
     else 'editor'
   end,
   profile_configured = true;
+
+-- Keep one otherwise-valid provisioned profile incomplete so account loaders
+-- prove that onboarding state is readable data, not an infrastructure error.
+update public.profiles set profile_configured = false
+where display_name = 'Member B';
 
 insert into public.member_roles (member_id, role_name)
 select id, 'admin' from public.members where auth_user_id = '00000000-0000-0000-0000-000000000103';
@@ -69,7 +74,9 @@ reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', true);
+select results_eq('select count(*) from public.members', array[1::bigint], 'member sees exactly their own member row');
 select results_eq('select count(*) from public.profiles', array[1::bigint], 'member sees own/public profile projection');
+select results_eq('select count(*) from public.member_roles', array[1::bigint], 'member sees their own contributor role and no other role rows');
 select results_eq('select count(*) from public.training_sessions', array[2::bigint], 'owner sees private and public training');
 select results_eq('select count(*) from public.athlete_claims', array[1::bigint], 'claimant sees own athlete claim');
 select results_eq('select count(*) from public.media_assets', array[2::bigint], 'media owner sees pending and public assets');
@@ -82,6 +89,8 @@ reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000102', true);
+select results_eq('select count(*) from public.members', array[1::bigint], 'cross-user private member rows are denied');
+select results_eq($$select profile_configured from public.profiles where display_name = 'Member B'$$, array[false], 'an authenticated member can read an incomplete own profile as a valid row');
 select results_eq($$select count(*) from public.training_sessions where visibility = 'private'$$, array[0::bigint], 'cross-user private training is denied');
 select results_eq('select count(*) from public.athlete_claims', array[0::bigint], 'cross-user athlete claim is denied');
 select results_eq($$select count(*) from public.media_assets where moderation_state = 'pending'$$, array[0::bigint], 'cross-user pending media is denied');

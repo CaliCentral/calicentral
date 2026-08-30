@@ -22,6 +22,40 @@ process.env.GITHUB_CLIENT_SECRET = "";
 type ResolveEffectiveRole = typeof import("@/lib/auth/identity").resolveEffectiveRole;
 let resolveEffectiveRole: ResolveEffectiveRole;
 
+async function validateSupabaseIncompleteProfileIsAValidAccountState() {
+  const { buildSupabaseAccountOverview } = await import("@/lib/account/overview");
+  const overview = buildSupabaseAccountOverview({
+    user: {
+      id: "00000000-0000-0000-0000-000000000001",
+      displayName: "Preview Member",
+      email: "member@example.test",
+      avatarUrl: null,
+      role: "contributor",
+      accessStatus: "active",
+      authProvider: "google",
+      profileConfigured: false,
+    },
+    profile: {
+      display_name: "Preview Member",
+      avatar_url: null,
+      biography: "",
+      country: null,
+      administrative_area: null,
+      city: null,
+      interests: [],
+      profile_configured: false,
+      created_at: "2026-08-30T00:00:00.000Z",
+    },
+    submissions: [],
+  });
+
+  assert.equal(overview.profileComplete, false);
+  assert.equal(overview.profile.accessStatus, "active");
+  assert.equal(overview.profile.role, "contributor");
+  assert.equal(overview.totalSubmissions, 0);
+  assert.deepEqual(overview.latestSubmissions, []);
+}
+
 async function validateProviderReadinessBoundaries() {
   const [{ authConfiguration, isAuthConfigured }, supabase, providerSelection] =
     await Promise.all([
@@ -131,6 +165,7 @@ async function main() {
   validateNonAdminEmailsStayNonAdmin();
   validateBootstrapNeverDowngradesADatabaseGrant();
   await validateProviderReadinessBoundaries();
+  await validateSupabaseIncompleteProfileIsAValidAccountState();
 
   console.log("validate-auth-bootstrap: all assertions passed");
 }
