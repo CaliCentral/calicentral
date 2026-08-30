@@ -1,12 +1,23 @@
 # Official Streetlifting import review
 
-This integration is intentionally **manual and under review**. The public
-Official Streetlifting site exposes human-readable ranking tables, but the
-August 11, 2026 source review found no documented API, export, licensed feed,
-or machine-use agreement. `robots.txt` advertising sitemaps is not reuse
-permission. Do not add an autonomous crawler unless Official Streetlifting
-authorizes one and its access, attribution, rate-limit, and retention terms
-are recorded here.
+This integration is intentionally **manual and under review**. A follow-up
+review on August 30, 2026 confirmed that the public Official Streetlifting
+site is a Rails/Hotwire application with server-rendered competition, result,
+athlete, record, and ranking pages. Standard `Accept: application/json`
+negotiation on a ranking page returned an error rather than a public data API.
+No documented API, export, licensed feed, or machine-use agreement was found.
+`robots.txt` contains two sitemap declarations and no allow/disallow rules,
+but that is discovery metadata rather than reuse permission. Do not activate
+an autonomous crawler unless Official Streetlifting authorizes it and its
+access, attribution, rate-limit, and retention terms are recorded here.
+
+The provider-neutral deterministic adapter now lives in
+`lib/data-ops/providers/official-streetlifting.ts`. It accepts only reviewed
+public routes on the exact rankings origin, refuses redirects and non-HTML or
+oversized responses, uses a transparent user agent and timeout, records a
+SHA-256 content identity plus parser version, and parses stable athlete,
+competition, and result URLs rather than matching people by name. Its fetch
+function is not scheduled and does not write to any database.
 
 ## Reviewed ranking inputs
 
