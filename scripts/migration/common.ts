@@ -187,21 +187,24 @@ export function assertWriteApproved(): { readonly url: string; readonly serviceR
 // member row for the same email would either hard-fail the whole batch (if
 // the insert isn't the one caught by an onConflict arbiter) or, worse,
 // silently orphan a dependent profiles/member_roles row if the member
-// insert alone were quietly skipped. The caller must know about this
-// *before* planning those three rows, not discover it as a write failure.
-// Queried once per run, only for an actual --write attempt against an
-// already-gate-approved target (never for a plain dry run, and never before
-// assertWriteApproved has already validated the host/flags) -- a dry run
-// has no real write to protect and must never touch the network on its
-// own.
-export async function fetchExistingMemberEmails(): Promise<ReadonlySet<string>> {
-  if (!hasArgument("write")) return new Set();
+// insert alone were quietly skipped. Returning the real member's own id
+// (not just the fact that a collision exists) lets the caller remap any
+// *other* Sanity document's reference to that same contributor (a
+// submission's submitter, an auditEvent's actor) onto the real id, instead
+// of leaving those references pointing at a member row that was correctly
+// never created. Queried once per run, only for an actual --write attempt
+// against an already-gate-approved target (never for a plain dry run, and
+// never before assertWriteApproved has already validated the host/flags) --
+// a dry run has no real write to protect and must never touch the network
+// on its own.
+export async function fetchExistingMembersByEmail(): Promise<ReadonlyMap<string, string>> {
+  if (!hasArgument("write")) return new Map();
   const { url, serviceRoleKey } = assertWriteApproved();
 
   const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const { data, error } = await client.from("members").select("email_normalized").not("email_normalized", "is", null);
-  if (error) throw new Error(`Failed reading existing member emails from the target: ${error.message}`);
-  return new Set((data ?? []).map((row) => (row.email_normalized as string).toLowerCase()));
+  const { data, error } = await client.from("members").select("id, email_normalized").not("email_normalized", "is", null);
+  if (error) throw new Error(`Failed reading existing members from the target: ${error.message}`);
+  return new Map((data ?? []).map((row) => [(row.email_normalized as string).toLowerCase(), row.id as string]));
 }
 
 export async function applyMigrationPlan(report: MigrationReport): Promise<void> {

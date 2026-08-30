@@ -2,7 +2,7 @@ import {
   applyMigrationPlan,
   countBy,
   emitReport,
-  fetchExistingMemberEmails,
+  fetchExistingMembersByEmail,
   getArgument,
   isRecord,
   readJsonRecords,
@@ -18,9 +18,24 @@ import {
 type SanityDocument = Record<string, unknown> & { _id: string; _type: string };
 
 const sourceUuid = (id: string) => stableUuid("calicentral:sanity", id.replace(/^drafts\./, ""));
+
+// Populated once per run in main(), only for an actual --write attempt: maps
+// a contributorProfile's canonical Sanity id to a real, already-existing
+// member's actual id in the target, for every contributorProfile whose
+// email matches a real member (see fetchExistingMembersByEmail in
+// common.ts). Any *other* document's reference to that same contributor --
+// a submission's submitter, an auditEvent's actor -- must resolve to that
+// real id too, not the Sanity-derived id the (correctly never created)
+// duplicate member row would otherwise have had. Checked universally inside
+// refUuid() rather than only where a contributor reference is expected,
+// since it can only ever match a contributorProfile id and is harmless for
+// every other reference type.
+const contributorIdRemap = new Map<string, string>();
 const refUuid = (value: unknown) => {
   const id = referenceId(value);
-  return id ? sourceUuid(id) : null;
+  if (!id) return null;
+  const canonicalId = id.replace(/^drafts\./, "");
+  return contributorIdRemap.get(canonicalId) ?? sourceUuid(id);
 };
 
 // rankingSnapshot.source.provider, sportingResult.source.provider, and
@@ -33,16 +48,6 @@ const providerLabelsById = new Map<string, string>();
 const resolveProviderLabel = (value: unknown): string | null => {
   const refId = referenceId(value);
   return refId ? (providerLabelsById.get(refId) ?? null) : null;
-};
-
-// Populated once per run in main(), from whatever real Supabase target is
-// configured (empty against a fixture-only dry run with no target at all).
-// A contributorProfile whose email is already a real member here must not
-// get a new member/profile/member_roles row planned for it -- see
-// fetchExistingMemberEmails in common.ts for why.
-let existingMemberEmails: ReadonlySet<string> = new Set();
-const isExistingMember = (email: string | null): boolean => {
-  return email !== null && existingMemberEmails.has(email.toLowerCase());
 };
 
 function isDocument(value: unknown): value is SanityDocument {
@@ -367,9 +372,8 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       external_id: text(document.providerCompetitionId) ?? document._id, external_url: text(document.providerCompetitionUrl),
     });
     case "contributorProfile": {
-      const memberId = id;
-      const email = text(document.normalizedEmail);
-      if (isExistingMember(email)) {
+      const canonicalId = document._id.replace(/^drafts\./, "");
+      if (contributorIdRemap.has(canonicalId)) {
         // A real member with this email already exists in the target --
         // most likely the project owner's own account, provisioned by an
         // actual Supabase Auth sign-in, not by this migration. That real
@@ -381,9 +385,15 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
         // out from under it. Excluded, not merged into the existing row --
         // this migration tool has no safe way to decide which fields of an
         // already-live real account should be overwritten by Sanity data.
-        warnings.push(`Contributor profile ${document._id} matches an existing real member in the target by email; skipping member/profile/member_roles creation to avoid a duplicate account. The existing account is left untouched.`);
+        // Any other document referencing this same contributor (a
+        // submission's submitter, an auditEvent's actor) resolves through
+        // refUuid() to the real member id via contributorIdRemap, not to
+        // this skipped, never-created row.
+        warnings.push(`Contributor profile ${document._id} matches an existing real member in the target by email; skipping member/profile/member_roles creation to avoid a duplicate account. The existing account is left untouched; other references to this contributor are remapped to the real account.`);
         return [];
       }
+      const memberId = id;
+      const email = text(document.normalizedEmail);
       return [
         { sourceKey: document._id, table: "members", row: {
           // The live schema's field is providerAccountId, not principalId.
@@ -476,7 +486,7 @@ async function main() {
   const documents = values.filter(isDocument);
   const warnings: string[] = [];
   const errors: string[] = [];
-  existingMemberEmails = await fetchExistingMemberEmails();
+  const existingMembersByEmail = await fetchExistingMembersByEmail();
   if (documents.length !== values.length) errors.push(`${values.length - documents.length} input records were not valid Sanity documents.`);
 
   // Draft and published Sanity documents share one canonical id (the "drafts."
@@ -507,6 +517,12 @@ async function main() {
     if (document._type !== "rankingProvider") continue;
     const canonicalId = document._id.replace(/^drafts\./, "");
     providerLabelsById.set(canonicalId, slug(document.slug) ?? text(document.name) ?? "unknown");
+  }
+  for (const document of resolvedDocuments) {
+    if (document._type !== "contributorProfile") continue;
+    const email = text(document.normalizedEmail)?.toLowerCase();
+    const realMemberId = email ? existingMembersByEmail.get(email) : undefined;
+    if (realMemberId) contributorIdRemap.set(document._id.replace(/^drafts\./, ""), realMemberId);
   }
   const operations = resolvedDocuments.flatMap((document) => normalizeDocument(document, warnings));
   const report: MigrationReport = {
