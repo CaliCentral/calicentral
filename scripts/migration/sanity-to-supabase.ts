@@ -22,6 +22,18 @@ const refUuid = (value: unknown) => {
   return id ? sourceUuid(id) : null;
 };
 
+// rankingSnapshot.source.provider, sportingResult.source.provider, and
+// externalAthleteIdentity.provider are all references to a rankingProvider
+// document (confirmed against the live schema and a real export), but their
+// Supabase target columns are plain text -- resolved here to that
+// provider's slug, populated once per run in main() before any document is
+// transformed.
+const providerLabelsById = new Map<string, string>();
+const resolveProviderLabel = (value: unknown): string | null => {
+  const refId = referenceId(value);
+  return refId ? (providerLabelsById.get(refId) ?? null) : null;
+};
+
 function isDocument(value: unknown): value is SanityDocument {
   return isRecord(value) && Boolean(text(value._id)) && Boolean(text(value._type));
 }
@@ -84,20 +96,45 @@ function editorialOperations(document: SanityDocument): PlannedRow[] {
 }
 
 function normalizeDocument(document: SanityDocument, warnings: string[]): PlannedRow[] {
+  // Every Sanity dataset carries its own platform-internal documents --
+  // access-control groups, retention config -- with _type prefixed
+  // "system." and _id prefixed "_." (e.g. "_.groups.administrator",
+  // "_.retention._maximum_project"). These are Sanity Studio's own ACL/
+  // config records, not authored application content, and were never part
+  // of the 24-type content classification; a real dataset export surfaces
+  // them where a synthetic fixture never would. They have no Supabase
+  // analog and are OBSOLETE/INTENTIONALLY EXCLUDED, not a transformer gap.
+  if (document._type.startsWith("system.") || document._id.startsWith("_.")) {
+    warnings.push(`INTENTIONALLY EXCLUDED: Sanity platform-internal document ${document._type} (${document._id}); not authored application content.`);
+    return [];
+  }
+
   const id = sourceUuid(document._id);
   const op = (table: string, row: Record<string, unknown>, onConflict = "legacy_sanity_id"): PlannedRow[] =>
     [{ sourceKey: document._id, table, onConflict, row: { id, ...base(document), ...row } }];
 
   switch (document._type) {
-    case "athlete": return op("athletes", {
-      permanent_id: text(document.permanentId) ?? `sanity:${document._id}`,
-      slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed athlete",
-      display_name: text(document.displayName), biography: text(document.biography) ?? "",
-      country: text(document.country), administrative_area: text(document.administrativeArea), city: text(document.city),
-      disciplines: stringArray(document.disciplines), specialties: stringArray(document.specialties),
-      identity_state: text(document.identityState) ?? "unconfirmed",
-      editorial_state: text(document.publicStatus) === "published" ? "approved" : "draft",
-    });
+    case "athlete": {
+      // The live athlete-records schema (sanity/schemaTypes/objects/athlete-records.ts)
+      // nests identity/editorial state under `verification`, stores the bio
+      // under `shortBio`, and represents disciplines as `primaryDiscipline`
+      // (single, required) + `secondaryDisciplines` (array) rather than a
+      // flat `disciplines` array. A synthetic fixture never exercised these,
+      // so a real export was required to catch it -- confirmed by reading
+      // the schema directly rather than guessing from field names alone.
+      const verification = isRecord(document.verification) ? document.verification : {};
+      const identityState = text(verification.identityStatus) === "profile-control-confirmed" ? "identity-confirmed" : "unconfirmed";
+      const editorialState = text(verification.profileStatus) === "approved" ? "approved" : "draft";
+      const disciplines = [text(document.primaryDiscipline), ...stringArray(document.secondaryDisciplines)].filter((value): value is string => value !== null);
+      return op("athletes", {
+        permanent_id: text(document.permanentId) ?? `sanity:${document._id}`,
+        slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed athlete",
+        display_name: text(document.displayName), biography: text(document.shortBio) ?? "",
+        country: text(document.country), administrative_area: text(document.administrativeArea), city: text(document.city),
+        disciplines, specialties: stringArray(document.specialties),
+        identity_state: identityState, editorial_state: editorialState,
+      });
+    }
     case "organization": return op("organizations", {
       slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed organization",
       organization_type: text(document.organizationType), website: text(document.website), country: text(document.country),
@@ -117,17 +154,97 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       version: text(document.version) ?? "unknown", status: text(document.status) ?? "draft",
       effective_on: text(document.effectiveOn), rules: document,
     });
-    case "competition": return op("competitions", {
-      permanent_id: text(document.permanentId) ?? `sanity:${document._id}`,
-      organization_id: refUuid(document.organization), ruleset_id: refUuid(document.ruleset),
-      slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed competition",
-      short_name: text(document.shortName), status: text(document.status) ?? "unknown",
-      start_date: text(document.startDate), end_date: text(document.endDate), country: text(document.country),
-      administrative_area: text(document.administrativeArea) ?? text(document.state), city: text(document.city),
-      venue_name: text(document.venueName), summary: text(document.summary) ?? "",
-      disciplines: stringArray(document.disciplines), operations: document,
-      public_state: text(document.publicStatus) === "published" ? "published" : "draft",
-    });
+    case "competition": {
+      const competitionRow = op("competitions", {
+        permanent_id: text(document.permanentId) ?? `sanity:${document._id}`,
+        organization_id: refUuid(document.organization), ruleset_id: refUuid(document.ruleset),
+        slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed competition",
+        short_name: text(document.shortName), status: text(document.status) ?? "unknown",
+        start_date: text(document.startDate), end_date: text(document.endDate), country: text(document.country),
+        administrative_area: text(document.administrativeArea) ?? text(document.state), city: text(document.city),
+        venue_name: text(document.venueName), summary: text(document.summary) ?? "",
+        disciplines: stringArray(document.disciplines), operations: document,
+        public_state: text(document.publicStatus) === "published" ? "published" : "draft",
+      });
+
+      // The live competition schema (sanity/schemaTypes/objects/competition-records.ts)
+      // embeds results directly as document.results[] -- there is no
+      // separate sportingResult document per result in real data at all.
+      // The sportingResult document-type case below exists for a shape that
+      // may exist elsewhere or in the future, but as of this real export it
+      // is entirely unused; embedded results are the actual real shape and
+      // were previously not read at all (100% silent data loss, zero
+      // warning, since the dry-run only ever iterated top-level documents).
+      const embeddedResults = Array.isArray(document.results) ? document.results : [];
+      if (!embeddedResults.length) return competitionRow;
+
+      const resultsSourceId = stableUuid("calicentral:sanity-competition-results-source", document._id);
+      const resultsSource: PlannedRow = { sourceKey: `${document._id}#results-source`, table: "source_records", row: {
+        id: resultsSourceId, provider: text(document.organizerName) ?? "unknown", source_type: "competition-results",
+        external_record_id: document._id.replace(/^drafts\./, ""),
+        verification_state: text(document.resultsStatus) === "verified-results" ? "source-confirmed" : "unverified",
+        // Every column on this row must be present even where not
+        // meaningful here: a batched multi-row upsert against a
+        // heterogeneous set of source_records rows (this one alongside a
+        // rankingSnapshot/sportingResult-sourced one that does set these)
+        // sends an explicit null for any column missing from a given row,
+        // not that column's own default -- confirmed by a real write
+        // failing on exactly this NOT NULL constraint.
+        source_payload: {},
+      }};
+
+      // Sanity's competitionResult.verificationStatus (unverified/
+      // source-reviewed/verified/disputed/sample -- see
+      // resultVerificationStatusOptions in sanity/schemaTypes/constants.ts)
+      // has no exact match in sporting_results.result_status. This mapping
+      // is deliberately conservative: "sample" is explicitly documented as
+      // "Fictional sample" and must never look more credible than a raw
+      // unverified/imported result, and nothing here is promoted to
+      // "official" -- that specifically claims the result came from an
+      // official governing body, a claim this generic embedded-result path
+      // has no basis to make.
+      const resultStatusFor = (status: string | null): string => {
+        switch (status) {
+          case "source-reviewed": return "provisional";
+          case "verified": return "source-confirmed";
+          case "disputed": return "disputed";
+          default: return "imported"; // unverified, sample, or unset
+        }
+      };
+
+      const resultRows: PlannedRow[] = embeddedResults.filter(isRecord).flatMap((result, index): PlannedRow[] => {
+        const athleteId = refUuid(result.athlete);
+        if (!athleteId) {
+          // No team concept exists for an embedded competition result --
+          // only an athlete reference or a free-text displayName fallback.
+          // A displayName-only result has no safe target: sporting_results
+          // requires exactly one of athlete_id/team_id, and inventing or
+          // matching an athlete from a display name would violate the
+          // never-merge-by-name-alone rule. Excluded with a warning, not
+          // silently dropped.
+          warnings.push(`Competition result ${document._id}#${index} (${text(result.displayName) ?? "unnamed"}) has no athlete reference; unlinked results require manual identity resolution before import.`);
+          return [];
+        }
+        const resultId = stableUuid("calicentral:sanity-embedded-result", `${document._id}:${index}`);
+        return [
+          { sourceKey: `${document._id}#result-${index}`, table: "sporting_results", onConflict: "legacy_sanity_id", row: {
+            id: resultId, legacy_sanity_id: `${document._id}#result-${index}`,
+            competition_id: id, athlete_id: athleteId, division: text(result.division) ?? text(result.category) ?? "unknown",
+            event: text(result.movementNote) ?? text(result.resultLabel) ?? text(document.primaryDiscipline) ?? "unknown",
+            placement: result.placement ?? null, result_status: resultStatusFor(text(result.verificationStatus)),
+            source_record_id: resultsSourceId,
+          }},
+          { sourceKey: `${document._id}#result-${index}#performance`, table: "sporting_result_performances", row: {
+            id: stableUuid("calicentral:sanity-embedded-result-performance", `${document._id}:${index}`),
+            sporting_result_id: resultId, performance_order: 0,
+            movement: text(result.movementNote) ?? text(result.resultLabel) ?? "result",
+            status: text(result.verificationStatus), detail: result,
+          }},
+        ];
+      });
+
+      return [...competitionRow, resultsSource, ...resultRows];
+    }
     case "rankingProvider": return op("ranking_providers", {
       organization_id: refUuid(document.organization), slug: slug(document.slug) ?? `migration-missing-${id}`,
       name: text(document.name) ?? "Unnamed provider", website: text(document.website), status: text(document.status) ?? "under-review",
@@ -156,7 +273,7 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       const entries = Array.isArray(document.entries) ? document.entries : [];
       return [
         { sourceKey: document._id, table: "source_records", row: {
-          id: sourceId, provider: text(source.provider) ?? "unknown", source_type: text(source.sourceType) ?? "ranking",
+          id: sourceId, provider: resolveProviderLabel(source.provider) ?? text(source.provider) ?? "unknown", source_type: text(source.sourceType) ?? "ranking",
           public_url: text(source.url), title: text(source.title), external_record_id: text(source.externalRecordId) ?? document._id,
           publication_date: text(source.publicationDate), checked_at: text(source.checkedAt) ?? text(document.checkedAt),
           verification_state: text(source.verificationStatus) ?? "unverified", source_payload: source,
@@ -185,7 +302,7 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       const source = isRecord(document.source) ? document.source : {};
       return [
         { sourceKey: document._id, table: "source_records", row: {
-          id: sourceId, provider: text(source.provider) ?? "unknown", source_type: text(source.sourceType) ?? "sporting-result",
+          id: sourceId, provider: resolveProviderLabel(source.provider) ?? text(source.provider) ?? "unknown", source_type: text(source.sourceType) ?? "sporting-result",
           public_url: text(source.url), title: text(source.title), external_record_id: text(source.externalRecordId) ?? document._id,
           publication_date: text(source.publicationDate), checked_at: text(source.checkedAt),
           verification_state: text(source.verificationStatus) ?? text(document.resultStatus) ?? "submitted", source_payload: source,
@@ -206,27 +323,55 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
         })) : []),
       ];
     }
-    case "externalAthleteIdentity": return op("external_athlete_identities", {
-      athlete_id: refUuid(document.athlete), provider: text(document.provider) ?? "unknown",
-      external_id: text(document.externalId) ?? document._id, external_url: text(document.externalUrl),
-      verification_state: text(document.verificationStatus) ?? "unverified",
-    });
+    case "externalAthleteIdentity": {
+      // The live schema (external-athlete-identity.ts) has no externalId/
+      // externalUrl/verificationStatus fields at all -- it's
+      // providerAthleteId/providerAthleteUrl, plus two separate status
+      // fields (matchingStatus: is this really the same athlete;
+      // reviewStatus: has an editor looked at it). matchingStatus is the
+      // closer semantic match for verification_state, which represents
+      // confidence in the identity link itself, not editorial workflow
+      // state.
+      const matchingStatus = text(document.matchingStatus);
+      const verificationState = matchingStatus === "confirmed" || matchingStatus === "manually-linked" ? "identity-confirmed"
+        : matchingStatus === "rejected" || matchingStatus === "do-not-auto-match" ? "disputed"
+        : "unverified";
+      // Unlike every other table op() targets, external_athlete_identities
+      // has no legacy_sanity_id column at all -- its real unique constraint
+      // is (provider, external_id) -- so this is built directly rather than
+      // through op(), which unconditionally spreads a legacy_sanity_id field
+      // no matter the target table.
+      return [{ sourceKey: document._id, table: "external_athlete_identities", onConflict: "provider,external_id", row: {
+        id, athlete_id: refUuid(document.athlete), provider: resolveProviderLabel(document.provider) ?? text(document.provider) ?? "unknown",
+        external_id: text(document.providerAthleteId) ?? document._id, external_url: text(document.providerAthleteUrl),
+        verification_state: verificationState,
+      }}];
+    }
     case "externalCompetitionIdentity": return op("external_competition_identities", {
-      competition_id: refUuid(document.competition), provider: text(document.provider) ?? "unknown",
-      external_id: text(document.externalId) ?? document._id, external_url: text(document.externalUrl),
+      competition_id: refUuid(document.competition), provider: resolveProviderLabel(document.provider) ?? text(document.provider) ?? "unknown",
+      // Same providerXId/providerXUrl naming as externalAthleteIdentity's
+      // live schema (external-competition-identity.ts), not externalId/
+      // externalUrl. No real document of this type exists in this export to
+      // verify against, but it's the same sibling schema pattern.
+      external_id: text(document.providerCompetitionId) ?? document._id, external_url: text(document.providerCompetitionUrl),
     });
     case "contributorProfile": {
       const memberId = id;
       return [
         { sourceKey: document._id, table: "members", row: {
-          id: memberId, legacy_principal_id: text(document.principalId) ?? document._id,
+          // The live schema's field is providerAccountId, not principalId.
+          id: memberId, legacy_principal_id: text(document.providerAccountId) ?? document._id,
           email_normalized: text(document.normalizedEmail), access_status: text(document.accessStatus) ?? "pending",
           last_signed_in_at: text(document.lastSignedInAt),
         }},
         { sourceKey: document._id, table: "profiles", row: {
+          // The live schema has a single combined `location` field, not
+          // separate country/city -- stored under country as the closer of
+          // the two available columns rather than dropped, since there's no
+          // safe way to split free text into the two without guessing.
           member_id: memberId, display_name: text(document.displayName) ?? "Contributor",
           avatar_url: text(document.avatarUrl), biography: text(document.biography) ?? "",
-          country: text(document.country), city: text(document.city), interests: stringArray(document.areasOfInterest),
+          country: text(document.location) ?? text(document.country), city: text(document.city), interests: stringArray(document.areasOfInterest),
           profile_configured: true,
         }},
         { sourceKey: document._id, table: "member_roles", row: {
@@ -235,16 +380,44 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       ];
     }
     case "story": case "video": return editorialOperations(document);
-    case "author": return op("authors", { member_id: null, name: text(document.name) ?? "Unknown author", slug: slug(document.slug), biography: text(document.biography) ?? "" });
+    case "author": return op("authors", { member_id: null, name: text(document.name) ?? "Unknown author", slug: slug(document.slug), biography: text(document.shortBio) ?? "" });
     case "videoSeries": return op("video_series", { slug: slug(document.slug) ?? `migration-missing-${id}`, title: text(document.title) ?? "Untitled series", description: text(document.description) ?? "" });
     case "product": return op("products", { organization_id: refUuid(document.organization), slug: slug(document.slug) ?? `migration-missing-${id}`, name: text(document.name) ?? "Unnamed product", description: text(document.description) ?? "", affiliate_url: text(document.affiliateUrl), disclosure: text(document.disclosure), publication_state: text(document.publicationStatus) ?? "draft" });
-    case "submission": return op("submissions", { owner_member_id: sourceUuid(referenceId(document.contributor) ?? "missing-contributor"), submission_type: text(document.submissionType) ?? "storyPitch", status: text(document.status) ?? "draft", payload: document, contributor_feedback: text(document.contributorVisibleFeedback) ?? "", private_editorial_notes: Array.isArray(document.privateEditorialNotes) ? document.privateEditorialNotes : [] });
-    case "auditEvent": return [{ sourceKey: document._id, table: "audit_events", row: {
-      id, event_type: text(document.eventType) ?? "legacySanityEvent", actor_principal: text(document.actorPrincipalId) ?? "sanity:migration",
-      target_type: text(document.targetType) ?? "unknown", target_id: text(document.targetId) ?? document._id,
-      summary: text(document.summary) ?? "Migrated Sanity audit event", metadata: document,
-      created_at: text(document.createdAt) ?? text(document._createdAt) ?? new Date(0).toISOString(),
-    }}];
+    case "submission": {
+      // The live schema's reference field is `submitter`, not `contributor`
+      // (a real export was needed to catch this -- a synthetic fixture had
+      // no reason to get the field name wrong). Falling back to a synthetic
+      // "missing-contributor" identity would misattribute a real person's
+      // submission, so an unresolved submitter is a warning, not a silent
+      // default.
+      const submitterId = referenceId(document.submitter);
+      if (!submitterId) warnings.push(`Submission ${document._id} has no resolvable submitter reference; ownership defaulted to a synthetic identity.`);
+      return op("submissions", {
+        owner_member_id: sourceUuid(submitterId ?? "missing-contributor"), submission_type: text(document.submissionType) ?? "storyPitch",
+        status: text(document.status) ?? "draft", payload: document, contributor_feedback: text(document.contributorVisibleFeedback) ?? "",
+        private_editorial_notes: Array.isArray(document.privateEditorialNotes) ? document.privateEditorialNotes : [],
+      });
+    }
+    case "auditEvent": {
+      // `actor` is a reference to contributorProfile and `targetDocumentId`
+      // holds the actual affected document's id -- the live schema has no
+      // `actorPrincipalId`/`targetId` fields at all, so every real audit
+      // event previously fell back to a generic "sanity:migration" actor
+      // and the audit event's own id as its target, breaking the audit
+      // trail's whole purpose (who did what, to what).
+      const actorMemberId = refUuid(document.actor);
+      // audit_events is append-only (a database trigger rejects any
+      // update), confirmed by a real re-run failing with "audit events are
+      // immutable" -- a repeat import must insert-or-skip already-migrated
+      // rows, never attempt to update them.
+      return [{ sourceKey: document._id, table: "audit_events", ignoreDuplicates: true, row: {
+        id, event_type: text(document.eventType) ?? "legacySanityEvent",
+        actor_member_id: actorMemberId, actor_principal: actorMemberId ? null : (text(document.actorRole) ?? "sanity:migration"),
+        target_type: text(document.targetType) ?? "unknown", target_id: text(document.targetDocumentId) ?? document._id,
+        summary: text(document.summary) ?? "Migrated Sanity audit event", metadata: document,
+        created_at: text(document.createdAt) ?? text(document._createdAt) ?? new Date(0).toISOString(),
+      }}];
+    }
     case "siteSettings": return [{ sourceKey: document._id, table: "site_settings", onConflict: "id", row: { id: true, settings: document, updated_at: text(document._updatedAt) ?? new Date(0).toISOString() } }];
     // Both of these are Sanity-internal coordination mechanisms with no
     // content or historical value of their own, and both are already
@@ -302,6 +475,11 @@ async function main() {
     if (keepIncoming) resolvedByCanonicalId.set(canonical, document);
   }
   const resolvedDocuments = [...resolvedByCanonicalId.values()];
+  for (const document of resolvedDocuments) {
+    if (document._type !== "rankingProvider") continue;
+    const canonicalId = document._id.replace(/^drafts\./, "");
+    providerLabelsById.set(canonicalId, slug(document.slug) ?? text(document.name) ?? "unknown");
+  }
   const operations = resolvedDocuments.flatMap((document) => normalizeDocument(document, warnings));
   const report: MigrationReport = {
     source: "sanity", mode: process.argv.includes("--write") ? "local-write" : "dry-run",

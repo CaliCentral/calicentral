@@ -9,6 +9,12 @@ export type PlannedRow = {
   readonly table: string;
   readonly row: Readonly<Record<string, unknown>>;
   readonly onConflict?: string;
+  // Append-only tables (e.g. audit_events, enforced by a database trigger
+  // that rejects any update) must be inserted with ON CONFLICT DO NOTHING,
+  // not DO UPDATE -- re-running an import against already-migrated rows
+  // would otherwise hit that trigger and fail the whole batch, confirmed by
+  // a real re-run.
+  readonly ignoreDuplicates?: boolean;
 };
 
 export type MigrationReport = {
@@ -93,6 +99,36 @@ export function hasArgument(name: string): boolean {
   return process.argv.includes(`--${name}`);
 }
 
+// Tables are written in this order, not the order their source documents
+// happened to appear in the export. Sanity/D1 exports have no guaranteed
+// ordering, so a table that references another (e.g. audit_events.actor_member_id
+// -> members.id) can otherwise land before the table it depends on, failing
+// with a foreign-key violation purely because of NDJSON line order -- this
+// isn't hypothetical, it's exactly what happened on the first real-data
+// local-write attempt (a contributorProfile-derived members row created
+// after an auditEvent that referenced it). Unlisted tables keep their
+// natural discovered order and are written last, after everything listed
+// here, since anything not enumerated is assumed to have no known
+// dependency on the tables that are.
+const TABLE_WRITE_ORDER = [
+  "members", "profiles", "profile_social_accounts", "member_roles", "member_capabilities",
+  "organizations", "athletes", "external_athlete_identities", "teams", "team_seasons", "rulesets",
+  "authors", "video_series",
+  "competitions", "external_competition_identities",
+  "ranking_providers", "ranking_systems",
+  "source_records",
+  "sporting_results", "sporting_result_performances",
+  "ranking_snapshots", "ranking_entries", "ranking_categories",
+  "editorial_content", "stories", "videos", "editorial_publication_state",
+  "submissions", "site_settings", "products",
+  "audit_events", "moderation_events",
+] as const;
+
+function sortByWriteOrder(tables: readonly string[]): string[] {
+  const priority = new Map<string, number>(TABLE_WRITE_ORDER.map((table, index) => [table, index]));
+  return [...tables].sort((a, b) => (priority.get(a) ?? TABLE_WRITE_ORDER.length) - (priority.get(b) ?? TABLE_WRITE_ORDER.length));
+}
+
 export async function applyLocalPlan(report: MigrationReport): Promise<void> {
   if (!hasArgument("write")) return;
   if (!hasArgument("confirm-local-migration")) {
@@ -110,15 +146,16 @@ export async function applyLocalPlan(report: MigrationReport): Promise<void> {
   if (report.errors.length) throw new Error("Migration plan contains validation errors; no rows were written.");
 
   const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  const tableOrder = [...new Set(report.operations.map((operation) => operation.table))];
+  const tableOrder = sortByWriteOrder([...new Set(report.operations.map((operation) => operation.table))]);
   for (const table of tableOrder) {
     const rows = report.operations.filter((operation) => operation.table === table);
     for (let offset = 0; offset < rows.length; offset += 100) {
       const chunk = rows.slice(offset, offset + 100);
       const onConflict = chunk[0]?.onConflict;
+      const ignoreDuplicates = chunk[0]?.ignoreDuplicates ?? false;
       const result = await client.from(table).upsert(chunk.map((operation) => operation.row), {
         ...(onConflict ? { onConflict } : {}),
-        ignoreDuplicates: false,
+        ignoreDuplicates,
       });
       if (result.error) throw new Error(`Failed writing ${table}: ${result.error.message}`);
     }
