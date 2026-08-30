@@ -50,6 +50,8 @@
     "migrate:sanity:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/sanity-to-supabase.ts",
     "migrate:d1:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/d1-to-supabase.ts",
     "preview:snapshot": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/snapshot-preview-counts.ts",
+    "classify:provenance:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/classify-provenance.ts",
+    "plan:sample-deletion:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/plan-sample-data-deletion.ts",
     "test:migrations": "npm run migrate:sanity -- --input=scripts/migration/fixtures/sanity.ndjson && npm run migrate:d1 -- --input=scripts/migration/fixtures/d1.json"
   },
   "dependencies": {
