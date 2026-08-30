@@ -16,6 +16,21 @@ const csvList = z
   .trim()
   .transform((value) => (value ? value.split(",").map((v) => v.trim()).filter(Boolean) : []));
 
+/**
+ * FormData always yields a string (never undefined) for a present field, so
+ * a blank optional <input type="number"> submits "" -- plain
+ * `z.coerce.number().optional()` would coerce "" to 0 via JS's numeric
+ * coercion and then fail any `.positive()`/`.int()` check instead of being
+ * treated as omitted. Strip blank strings to undefined before coercing.
+ */
+const optionalNumber = () =>
+  z.preprocess((value) => (value === "" || value === undefined ? undefined : value), z.coerce.number().optional());
+const optionalPositiveInt = () =>
+  z.preprocess(
+    (value) => (value === "" || value === undefined ? undefined : value),
+    z.coerce.number().int().positive().optional(),
+  );
+
 export const athleteEditorialStates = ["draft", "in-review", "approved", "archived"] as const;
 export const athleteIdentityStates = ["unconfirmed", "identity-confirmed", "disputed", "retired"] as const;
 
@@ -135,9 +150,9 @@ export const rankingEntryStatuses = ["ranked", "provisional", "disqualified", "w
 export const addRankingEntrySchema = z.object({
   rankingSnapshotId: uuid,
   athleteId: uuid,
-  rank: z.coerce.number().int().positive().optional(),
-  points: z.coerce.number().optional(),
-  rating: z.coerce.number().optional(),
+  rank: optionalPositiveInt(),
+  points: optionalNumber(),
+  rating: optionalNumber(),
   entryStatus: z.enum(rankingEntryStatuses).default("ranked"),
 });
 
@@ -161,7 +176,7 @@ export const createSportingResultSchema = z
     teamId: optionalUuid,
     division: requiredText(120),
     event: requiredText(120),
-    placement: z.coerce.number().int().positive().optional(),
+    placement: optionalPositiveInt(),
     resultStatus: z.enum(sportingResultStatuses),
     sourceRecordId: uuid,
     rulesetId: optionalUuid,
@@ -203,7 +218,7 @@ export const updateStoryFieldsSchema = z.object({
   category: optionalText(80),
   eyebrow: optionalText(80),
   featured: z.coerce.boolean().optional(),
-  readTimeMinutes: z.coerce.number().int().positive().optional(),
+  readTimeMinutes: optionalPositiveInt(),
 });
 
 export const videoOwnershipStatuses = ["cali-central-original", "third-party-attributed", "source-unavailable"] as const;
@@ -214,7 +229,7 @@ export const updateVideoFieldsSchema = z.object({
   sourcePlatform: optionalText(80),
   sourceAccount: optionalText(80),
   originalPostUrl: optionalText(2_048),
-  durationSeconds: z.coerce.number().int().positive().optional(),
+  durationSeconds: optionalPositiveInt(),
 });
 
 export const sourceVerificationStates = [

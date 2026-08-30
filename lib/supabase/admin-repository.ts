@@ -561,11 +561,16 @@ export class SupabaseAdminRepository {
   }
 
   /**
-   * Trust-boundary transitions only move forward or sideways (e.g.
-   * source-confirmed -> official, official -> corrected/disputed). The
-   * enum's CHECK constraint (sporting_results_result_status_check) is the
-   * real backstop; this does not add its own state machine on top of it, to
-   * avoid the admin layer silently drifting from the schema's own rules.
+   * The sporting_results_result_status_check CHECK constraint only enforces
+   * enum membership -- it does NOT restrict transition direction. Nothing in
+   * this repository, the Server Action, or the schema currently prevents an
+   * arbitrary backward move (e.g. official -> imported); the only gate is
+   * the sport.write_source_truth RLS capability. This is intentional for
+   * now (a capability holder may legitimately need to revert/correct a
+   * result), not an oversight, but it means this endpoint trusts the
+   * capability holder's judgment on transition direction entirely -- add an
+   * explicit transition-order guard here if that trust ever needs to
+   * narrow.
    */
   async updateSportingResultStatus(id: string, resultStatus: string) {
     const client = await createSupabaseServerClient();

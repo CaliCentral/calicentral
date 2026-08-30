@@ -89,6 +89,22 @@ function validateRankingSchemas() {
   });
   assert.equal(goodEntry.success, true, "a string-encoded rank from FormData must coerce to a number");
   if (goodEntry.success) assert.equal(goodEntry.data.rank, 3, "the coerced rank must be numeric");
+
+  // A blank optional number <input> submits "" via FormData, not undefined.
+  // Plain z.coerce.number().optional() would coerce "" to 0 and then fail
+  // .positive()/.int() instead of being treated as omitted -- this caught a
+  // real bug across rank/points/rating/placement/readTimeMinutes/
+  // durationSeconds before it shipped.
+  const blankOptionalEntry = addRankingEntrySchema.safeParse({
+    rankingSnapshotId: "00000000-0000-4000-8000-000000000002",
+    athleteId: "00000000-0000-4000-8000-000000000003",
+    rank: "", points: "", rating: "", entryStatus: "ranked",
+  });
+  assert.equal(blankOptionalEntry.success, true, "blank optional number fields from an empty FormData input must parse as omitted, not fail .positive()");
+  if (blankOptionalEntry.success) {
+    assert.equal(blankOptionalEntry.data.rank, undefined, "a blank rank must resolve to undefined, not 0");
+    assert.equal(blankOptionalEntry.data.points, undefined, "a blank points must resolve to undefined, not 0");
+  }
 }
 
 function validateSportingResultRequiresExactlyOneOfAthleteOrTeam() {
@@ -109,6 +125,11 @@ function validateSportingResultRequiresExactlyOneOfAthleteOrTeam() {
 
   const athleteOnly = createSportingResultSchema.safeParse({ ...base, athleteId: "00000000-0000-4000-8000-000000000012" });
   assert.equal(athleteOnly.success, true, "a sporting result with exactly one of athleteId/teamId must be accepted");
+
+  const blankPlacement = createSportingResultSchema.safeParse({
+    ...base, athleteId: "00000000-0000-4000-8000-000000000012", placement: "",
+  });
+  assert.equal(blankPlacement.success, true, "leaving the optional placement field blank must not fail .positive() (see the addRankingEntrySchema blank-optional-number test for the underlying bug this guards against)");
 }
 
 function validateEditorialTransitionEnum() {
