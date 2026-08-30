@@ -8,11 +8,22 @@ select plan(4);
 -- hardening in 202608300003 targets: suspension must block role/capability
 -- -gated access even while the member_roles row still exists.
 insert into auth.users (id, email, raw_user_meta_data) values
-  ('00000000-0000-0000-0000-000000000501', 'suspended-admin@example.test', '{"name":"Suspended Admin"}');
+  ('00000000-0000-0000-0000-000000000501', 'suspended-admin@example.test', '{"name":"Suspended Admin"}'),
+  -- An unrelated second active admin, present only so suspending the test
+  -- subject below doesn't trip the separate "at least one active
+  -- administrator must remain" database safeguard (202608300009) -- this
+  -- test is about has_role/has_capability suspension hardening, not that
+  -- invariant, and the two must stay decoupled.
+  ('00000000-0000-0000-0000-000000000502', 'other-admin-501@example.test', '{"name":"Other Admin"}');
 update public.members set access_status = 'active'
-  where auth_user_id = '00000000-0000-0000-0000-000000000501';
+  where auth_user_id in (
+    '00000000-0000-0000-0000-000000000501',
+    '00000000-0000-0000-0000-000000000502'
+  );
 insert into public.member_roles (member_id, role_name)
 select id, 'admin' from public.members where auth_user_id = '00000000-0000-0000-0000-000000000501';
+insert into public.member_roles (member_id, role_name)
+select id, 'admin' from public.members where auth_user_id = '00000000-0000-0000-0000-000000000502';
 
 -- 1. While active, the admin role actually works (positive control -- a
 -- meaningless suspension test if admin access was already broken).
