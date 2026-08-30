@@ -1,9 +1,11 @@
 "use client";
 
-import { SessionProvider, signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 import { DesktopNavigation } from "@/components/layout/desktop-navigation";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { signOutFromPublicHeader } from "@/lib/auth/actions";
+import type { PortalUser } from "@/lib/auth/types";
 
 type NavigationPresentationProps = {
   readonly isAuthenticated: boolean;
@@ -44,10 +46,42 @@ function NavigationPresentation({
   );
 }
 
+// Provider-agnostic by construction: this fetches /api/session, which
+// dispatches through the same getCurrentUser() every server-rendered page
+// already uses to pick between Supabase and Auth.js, rather than assuming
+// either backend the way next-auth/react's useSession() (Auth.js-only)
+// previously did. That assumption was the root cause of the public header
+// showing "signed out" for a genuinely-authenticated Supabase session --
+// next-auth/react has no way to know about a session it didn't create.
+function useSupabaseAwarePortalSession() {
+  const [state, setState] = useState<{ status: "loading" | "authenticated" | "unauthenticated"; user: PortalUser | null }>({
+    status: "loading",
+    user: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSession() {
+      try {
+        const response = await fetch("/api/session", { cache: "no-store" });
+        const body = (response.ok ? await response.json() : { user: null }) as { user: PortalUser | null };
+        if (!cancelled) setState({ status: body.user ? "authenticated" : "unauthenticated", user: body.user });
+      } catch {
+        if (!cancelled) setState({ status: "unauthenticated", user: null });
+      }
+    }
+    void loadSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return state;
+}
+
 function SessionAwareNavigation() {
-  const { data: session, status } = useSession();
-  const user = session?.user;
-  const isAuthenticated = status === "authenticated" && Boolean(user?.id);
+  const { status, user } = useSupabaseAwarePortalSession();
+  const isAuthenticated = status === "authenticated" && Boolean(user);
   const canSubmit = Boolean(isAuthenticated && user?.accessStatus === "active");
   const canUseEditorialDesk = Boolean(
     isAuthenticated &&
@@ -56,7 +90,7 @@ function SessionAwareNavigation() {
   );
 
   async function performSignOut() {
-    await signOut({ redirectTo: "/" });
+    await signOutFromPublicHeader();
   }
 
   return (
@@ -65,16 +99,12 @@ function SessionAwareNavigation() {
       isSessionLoading={status === "loading"}
       canSubmit={canSubmit}
       canUseEditorialDesk={canUseEditorialDesk}
-      displayName={user?.displayName || user?.name || "Cali Central member"}
+      displayName={user?.displayName || "Cali Central member"}
       onSignOut={performSignOut}
     />
   );
 }
 
 export function NavigationSessionIsland() {
-  return (
-    <SessionProvider>
-      <SessionAwareNavigation />
-    </SessionProvider>
-  );
+  return <SessionAwareNavigation />;
 }

@@ -4,7 +4,7 @@ import type { Session } from "next-auth";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
-import { auth } from "@/auth";
+import { auth, signOut as signOutAuthJs } from "@/auth";
 import { isAuthConfigured } from "@/lib/auth/config";
 import { safeAuthReturnPath } from "@/lib/auth/redirects";
 import type {
@@ -19,6 +19,7 @@ import {
 } from "@/lib/auth/types";
 import { safeLog } from "@/lib/observability/logger";
 import { getSupabasePortalUser } from "@/lib/auth/supabase-session";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured, useSupabaseAuth } from "@/lib/supabase/config";
 
 const ROLE_WEIGHT: Record<PortalRole, number> = {
@@ -97,6 +98,24 @@ export async function getCurrentUser(): Promise<PortalUser | null> {
     authProvider: user.authProvider,
     profileConfigured: user.profileConfigured,
   };
+}
+
+// getCurrentUser() above already dispatches reads between the two auth
+// backends; sign-out needs the identical dispatch, and previously had none
+// at all -- every call site imported Auth.js's own signOut() directly and
+// unconditionally, which under Supabase mode cleared a NextAuth session
+// cookie that was never set while leaving the real Supabase session cookie
+// (and therefore the user's actual authenticated state) completely
+// untouched. That mismatch, not a bug in either provider's own sign-out
+// implementation, is why sign-out appeared to fail and why a refresh after
+// "signing out" left the user still authenticated.
+export async function signOutCurrentSession(redirectTo: string): Promise<void> {
+  if (useSupabaseAuth) {
+    const client = await createSupabaseServerClient();
+    await client.auth.signOut();
+    redirect(redirectTo);
+  }
+  await signOutAuthJs({ redirectTo });
 }
 
 export async function requireAuthenticatedUser(

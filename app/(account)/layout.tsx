@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { signOut } from "@/auth";
 import { PortalShell } from "@/components/operations/portal-shell";
-import { requireAuthenticatedUser } from "@/lib/auth";
+import { requireAuthenticatedUser, signOutCurrentSession } from "@/lib/auth";
 
 export const metadata: Metadata = {
   robots: {
@@ -26,7 +25,7 @@ export default async function AccountLayout({
 
   async function performSignOut() {
     "use server";
-    await signOut({ redirectTo: "/" });
+    await signOutCurrentSession("/");
   }
 
   return (

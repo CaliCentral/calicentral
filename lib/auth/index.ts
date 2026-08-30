@@ -18,6 +18,7 @@ export {
   requireAuthenticatedUser,
   requireContributor,
   requireEditor,
+  signOutCurrentSession,
 } from "@/lib/auth/session";
 export {
   ACCESS_STATUSES,
