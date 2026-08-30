@@ -27,13 +27,12 @@ export async function GET(request: NextRequest) {
   const client = await createSupabaseServerClient();
   const { error } = await client.auth.exchangeCodeForSession(code);
   if (!error) {
-    // Best-effort, matching the legacy provisioning path's own comment ("OAuth
-    // authentication can succeed without a Sanity write token, while the
-    // resulting session remains pending"): a bootstrap admin/editor's account
-    // stays merely pending, not broken, if this fails for any reason. See
-    // bootstrap_activate_self() in supabase/migrations for why this can't
-    // just be a database trigger, and why it never touches any account but
-    // the one that just signed in.
+    // Best-effort, matching the legacy provisioning boundary: the database
+    // activates and grants a configured bootstrap role only to the caller's
+    // own member identity. If the RPC fails, OAuth still succeeds but no
+    // durable role/RLS authority is invented. See bootstrap_activate_self()
+    // for the database-enforced identity, suspension, idempotency, and audit
+    // safeguards.
     await client.rpc("bootstrap_activate_self");
   }
   return NextResponse.redirect(new URL(error ? "/auth/error?code=OAuthCallback" : next, origin));

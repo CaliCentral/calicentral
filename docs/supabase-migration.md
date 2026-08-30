@@ -80,6 +80,16 @@ callback and server-side session resolver. Auth.js remains installed until
 anonymous, authenticated, expired/invalid, admin, provisioning,
 `profileConfigured`, ownership, and cross-user tests pass end to end.
 
+Bootstrap administrator/editor parity is database-enforced. Environment
+allowlists may shape the application-layer role during the dual-run window,
+but Postgres RLS authority comes only from an active `member_roles` row.
+`bootstrap_role_emails` is the database-controlled trust anchor; it must be
+populated per environment through an approved secret-safe operational step,
+never with a real email committed in a migration. On OAuth callback,
+`bootstrap_activate_self()` can activate and grant only the authenticated
+caller's mapped role, preserves their contributor role, rejects suspended or
+archived members, is idempotent, and appends a role-grant audit event.
+
 ## R2 and rate limiting
 
 Vercel accesses the existing private R2 bucket through standard S3-compatible
