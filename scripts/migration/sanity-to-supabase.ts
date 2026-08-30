@@ -429,8 +429,13 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
       // default.
       const submitterId = referenceId(document.submitter);
       if (!submitterId) warnings.push(`Submission ${document._id} has no resolvable submitter reference; ownership defaulted to a synthetic identity.`);
+      // refUuid(), not a direct sourceUuid() call, so a submitter that
+      // matches an existing real member (via contributorIdRemap) resolves
+      // to that real member's id, not a Sanity-derived id for a
+      // contributorProfile row that was correctly never created.
+      const ownerMemberId = refUuid(document.submitter) ?? sourceUuid("missing-contributor");
       return op("submissions", {
-        owner_member_id: sourceUuid(submitterId ?? "missing-contributor"), submission_type: text(document.submissionType) ?? "storyPitch",
+        owner_member_id: ownerMemberId, submission_type: text(document.submissionType) ?? "storyPitch",
         status: text(document.status) ?? "draft", payload: document, contributor_feedback: text(document.contributorVisibleFeedback) ?? "",
         private_editorial_notes: Array.isArray(document.privateEditorialNotes) ? document.privateEditorialNotes : [],
       });
