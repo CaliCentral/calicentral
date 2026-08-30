@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ProvenancePanel } from "@/components/admin-db/provenance-panel";
+import { ActionForm } from "@/components/operations/action-form";
 import { FieldShell, SelectInput, TextInput } from "@/components/operations/field";
 import { OperationsPage, OperationsPanel } from "@/components/operations/page-shell";
+import { PendingButton } from "@/components/operations/pending-button";
 import { requireEditor } from "@/lib/auth";
+import { createSourceRecordAction } from "@/lib/supabase/admin-actions";
+import { sourceVerificationStates } from "@/lib/supabase/admin-validation";
 
 export const metadata: Metadata = { title: "Admin — Provenance lookup (Supabase)" };
 export const dynamic = "force-dynamic";
@@ -67,6 +71,41 @@ export default async function AdminSupabaseProvenanceLookupPage({ searchParams }
             Look up
           </button>
         </form>
+      </OperationsPanel>
+
+      <OperationsPanel title="Create source record" eyebrow="New source truth" className="mt-6">
+        <ActionForm action={createSourceRecordAction} submitLabel="Create source record" pendingLabel="Creating…" className="grid gap-4 sm:grid-cols-2">
+          <FieldShell id="provider" label="Provider" required description="Who this source truth comes from, e.g. an organization or ranking provider.">
+            <TextInput id="provider" name="provider" required />
+          </FieldShell>
+          <FieldShell id="sourceType" label="Source type" required description="e.g. sporting-result, ranking, roster.">
+            <TextInput id="sourceType" name="sourceType" required />
+          </FieldShell>
+          <FieldShell id="title" label="Title" description="Optional.">
+            <TextInput id="title" name="title" />
+          </FieldShell>
+          <FieldShell id="publicUrl" label="Public URL" description="Optional.">
+            <TextInput id="publicUrl" name="publicUrl" type="url" />
+          </FieldShell>
+          <FieldShell id="externalRecordId" label="External record id" description="Optional. The provider's own id for this record, if any.">
+            <TextInput id="externalRecordId" name="externalRecordId" />
+          </FieldShell>
+          <FieldShell id="publicationDate" label="Publication date" description="Optional.">
+            <TextInput id="publicationDate" name="publicationDate" type="date" />
+          </FieldShell>
+          <FieldShell id="verificationState" label="Verification state" required>
+            <SelectInput id="verificationState" name="verificationState" defaultValue="unverified">
+              {sourceVerificationStates.map((state) => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </SelectInput>
+          </FieldShell>
+          <div className="sm:col-span-2">
+            <PendingButton pendingLabel="Creating…" className="bg-accent text-canvas hover:bg-accent-strong">
+              Create source record
+            </PendingButton>
+          </div>
+        </ActionForm>
       </OperationsPanel>
 
       {hasQuery ? (

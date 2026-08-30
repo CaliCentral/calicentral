@@ -43,12 +43,13 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
   const params = await searchParams;
   const statusFilter = oneOf(first(params.status), sportingResultStatuses);
 
-  const [results, competitionOptions, athleteOptions, teamOptions, sourceOptions] = await Promise.all([
+  const [results, competitionOptions, athleteOptions, teamOptions, sourceOptions, rulesetOptions] = await Promise.all([
     repository.listSportingResults(statusFilter ? { resultStatus: statusFilter } : undefined),
     repository.listCompetitionOptions(),
     repository.listAthleteOptions(),
     repository.listTeamOptions(),
     repository.listSourceRecords(),
+    repository.listRulesetOptions(),
   ]);
 
   return (
@@ -223,6 +224,16 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
               {sourceOptions.map((source) => (
                 <option key={source.id} value={source.id}>
                   {source.provider} — {source.title ?? source.source_type}
+                </option>
+              ))}
+            </SelectInput>
+          </FieldShell>
+          <FieldShell id="rulesetId" label="Ruleset" description="Optional.">
+            <SelectInput id="rulesetId" name="rulesetId" defaultValue="">
+              <option value="">— None —</option>
+              {rulesetOptions.map((ruleset) => (
+                <option key={ruleset.id} value={ruleset.id}>
+                  {ruleset.name} ({ruleset.status})
                 </option>
               ))}
             </SelectInput>

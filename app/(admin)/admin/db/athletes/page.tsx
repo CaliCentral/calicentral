@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ActionForm } from "@/components/operations/action-form";
-import { FieldShell, SelectInput, TextInput } from "@/components/operations/field";
+import { FieldShell, SelectInput, TextArea, TextInput } from "@/components/operations/field";
 import { OperationsNotice, OperationsPage, OperationsPanel } from "@/components/operations/page-shell";
 import { PendingButton } from "@/components/operations/pending-button";
 import { requireEditor } from "@/lib/auth";
@@ -66,6 +66,9 @@ export default async function AdminSupabaseAthletesPage() {
           </FieldShell>
           <FieldShell id="specialties" label="Specialties" description="Comma-separated.">
             <TextInput id="specialties" name="specialties" />
+          </FieldShell>
+          <FieldShell id="biography" label="Biography" description="Optional.">
+            <TextArea id="biography" name="biography" rows={4} />
           </FieldShell>
           <FieldShell id="identityState" label="Identity state" required>
             <SelectInput id="identityState" name="identityState" defaultValue="unconfirmed">
