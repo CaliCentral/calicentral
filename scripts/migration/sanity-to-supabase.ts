@@ -1,5 +1,5 @@
 import {
-  applyLocalPlan,
+  applyMigrationPlan,
   countBy,
   emitReport,
   getArgument,
@@ -486,7 +486,7 @@ async function main() {
     generatedAt: new Date().toISOString(), inputCounts: countBy(documents, (document) => document._type),
     outputCounts: countBy(operations, (operation) => operation.table), operations, warnings, errors,
   };
-  await applyLocalPlan(report);
+  await applyMigrationPlan(report);
   await emitReport(report);
 }
 

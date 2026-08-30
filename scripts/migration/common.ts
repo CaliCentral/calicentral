@@ -129,19 +129,35 @@ function sortByWriteOrder(tables: readonly string[]): string[] {
   return [...tables].sort((a, b) => (priority.get(a) ?? TABLE_WRITE_ORDER.length) - (priority.get(b) ?? TABLE_WRITE_ORDER.length));
 }
 
-export async function applyLocalPlan(report: MigrationReport): Promise<void> {
+// The ONLY non-local Supabase host this tool will ever write to. Hardcoded,
+// not read from an env var someone could point anywhere -- an env var
+// mistake (or a copy-pasted .env from the wrong project) must never be
+// capable of directing a real write at production or an unrelated project.
+// Any host that is neither this nor localhost/127.0.0.1 is refused
+// unconditionally, with no override flag.
+const APPROVED_PREVIEW_HOSTNAME = "pwgpthnhopmquvuqqqys.supabase.co";
+
+export async function applyMigrationPlan(report: MigrationReport): Promise<void> {
   if (!hasArgument("write")) return;
-  if (!hasArgument("confirm-local-migration")) {
-    throw new Error("Local writes require --write --confirm-local-migration.");
-  }
 
   const url = process.env.SUPABASE_URL?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!url || !serviceRoleKey) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for a local write.");
+  if (!url || !serviceRoleKey) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for a write.");
 
   const parsedUrl = new URL(url);
-  if (!["localhost", "127.0.0.1"].includes(parsedUrl.hostname)) {
-    throw new Error("This migration tool refuses non-local Supabase writes. Production migration requires a separately approved tool/run.");
+  const isLocal = ["localhost", "127.0.0.1"].includes(parsedUrl.hostname);
+  const isApprovedPreview = parsedUrl.hostname === APPROVED_PREVIEW_HOSTNAME;
+
+  if (isLocal) {
+    if (!hasArgument("confirm-local-migration")) {
+      throw new Error("Local writes require --write --confirm-local-migration.");
+    }
+  } else if (isApprovedPreview) {
+    if (!hasArgument("confirm-preview-migration")) {
+      throw new Error(`Preview writes require --write --confirm-preview-migration, and only ever target ${APPROVED_PREVIEW_HOSTNAME}.`);
+    }
+  } else {
+    throw new Error(`This migration tool refuses writes to any Supabase host other than localhost/127.0.0.1 or the approved preview project (${APPROVED_PREVIEW_HOSTNAME}). Got: ${parsedUrl.hostname}. A real production migration requires a separately approved tool/run.`);
   }
   if (report.errors.length) throw new Error("Migration plan contains validation errors; no rows were written.");
 

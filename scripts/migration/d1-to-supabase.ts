@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 
 import {
-  applyLocalPlan,
+  applyMigrationPlan,
   countBy,
   emitReport,
   getArgument,
@@ -317,7 +317,7 @@ async function main() {
     source: "d1", mode: process.argv.includes("--write") ? "local-write" : "dry-run", generatedAt: new Date().toISOString(),
     inputCounts, outputCounts: countBy(operations, (item) => item.table), operations, warnings, errors: validateRelationships(input),
   };
-  await applyLocalPlan(report);
+  await applyMigrationPlan(report);
   await emitReport(report);
 }
 
