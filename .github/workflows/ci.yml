@@ -44,6 +44,20 @@ jobs:
       - name: Run repository tests
         run: npm test
 
+      - name: Run migration dry-run fixtures
+        run: npm run test:migrations
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.115.0
+
+      - name: Start local Supabase stack
+        run: supabase start -x vector,imgproxy,edge-runtime
+
+      - name: Run pgTAP suite against local Supabase
+        run: supabase test db
+
       - name: Verify Cloudflare generated file is committed
         run: |
           git ls-files --error-unmatch cloudflare-env.d.ts

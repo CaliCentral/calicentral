@@ -126,6 +126,9 @@ function validateSportingResultRequiresExactlyOneOfAthleteOrTeam() {
   const athleteOnly = createSportingResultSchema.safeParse({ ...base, athleteId: "00000000-0000-4000-8000-000000000012" });
   assert.equal(athleteOnly.success, true, "a sporting result with exactly one of athleteId/teamId must be accepted");
 
+  const teamOnly = createSportingResultSchema.safeParse({ ...base, teamId: "00000000-0000-4000-8000-000000000013" });
+  assert.equal(teamOnly.success, true, "a team-only sporting result (the admin form's team picker) must be accepted");
+
   const blankPlacement = createSportingResultSchema.safeParse({
     ...base, athleteId: "00000000-0000-4000-8000-000000000012", placement: "",
   });

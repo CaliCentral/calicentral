@@ -6,6 +6,7 @@ import {
   createCommunityRateLimiter,
   type CommunityRateLimiter,
 } from "@/lib/community/rate-limit";
+import { siteStage } from "@/lib/site/config";
 
 const LIMIT_SCRIPT = `
 local current = redis.call("INCR", KEYS[1])
@@ -15,6 +16,19 @@ return current
 
 type Policy = { readonly name: string; readonly limit: number; readonly windowSeconds: number };
 
+// Namespaced by site stage so preview and production traffic can never share
+// a counter even if both environments were ever pointed at the same Upstash
+// database (they aren't today, but the key format shouldn't rely on that
+// staying true). Exported so the namespacing itself is unit-testable without
+// a live Redis connection.
+export function buildRateLimitKey(policyName: string, memberKey: string, stage: string | undefined): string {
+  return `calicentral:rate:${stage ?? "unknown"}:${policyName}:${memberKey}`;
+}
+
+function rateLimitKey(policyName: string, memberKey: string): string {
+  return buildRateLimitKey(policyName, memberKey, siteStage);
+}
+
 class UpstashPolicyLimiter implements CommunityRateLimiter {
   constructor(private readonly redis: Redis, private readonly policy: Policy) {}
 
@@ -22,7 +36,7 @@ class UpstashPolicyLimiter implements CommunityRateLimiter {
     try {
       const count = await this.redis.eval<[string], number>(
         LIMIT_SCRIPT,
-        [`calicentral:rate:${this.policy.name}:${input.key}`],
+        [rateLimitKey(this.policy.name, input.key)],
         [String(this.policy.windowSeconds)],
       );
       return { success: count <= this.policy.limit };

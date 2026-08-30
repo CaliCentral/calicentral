@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { ActionForm } from "@/components/operations/action-form";
 import { FieldShell, SelectInput, TextInput } from "@/components/operations/field";
-import { OperationsNotice, OperationsPage, OperationsPanel } from "@/components/operations/page-shell";
+import { OperationsPage, OperationsPanel } from "@/components/operations/page-shell";
 import { PendingButton } from "@/components/operations/pending-button";
 import { requireEditor } from "@/lib/auth";
 import { createSportingResultAction } from "@/lib/supabase/admin-actions";
@@ -43,10 +43,11 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
   const params = await searchParams;
   const statusFilter = oneOf(first(params.status), sportingResultStatuses);
 
-  const [results, competitionOptions, athleteOptions, sourceOptions] = await Promise.all([
+  const [results, competitionOptions, athleteOptions, teamOptions, sourceOptions] = await Promise.all([
     repository.listSportingResults(statusFilter ? { resultStatus: statusFilter } : undefined),
     repository.listCompetitionOptions(),
     repository.listAthleteOptions(),
+    repository.listTeamOptions(),
     repository.listSourceRecords(),
   ]);
 
@@ -64,12 +65,6 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
         </Link>
       }
     >
-      <OperationsNotice title="Individual results only, for now" tone="neutral">
-        This create form only supports athlete (individual) results. Team
-        results are supported by the schema and Server Action, but there is
-        no team picker wired into this UI yet.
-      </OperationsNotice>
-
       <OperationsPanel title="Review queue" eyebrow="Filter by result status" className="mt-6">
         <form
           method="get"
@@ -165,7 +160,7 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
         )}
       </OperationsPanel>
 
-      <OperationsPanel title="Create sporting result" eyebrow="Individual (athlete) results only" className="mt-6">
+      <OperationsPanel title="Create sporting result" eyebrow="Individual (athlete) or team results" className="mt-6">
         <ActionForm action={createSportingResultAction} submitLabel="Create result" pendingLabel="Creating…" className="grid gap-4 sm:grid-cols-2">
           <FieldShell id="competitionId" label="Competition" required>
             <SelectInput id="competitionId" name="competitionId" required defaultValue="">
@@ -179,18 +174,29 @@ export default async function AdminSupabaseSportingResultsPage({ searchParams }:
               ))}
             </SelectInput>
           </FieldShell>
-          <FieldShell id="athleteId" label="Athlete" required description="Team results aren't supported in this form yet.">
-            <SelectInput id="athleteId" name="athleteId" required defaultValue="">
-              <option value="" disabled>
-                Choose an athlete…
-              </option>
-              {athleteOptions.map((athlete) => (
-                <option key={athlete.id} value={athlete.id}>
-                  {athlete.name} ({athlete.permanent_id})
-                </option>
-              ))}
-            </SelectInput>
-          </FieldShell>
+          <div className="sm:col-span-2 sm:grid sm:grid-cols-2 sm:gap-4">
+            <FieldShell id="athleteId" label="Athlete" description="Choose exactly one of athlete or team.">
+              <SelectInput id="athleteId" name="athleteId" defaultValue="">
+                <option value="">— Not an individual result —</option>
+                {athleteOptions.map((athlete) => (
+                  <option key={athlete.id} value={athlete.id}>
+                    {athlete.name} ({athlete.permanent_id})
+                  </option>
+                ))}
+              </SelectInput>
+            </FieldShell>
+            <FieldShell id="teamId" label="Team" description="Choose exactly one of athlete or team.">
+              <SelectInput id="teamId" name="teamId" defaultValue="">
+                <option value="">— Not a team result —</option>
+                {teamOptions.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                    {team.short_name ? ` (${team.short_name})` : ""}
+                  </option>
+                ))}
+              </SelectInput>
+            </FieldShell>
+          </div>
           <FieldShell id="division" label="Division" required>
             <TextInput id="division" name="division" required />
           </FieldShell>

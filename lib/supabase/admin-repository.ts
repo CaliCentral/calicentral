@@ -530,6 +530,12 @@ export class SupabaseAdminRepository {
     return requireData(data, error);
   }
 
+  async listTeamOptions() {
+    const client = await createSupabaseServerClient();
+    const { data, error } = await client.from("teams").select("id, name, short_name").order("name");
+    return requireData(data, error);
+  }
+
   async createSportingResult(input: {
     readonly competitionId: string;
     readonly athleteId?: string | null;
