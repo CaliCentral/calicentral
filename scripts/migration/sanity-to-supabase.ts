@@ -159,7 +159,7 @@ function normalizeDocument(document: SanityDocument, warnings: string[]): Planne
           id: sourceId, provider: text(source.provider) ?? "unknown", source_type: text(source.sourceType) ?? "ranking",
           public_url: text(source.url), title: text(source.title), external_record_id: text(source.externalRecordId) ?? document._id,
           publication_date: text(source.publicationDate), checked_at: text(source.checkedAt) ?? text(document.checkedAt),
-          verification_state: text(source.verificationStatus) ?? "source-confirmed", source_payload: source,
+          verification_state: text(source.verificationStatus) ?? "unverified", source_payload: source,
         }},
         snapshot,
         ...entries.filter(isRecord).map((entry, index): PlannedRow => ({ sourceKey: `${document._id}#entry-${index}`, table: "ranking_entries", row: {
@@ -277,13 +277,32 @@ async function main() {
   const warnings: string[] = [];
   const errors: string[] = [];
   if (documents.length !== values.length) errors.push(`${values.length - documents.length} input records were not valid Sanity documents.`);
-  const ids = new Set<string>();
+
+  // Draft and published Sanity documents share one canonical id (the "drafts."
+  // prefix is stripped when deriving stableUuid), so both would collide on the
+  // target table's primary key. Every operation must be planned from exactly
+  // one document per canonical id, preferring the published version -- an
+  // unpublished draft edit must never silently overwrite live published
+  // content, or vice versa via arbitrary NDJSON ordering.
+  const resolvedByCanonicalId = new Map<string, SanityDocument>();
   for (const document of documents) {
     const canonical = document._id.replace(/^drafts\./, "");
-    if (ids.has(canonical)) warnings.push(`Draft/published collision for ${canonical}; import order must prefer the intended publication record.`);
-    ids.add(canonical);
+    const isDraft = document._id.startsWith("drafts.");
+    const existing = resolvedByCanonicalId.get(canonical);
+    if (!existing) {
+      resolvedByCanonicalId.set(canonical, document);
+      continue;
+    }
+    const existingIsDraft = existing._id.startsWith("drafts.");
+    const keptIsDraft = existingIsDraft && isDraft;
+    const keepIncoming = existingIsDraft && !isDraft;
+    warnings.push(
+      `Draft/published collision for ${canonical}; keeping the ${keptIsDraft ? "draft" : "published"} version (${(keepIncoming ? document : existing)._id}) and discarding ${(keepIncoming ? existing : document)._id}.`,
+    );
+    if (keepIncoming) resolvedByCanonicalId.set(canonical, document);
   }
-  const operations = documents.flatMap((document) => normalizeDocument(document, warnings));
+  const resolvedDocuments = [...resolvedByCanonicalId.values()];
+  const operations = resolvedDocuments.flatMap((document) => normalizeDocument(document, warnings));
   const report: MigrationReport = {
     source: "sanity", mode: process.argv.includes("--write") ? "local-write" : "dry-run",
     generatedAt: new Date().toISOString(), inputCounts: countBy(documents, (document) => document._type),
