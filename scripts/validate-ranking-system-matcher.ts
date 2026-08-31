@@ -30,6 +30,16 @@ const sameTitleWrongDimensions: ExistingRankingSystem = {
 };
 assert.equal(matchRankingSystem(source, [sameTitleWrongDimensions]).outcome, "EXTERNAL_ONLY_NEW_SYSTEM", "a title alone must never match");
 
+const legacyPartial: ExistingRankingSystem = {
+  id: "legacy-partial", providerSlug: "official-streetlifting", title: "Legacy absolute system",
+  dimensions: { gender: "male", category: "All4", geographicScope: "Global" },
+};
+assert.equal(matchRankingSystem(source, [legacyPartial]).outcome, "AMBIGUOUS_REVIEW", "a plausible legacy system with missing methodology dimensions must be reviewed, never duplicated or force-matched");
+const legacyWeightSpecific: ExistingRankingSystem = {
+  ...legacyPartial, id: "legacy-weight-specific", dimensions: { ...legacyPartial.dimensions, weightClass: "-101kg" },
+};
+assert.equal(matchRankingSystem(source, [legacyWeightSpecific]).outcome, "EXTERNAL_ONLY_NEW_SYSTEM", "a weight-specific legacy system cannot match an absolute source table");
+
 const duplicateDimensions: ExistingRankingSystem[] = [
   { ...exact, id: "one", externalSystemKey: undefined },
   { ...exact, id: "two", externalSystemKey: undefined },

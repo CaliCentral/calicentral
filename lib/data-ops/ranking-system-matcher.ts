@@ -41,6 +41,7 @@ const DIMENSION_KEYS = [
 
 function normalized(value: string | undefined): string | undefined {
   const result = value?.trim().toLowerCase().replace(/\s+/g, " ");
+  if (result === "global") return "world";
   return result || undefined;
 }
 
@@ -61,6 +62,32 @@ function dimensionsExactlyAgree(source: RankingDimensions, existing: RankingDime
   const left = canonicalRankingDimensions(source);
   const right = canonicalRankingDimensions(existing);
   return DIMENSION_KEYS.every((key) => left[key] === right[key]);
+}
+
+function legacyCompatibleDimensions(existing: RankingDimensions): RankingDimensions {
+  const category = normalized(existing.category);
+  if (!existing.liftFormat && (category === "all4" || category === "classic")) {
+    return {
+      ...existing,
+      liftFormat: category === "all4" ? "all4" : "2-lift-pull-dip",
+      category: undefined,
+    };
+  }
+  return existing;
+}
+
+function isPartialReviewCandidate(source: RankingDimensions, existingInput: RankingDimensions): boolean {
+  const existing = canonicalRankingDimensions(legacyCompatibleDimensions(existingInput));
+  const expected = canonicalRankingDimensions(source);
+  if (existing.gender !== expected.gender || existing.liftFormat !== expected.liftFormat) return false;
+  if (existing.geographicScope !== expected.geographicScope) return false;
+  for (const key of ["division", "weightClass"] as const) {
+    if (existing[key] !== expected[key]) return false;
+  }
+  for (const key of ["category", "methodology", "equipment"] as const) {
+    if (existing[key] !== undefined && existing[key] !== expected[key]) return false;
+  }
+  return true;
 }
 
 export function matchRankingSystem(
@@ -103,6 +130,16 @@ export function matchRankingSystem(
   }
   if (structuredMatches.length > 1) {
     return { outcome: "AMBIGUOUS_REVIEW", candidateIds: structuredMatches.map((item) => item.id), reason: "Multiple systems share all structured dimensions." };
+  }
+  const partialCandidates = providerSystems.filter(
+    (system) => isPartialReviewCandidate(source.dimensions, system.dimensions),
+  );
+  if (partialCandidates.length) {
+    return {
+      outcome: "AMBIGUOUS_REVIEW",
+      candidateIds: partialCandidates.map((item) => item.id),
+      reason: "A provider system is structurally compatible, but required methodology/equipment/category dimensions are missing or encoded in a legacy field.",
+    };
   }
   return { outcome: "EXTERNAL_ONLY_NEW_SYSTEM", candidateIds: [], reason: "Legitimate external system has no equivalent provider system." };
 }

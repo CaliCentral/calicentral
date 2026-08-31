@@ -246,3 +246,13 @@ anchors identity. Ranking rows use source result IDs because the same athlete
 can legitimately appear more than once in a source table. Repeated imports page
 all existing identities instead of relying on Supabase's default 1,000-row
 response cap.
+
+The read-only hosted preview inventory currently contains five legacy draft
+ranking systems. Four are plausible counterparts for the four supported
+absolute source tables, but they encode the lift format in `category` and omit
+the source methodology, equipment, and category dimensions. They must remain
+`AMBIGUOUS_REVIEW` until an editor confirms and backfills those dimensions;
+the importer must neither force-match them nor create duplicates. The fifth
+legacy system is Male All4 -101kg and is not a candidate for the absolute
+Male All4 table. No hosted ranking mutation is approved while this review is
+open.
