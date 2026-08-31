@@ -10,7 +10,28 @@ import type {
 
 export type ExistingCompetitionIdentity = ExistingExternalIdentity & {
   readonly startDate?: string;
+  readonly status?: string;
 };
+
+export type NormalizedCompetitionStatus = "upcoming" | "completed" | "cancelled" | "postponed" | "unknown";
+
+/**
+ * Maps the source's own explicit status text to a normalized value. Every
+ * mapped case comes from positive source evidence -- an explicit badge, or
+ * (for "upcoming") the page's own section heading (see
+ * lib/data-ops/providers/official-streetlifting.ts) -- never inferred from
+ * what's missing. Anything not explicitly recognized stays "unknown" rather
+ * than being guessed.
+ */
+export function normalizeCompetitionSourceStatus(sourceStatus: string): NormalizedCompetitionStatus {
+  switch (sourceStatus) {
+    case "Upcoming": return "upcoming";
+    case "Completed": return "completed";
+    case "Cancelled": return "cancelled";
+    case "Postponed": return "postponed";
+    default: return "unknown";
+  }
+}
 
 export type OfficialStreetliftingImportPlan = {
   readonly athletes: readonly {
@@ -28,6 +49,8 @@ export type OfficialStreetliftingImportPlan = {
     readonly name: string;
     readonly startDate?: string;
     readonly dateChanged: boolean;
+    readonly status: NormalizedCompetitionStatus;
+    readonly statusChanged: boolean;
   }[];
   readonly results: readonly {
     readonly id: string;
@@ -118,6 +141,7 @@ export function planOfficialStreetliftingImport(input: {
       (identity) => identity.provider === OFFICIAL_STREETLIFTING_PROVIDER && identity.externalId === competition.externalId,
     );
     if (resolution.state === "ambiguous") warnings.push(`Competition ${competition.externalId} has ambiguous existing external identity mappings.`);
+    const status = normalizeCompetitionSourceStatus(competition.sourceStatus);
     return {
       externalId: competition.externalId,
       ...(resolution.state !== "ambiguous" ? { canonicalId: resolution.canonicalId } : {}),
@@ -126,6 +150,8 @@ export function planOfficialStreetliftingImport(input: {
       name: competition.name,
       ...(competition.startDate ? { startDate: competition.startDate } : {}),
       dateChanged: Boolean(exactExisting?.startDate && competition.startDate && exactExisting.startDate !== competition.startDate),
+      status,
+      statusChanged: Boolean(exactExisting?.status && exactExisting.status !== status),
     };
   }).sort((left, right) => left.externalId.localeCompare(right.externalId));
   const competitionByExternalId = new Map(competitions.map((competition) => [competition.externalId, competition]));

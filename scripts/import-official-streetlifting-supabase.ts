@@ -208,7 +208,7 @@ async function writeLocal(input: {
   await insertIgnore(input.client, "competitions", input.plan.competitions.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: item.canonicalId, permanent_id: `official-streetlifting:${item.externalId}`,
     slug: slug("osl-competition", item.externalId), name: item.name,
-    status: "unknown", start_date: item.startDate ?? null, summary: "", public_state: "draft",
+    status: item.status, start_date: item.startDate ?? null, summary: "", public_state: "draft",
   })));
   await insertIgnore(input.client, "external_competition_identities", input.plan.competitions.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: stableDataOpsUuid("calicentral:official-streetlifting:competition-identity", item.externalId),
@@ -287,14 +287,18 @@ async function main() {
     before = await counts(client);
     const [athleteResult, competitionResult] = await Promise.all([
       client.from("external_athlete_identities").select("athlete_id, provider, external_id"),
-      client.from("external_competition_identities").select("competition_id, provider, external_id, competitions(start_date)"),
+      client.from("external_competition_identities").select("competition_id, provider, external_id, competitions(start_date, status)"),
     ]);
     if (athleteResult.error || competitionResult.error) throw new Error(athleteResult.error?.message ?? competitionResult.error?.message);
     existingAthletes = (athleteResult.data ?? []).map((row) => ({ canonicalId: row.athlete_id, provider: row.provider, externalId: row.external_id }));
-    existingCompetitions = (competitionResult.data ?? []).map((row) => ({
-      canonicalId: row.competition_id, provider: row.provider, externalId: row.external_id,
-      ...((row.competitions as unknown as { start_date?: string | null })?.start_date ? { startDate: (row.competitions as unknown as { start_date: string }).start_date } : {}),
-    }));
+    existingCompetitions = (competitionResult.data ?? []).map((row) => {
+      const competition = row.competitions as unknown as { start_date?: string | null; status?: string | null } | null;
+      return {
+        canonicalId: row.competition_id, provider: row.provider, externalId: row.external_id,
+        ...(competition?.start_date ? { startDate: competition.start_date } : {}),
+        ...(competition?.status ? { status: competition.status } : {}),
+      };
+    });
   }
   const plan = planOfficialStreetliftingImport({
     competitions, results: parsed.flatMap((item) => item.results), rankings: parsed.flatMap((item) => item.rankings),
