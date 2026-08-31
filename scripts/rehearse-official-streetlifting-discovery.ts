@@ -67,7 +67,7 @@ async function previewState(): Promise<{
   const [athletesResult, competitionsResult, systemsResult] = await Promise.all([
     client.from("external_athlete_identities").select("athlete_id, provider, external_id"),
     client.from("external_competition_identities").select("competition_id, provider, external_id, external_url, competitions(name, start_date, status)"),
-    client.from("ranking_systems").select("id, name, sex_division, division, weight_class, category, geographic_scope, ranking_providers(slug)"),
+    client.from("ranking_systems").select("id, name, external_system_key, source_url, sex_division, lift_format, division, weight_class, methodology_category, category, equipment, geographic_scope, ranking_providers(slug)"),
   ]);
   const error = athletesResult.error ?? competitionsResult.error ?? systemsResult.error;
   if (error) throw new Error(`Preview read failed: ${error.message}`);
@@ -89,11 +89,16 @@ async function previewState(): Promise<{
       const provider = Array.isArray(joined) ? joined[0] : joined;
       return {
         id: row.id, providerSlug: provider?.slug ?? "", title: row.name,
+        ...(row.external_system_key ? { externalSystemKey: row.external_system_key } : {}),
+        ...(row.source_url ? { sourceUrl: row.source_url } : {}),
         dimensions: {
           ...(row.sex_division ? { gender: row.sex_division } : {}),
+          ...(row.lift_format ? { liftFormat: row.lift_format } : {}),
           ...(row.division ? { division: row.division } : {}),
           ...(row.weight_class ? { weightClass: row.weight_class } : {}),
+          ...(row.methodology_category ? { methodology: row.methodology_category } : {}),
           ...(row.category ? { category: row.category } : {}),
+          ...(row.equipment ? { equipment: row.equipment } : {}),
           geographicScope: row.geographic_scope,
         },
       };
