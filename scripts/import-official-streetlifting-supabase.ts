@@ -119,6 +119,27 @@ function localConfiguration(): { url: string; serviceRoleKey: string } {
   return { url, serviceRoleKey };
 }
 
+// Mirrors the narrowly-scoped preview-write pattern already established in
+// scripts/migration/common.ts (APPROVED_PREVIEW_HOSTNAME, --confirm-preview-
+// migration): credentials come exclusively from the environment (run with
+// --env-file=.env.preview-migration.local, never from a CLI-detected host),
+// and the hostname is checked against an allowlist of exactly one project --
+// this never falls back to accepting any other cloud host.
+const APPROVED_PREVIEW_HOSTNAME = "pwgpthnhopmquvuqqqys.supabase.co";
+
+function previewConfiguration(): { url: string; serviceRoleKey: string } {
+  const url = process.env.SUPABASE_URL?.trim();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!url || !serviceRoleKey) {
+    throw new Error("Preview import requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (run with --env-file=.env.preview-migration.local).");
+  }
+  const hostname = new URL(url).hostname;
+  if (hostname !== APPROVED_PREVIEW_HOSTNAME) {
+    throw new Error(`Preview import refuses any host other than the approved preview project (${APPROVED_PREVIEW_HOSTNAME}). Got: ${hostname}.`);
+  }
+  return { url, serviceRoleKey };
+}
+
 async function counts(client: SupabaseClient): Promise<Record<string, number>> {
   const result: Record<string, number> = {};
   for (const table of TABLES) {
@@ -144,6 +165,7 @@ async function writeLocal(input: {
   readonly observedOn: string;
   readonly plan: ReturnType<typeof planOfficialStreetliftingImport>;
   readonly client: SupabaseClient;
+  readonly skipRankingWrites: boolean;
 }) {
   const adapterResult = await input.client.from("source_adapters").select("id").eq("slug", OFFICIAL_STREETLIFTING_PROVIDER).single();
   if (adapterResult.error) throw new Error(`Official Streetlifting adapter is unavailable locally: ${adapterResult.error.message}`);
@@ -185,13 +207,21 @@ async function writeLocal(input: {
   const fallbackSourceId = sourceIds.values().next().value as string | undefined;
   if (!fallbackSourceId) throw new Error("Local import requires at least one source snapshot.");
 
-  const providerId = stableDataOpsUuid("calicentral:ranking-provider", OFFICIAL_STREETLIFTING_PROVIDER);
-  await insertIgnore(input.client, "ranking_providers", [{
-    id: providerId, slug: OFFICIAL_STREETLIFTING_PROVIDER, name: "Official Streetlifting",
-    website: "https://rankings.officialstreetlifting.com/", status: "under-review",
-    integration_method: "reviewed-server-rendered-html", attribution_requirement: "Source URL and provider label required",
-    source_policy_notes: "Automated reuse authorization remains unresolved; local rehearsal only.",
-  }]);
+  // ranking_providers.slug is a unique natural key -- if a row for this
+  // provider already exists (for example, migrated from Sanity with an
+  // unrelated legacy id), reuse its id rather than inserting a second row
+  // for the same real-world provider under a different id.
+  const existingProvider = await input.client.from("ranking_providers").select("id").eq("slug", OFFICIAL_STREETLIFTING_PROVIDER).maybeSingle();
+  if (existingProvider.error) throw new Error(`Preview import failed to check for an existing ranking provider: ${existingProvider.error.message}`);
+  const providerId = existingProvider.data?.id ?? stableDataOpsUuid("calicentral:ranking-provider", OFFICIAL_STREETLIFTING_PROVIDER);
+  if (!existingProvider.data) {
+    await insertIgnore(input.client, "ranking_providers", [{
+      id: providerId, slug: OFFICIAL_STREETLIFTING_PROVIDER, name: "Official Streetlifting",
+      website: "https://rankings.officialstreetlifting.com/", status: "under-review",
+      integration_method: "reviewed-server-rendered-html", attribution_requirement: "Source URL and provider label required",
+      source_policy_notes: "Automated reuse authorization remains unresolved; local rehearsal only.",
+    }]);
+  }
 
   await insertIgnore(input.client, "athletes", input.plan.athletes.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: item.canonicalId, permanent_id: `official-streetlifting:${item.externalId}`,
@@ -237,6 +267,13 @@ async function writeLocal(input: {
   });
   await insertIgnore(input.client, "sporting_result_performances", performanceRows);
 
+  // ranking_systems has no reliable natural-key match against pre-existing,
+  // manually-curated rows yet (category/gender/weight-class matching would
+  // require guessing rather than an exact key) -- skippable so a hosted
+  // write can proceed with the unambiguous athlete/competition/result data
+  // while this stays deferred rather than risking a duplicate ranking
+  // system for the same real-world ranking table.
+  if (input.skipRankingWrites) return;
   for (const [index, snapshot] of input.plan.rankingSnapshots.entries()) {
     const ranking = input.parsed.flatMap((item) => item.rankings)[index];
     if (!ranking) continue;
@@ -276,18 +313,31 @@ async function main() {
   const parsed = await Promise.all(specs.map((spec) => parseInput(spec, observedAt)));
   const parsedResults = parsed.flatMap((item) => [...item.results, ...item.rankings.flatMap((ranking) => ranking.entries)]);
   const competitions = dedupeCompetitions([...parsed.flatMap((item) => item.competitions), ...resultCompetitions(parsedResults)]);
+  const wantsWrite = has("write");
+  const wantsPreviewPlan = has("preview-plan");
   let client: SupabaseClient | undefined;
+  let readClient: SupabaseClient | undefined;
   let before: Record<string, number> | undefined;
   let existingAthletes: ExistingExternalIdentity[] = [];
   let existingCompetitions: ExistingCompetitionIdentity[] = [];
-  if (has("write")) {
-    if (!has("confirm-local-import")) throw new Error("Local writes require --write --confirm-local-import.");
-    const config = localConfiguration();
+  if (wantsWrite) {
+    const wantsLocal = has("confirm-local-import");
+    const wantsPreview = has("confirm-preview-import");
+    if (wantsLocal === wantsPreview) {
+      throw new Error("Writes require exactly one of --confirm-local-import or --confirm-preview-import.");
+    }
+    const config = wantsLocal ? localConfiguration() : previewConfiguration();
     client = createClient(config.url, config.serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    readClient = client;
     before = await counts(client);
+  } else if (wantsPreviewPlan) {
+    const config = previewConfiguration();
+    readClient = createClient(config.url, config.serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  }
+  if (readClient) {
     const [athleteResult, competitionResult] = await Promise.all([
-      client.from("external_athlete_identities").select("athlete_id, provider, external_id"),
-      client.from("external_competition_identities").select("competition_id, provider, external_id, competitions(start_date, status)"),
+      readClient.from("external_athlete_identities").select("athlete_id, provider, external_id"),
+      readClient.from("external_competition_identities").select("competition_id, provider, external_id, competitions(start_date, status)"),
     ]);
     if (athleteResult.error || competitionResult.error) throw new Error(athleteResult.error?.message ?? competitionResult.error?.message);
     existingAthletes = (athleteResult.data ?? []).map((row) => ({ canonicalId: row.athlete_id, provider: row.provider, externalId: row.external_id }));
@@ -305,11 +355,14 @@ async function main() {
     observedOn, existingAthleteIdentities: existingAthletes, existingCompetitionIdentities: existingCompetitions,
   });
   if (plan.errors.length) throw new Error(`Import planning failed: ${plan.errors.join(" ")}`);
-  if (client) await writeLocal({ parsed, observedOn, plan, client });
+  if (client) await writeLocal({ parsed, observedOn, plan, client, skipRankingWrites: has("skip-ranking-writes") });
   const after = client ? await counts(client) : undefined;
   const created = before && after ? Object.fromEntries(TABLES.map((table) => [table, after[table] - before[table]])) : undefined;
+  const mode = client
+    ? (has("confirm-preview-import") ? "preview-write" : "local-write")
+    : (wantsPreviewPlan ? "preview-plan" : "dry-run");
   process.stdout.write(`${JSON.stringify({
-    mode: client ? "local-write" : "dry-run", sourceSnapshots: parsed.length,
+    mode, sourceSnapshots: parsed.length,
     parsedCounts: { competitions: competitions.length, results: parsed.flatMap((item) => item.results).length, rankingSystems: plan.rankingSnapshots.length, rankingEntries: plan.rankingSnapshots.reduce((sum, snapshot) => sum + snapshot.entries.length, 0) },
     normalizedCounts: { athletes: plan.athletes.length, competitions: plan.competitions.length, results: plan.results.length, rankingSnapshots: plan.rankingSnapshots.length },
     newAthletes: plan.athletes.filter((item) => item.state === "new").length,

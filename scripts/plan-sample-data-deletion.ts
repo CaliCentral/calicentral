@@ -251,6 +251,7 @@ async function main() {
         generatedAt: new Date().toISOString(),
         mode: "PLAN ONLY -- no deletion performed or possible from this script",
         seedCounts,
+        seedIds: { athletes: fictional.athletes, competitions: fictional.competitions },
         dependents,
         follows: followRows,
         notices,

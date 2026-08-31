@@ -83,9 +83,58 @@ function validateDryRunNeverInvokesSupabase() {
   assert.equal(result.failed, false, "a plain dry-run must succeed with no Supabase CLI reachable");
 }
 
+function runWithEnv(env: Record<string, string | undefined>, extraArgs: readonly string[]): { stderr: string; failed: boolean } {
+  try {
+    execFileSync(
+      process.execPath,
+      ["--import", "tsx", ENTRY, inputArg, "--observed-on=2026-08-30", ...extraArgs],
+      { env: { ...process.env, PATH: "/usr/bin:/bin", ...env }, stdio: ["ignore", "ignore", "pipe"] },
+    );
+    return { stderr: "", failed: false };
+  } catch (error) {
+    const stderr = (error as { stderr?: Buffer }).stderr?.toString() ?? "";
+    return { stderr, failed: true };
+  }
+}
+
+// Regression coverage for the additive preview-write path: it must derive
+// credentials exclusively from the environment (never the local `supabase`
+// CLI) and refuse every hostname except the one approved preview project,
+// the same allowlist-of-one pattern already proven for the migration tool.
+function validatePreviewWriteRefusesUnapprovedHost() {
+  const result = runWithEnv(
+    { SUPABASE_URL: "https://some-other-project.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "test-fixture-credential-not-a-real-key" },
+    ["--write", "--confirm-preview-import"],
+  );
+  assert.equal(result.failed, true, "an unapproved cloud host must be refused even with the preview confirmation flag");
+  assert.match(result.stderr, /approved preview project/i, "the refusal must name the approved-preview-project allowlist");
+}
+
+function validatePreviewWriteRequiresCredentials() {
+  const result = runWithEnv({ SUPABASE_URL: undefined, SUPABASE_SERVICE_ROLE_KEY: undefined }, ["--write", "--confirm-preview-import"]);
+  assert.equal(result.failed, true, "preview writes without SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY must be refused");
+  assert.match(result.stderr, /SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY/, "the refusal must name the required environment variables");
+}
+
+function validateWriteRequiresExactlyOneConfirmationFlag() {
+  const neither = runWithEnv({}, ["--write"]);
+  assert.equal(neither.failed, true, "--write with no confirmation flag must be refused");
+  assert.match(neither.stderr, /exactly one of/, "the refusal must explain exactly one confirmation flag is required");
+
+  const both = runWithEnv(
+    { SUPABASE_URL: "https://pwgpthnhopmquvuqqqys.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "test-fixture-credential-not-a-real-key" },
+    ["--write", "--confirm-local-import", "--confirm-preview-import"],
+  );
+  assert.equal(both.failed, true, "--write with both confirmation flags must be refused, not treated as a preview write");
+  assert.match(both.stderr, /exactly one of/, "the refusal must explain exactly one confirmation flag is required");
+}
+
 validateCloudHostRefusedEvenWithFlagsAndCredentials();
 validateWriteWithoutConfirmationNeverInvokesSupabase();
 validateDryRunNeverInvokesSupabase();
+validatePreviewWriteRefusesUnapprovedHost();
+validatePreviewWriteRequiresCredentials();
+validateWriteRequiresExactlyOneConfirmationFlag();
 
 process.stdout.write(
   "Official Streetlifting import safety validation passed: categorical non-loopback host refusal, confirmation-flag gating, and dry-run isolation from the Supabase CLI.\n",

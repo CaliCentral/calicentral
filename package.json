@@ -48,6 +48,7 @@
     "migrate:sanity": "node --import tsx scripts/migration/sanity-to-supabase.ts",
     "migrate:d1": "node --import tsx scripts/migration/d1-to-supabase.ts",
     "import:official-streetlifting:supabase": "node --import tsx scripts/import-official-streetlifting-supabase.ts",
+    "import:official-streetlifting:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/import-official-streetlifting-supabase.ts",
     "migrate:sanity:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/sanity-to-supabase.ts",
     "migrate:d1:preview": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/d1-to-supabase.ts",
     "preview:snapshot": "node --env-file=.env.preview-migration.local --import tsx scripts/migration/snapshot-preview-counts.ts",
