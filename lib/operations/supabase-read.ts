@@ -13,12 +13,14 @@ import {
   AUDIT_EVENT_TYPES,
   CONTRIBUTOR_ROLES,
   SUBMISSION_PRIORITIES,
+  SUBMISSION_STATUSES,
   SUBMISSION_TYPES,
   type AdminContributorDetail,
   type AdminDashboard,
   type AdminSubmissionDetail,
   type AdminSubmissionSummary,
   type AuditEvent,
+  type ContributorAccountOverview,
   type ContributorReference,
   type ContributorRole,
   type ContributorSubmissionDetail,
@@ -634,5 +636,110 @@ export async function getSupabaseAdminDashboard(): Promise<AdminDashboard> {
       const event = mapAuditEvent(row, references);
       return event ? [event] : [];
     }).slice(0, 8),
+  };
+}
+
+export async function getSupabaseContributorDirectory(): Promise<EditorContributorSummary[]> {
+  const client = await createSupabaseServerClient();
+  const membersResult = await client
+    .from("members")
+    .select("id, email_normalized, access_status, created_at, last_signed_in_at")
+    .order("created_at", { ascending: false })
+    .limit(MAX_OPERATIONAL_LIST_RESULTS);
+  if (membersResult.error) failure(membersResult.error.message);
+  const ids = (membersResult.data ?? []).map((member) => member.id);
+  if (!ids.length) return [];
+
+  const [profilesResult, rolesResult, submissionsResult] = await Promise.all([
+    client.from("profiles").select("member_id, display_name, avatar_url, biography, country, administrative_area, city, interests").in("member_id", ids),
+    client.from("member_roles").select("member_id, role_name, revoked_at").in("member_id", ids).is("revoked_at", null),
+    client.from("submissions").select("owner_member_id, status").in("owner_member_id", ids),
+  ]);
+  if (profilesResult.error) failure(profilesResult.error.message);
+  if (rolesResult.error) failure(rolesResult.error.message);
+  if (submissionsResult.error) failure(submissionsResult.error.message);
+
+  const profiles = new Map((profilesResult.data ?? []).map((profile) => [profile.member_id, profile]));
+  const roles = new Map<string, string[]>();
+  for (const row of rolesResult.data ?? []) {
+    roles.set(row.member_id, [...(roles.get(row.member_id) ?? []), row.role_name]);
+  }
+  const submissionCounts = new Map<string, { total: number; active: number }>();
+  for (const row of submissionsResult.data ?? []) {
+    const entry = submissionCounts.get(row.owner_member_id) ?? { total: 0, active: 0 };
+    entry.total += 1;
+    if (["submitted", "inReview", "revisionRequested"].includes(row.status)) entry.active += 1;
+    submissionCounts.set(row.owner_member_id, entry);
+  }
+
+  const result = (membersResult.data ?? []).flatMap((member) => {
+    const profile = profiles.get(member.id);
+    if (!profile || !member.email_normalized || !ACCESS_STATUSES.includes(member.access_status)) return [];
+    const location = [profile.city, profile.administrative_area, profile.country].filter((value): value is string => Boolean(value?.trim())).join(", ");
+    const counts = submissionCounts.get(member.id) ?? { total: 0, active: 0 };
+    return [{
+      id: member.id,
+      displayName: profile.display_name,
+      role: highestRole(roles.get(member.id) ?? []),
+      accessStatus: member.access_status,
+      ...(profile.avatar_url ? { avatarUrl: profile.avatar_url } : {}),
+      normalizedEmail: member.email_normalized,
+      biography: profile.biography,
+      location,
+      areasOfInterest: profile.interests,
+      contributorSince: member.created_at,
+      lastSignedInAt: member.last_signed_in_at ?? member.created_at,
+      submissionCount: counts.total,
+      activeReviewCount: counts.active,
+    } satisfies EditorContributorSummary];
+  });
+  return result.sort((left, right) => left.displayName.localeCompare(right.displayName));
+}
+
+export async function countSupabaseContributorProfiles(): Promise<number> {
+  const client = await createSupabaseServerClient();
+  const { count, error } = await client.from("members").select("id", { count: "exact", head: true });
+  if (error) failure(error.message);
+  return count ?? 0;
+}
+
+export async function countSupabaseActiveContributorSubmissions(contributorId: string): Promise<number> {
+  const client = await createSupabaseServerClient();
+  const { count, error } = await client
+    .from("submissions")
+    .select("id", { count: "exact", head: true })
+    .eq("owner_member_id", contributorId)
+    .in("status", ["draft", "submitted", "inReview", "revisionRequested"]);
+  if (error) failure(error.message);
+  return count ?? 0;
+}
+
+export async function getSupabaseContributorAccountOverview(
+  contributorId: string,
+): Promise<ContributorAccountOverview | null> {
+  const profile = await getSupabaseOwnContributorProfile(contributorId);
+  if (!profile) return null;
+
+  const rows = await listSubmissionRows(contributorId);
+  const counts: Record<SubmissionStatus, number> = {
+    draft: 0, submitted: 0, inReview: 0, revisionRequested: 0,
+    approved: 0, rejected: 0, withdrawn: 0, archived: 0,
+  };
+  let feedbackAlertCount = 0;
+  for (const row of rows) {
+    if (SUBMISSION_STATUSES.includes(row.status)) counts[row.status] += 1;
+    if (row.status === "revisionRequested" && row.contributor_feedback.trim().length > 0) feedbackAlertCount += 1;
+  }
+  const latestSubmissions = rows.slice(0, 5).map((row) => mapSubmissionSummary(row));
+
+  return {
+    profile,
+    counts,
+    totalSubmissions: rows.length,
+    latestSubmissions,
+    feedbackAlertCount,
+    profileComplete:
+      profile.displayName.length >= 2 &&
+      (profile.biography.length > 0 || profile.location.length > 0 || profile.areasOfInterest.length > 0),
   };
 }

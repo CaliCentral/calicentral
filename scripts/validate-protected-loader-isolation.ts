@@ -42,6 +42,10 @@ for (const [source, name, supabaseFunction] of [
   [contributors, "updateContributorAccessRecord", "updateSupabaseContributorAccessRecord"],
   [contributors, "updateContributorInternalNotesRecord", "updateSupabaseContributorInternalNotesRecord"],
   [contributors, "countOtherEffectiveAdministrators", "countSupabaseOtherEffectiveAdministrators"],
+  [submissions, "getContributorAccountOverview", "getSupabaseContributorAccountOverview"],
+  [contributors, "getContributorDirectory", "getSupabaseContributorDirectory"],
+  [contributors, "countContributorProfiles", "countSupabaseContributorProfiles"],
+  [contributors, "countActiveContributorSubmissions", "countSupabaseActiveContributorSubmissions"],
 ] as const) {
   const body = functionBody(source, name);
   const providerBranch = body.indexOf("if (useSupabaseAuth)");

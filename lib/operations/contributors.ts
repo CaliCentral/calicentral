@@ -37,7 +37,10 @@ import {
 } from "@/lib/operations/validation";
 import { useSupabaseAuth } from "@/lib/supabase/config";
 import {
+  countSupabaseActiveContributorSubmissions,
+  countSupabaseContributorProfiles,
   getSupabaseAssignableReviewers,
+  getSupabaseContributorDirectory,
   getSupabaseContributorForAdmin,
   getSupabaseContributorForEditor,
   getSupabaseOwnContributorProfile,
@@ -604,6 +607,9 @@ export async function getOwnContributorProfile(
 export async function getContributorDirectory(): Promise<
   EditorContributorSummary[]
 > {
+  if (useSupabaseAuth) {
+    return getSupabaseContributorDirectory();
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<unknown[]>(
     `*[_type == "contributorProfile"] | order(displayName asc)[0...$limit] ${EDITOR_CONTRIBUTOR_PROJECTION}`,
@@ -616,6 +622,9 @@ export async function getContributorDirectory(): Promise<
 }
 
 export async function countContributorProfiles(): Promise<number> {
+  if (useSupabaseAuth) {
+    return countSupabaseContributorProfiles();
+  }
   const client = requireOperationsClient();
   const count = await client.fetch<number>(
     `count(*[_type == "contributorProfile"])`,
@@ -780,6 +789,9 @@ export async function countActiveContributorSubmissions(
   contributorId: string,
 ): Promise<number> {
   const id = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return countSupabaseActiveContributorSubmissions(id);
+  }
   const client = requireOperationsClient();
   return client.fetch<number>(
     `count(*[

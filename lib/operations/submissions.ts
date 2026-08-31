@@ -53,6 +53,7 @@ import {
   getSupabaseAuditEvents,
   getSupabaseContributorAuditEvents,
   getSupabaseContributorSubmissions,
+  getSupabaseContributorAccountOverview,
   getSupabaseSubmissionForContributor,
   getSupabaseSubmissionForReview,
 } from "@/lib/operations/supabase-read";
@@ -655,6 +656,9 @@ export async function getContributorAccountOverview(
   contributorId: string,
 ): Promise<ContributorAccountOverview | null> {
   const id = operationalDocumentIdSchema.parse(contributorId);
+  if (useSupabaseAuth) {
+    return getSupabaseContributorAccountOverview(id);
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<{
     profile: unknown;
