@@ -7,7 +7,7 @@ import { OperationsNotice, OperationsPage, OperationsPanel } from "@/components/
 import { PendingButton } from "@/components/operations/pending-button";
 import { requireEditor } from "@/lib/auth";
 import { createAthleteAction } from "@/lib/supabase/admin-actions";
-import { athleteEditorialStates, athleteIdentityStates } from "@/lib/supabase/admin-validation";
+import { athleteEditorialStates, athleteIdentityStates, provenanceStatuses } from "@/lib/supabase/admin-validation";
 import { SupabaseAdminRepository } from "@/lib/supabase/admin-repository";
 
 export const metadata: Metadata = { title: "Admin — Athletes (Supabase)" };
@@ -15,9 +15,19 @@ export const dynamic = "force-dynamic";
 
 const repository = new SupabaseAdminRepository();
 
-export default async function AdminSupabaseAthletesPage() {
+type Props = { readonly searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
+}
+
+export default async function AdminSupabaseAthletesPage({ searchParams }: Props) {
   await requireEditor("/admin/db/athletes");
-  const athletes = await repository.listAthletes();
+  const params = await searchParams;
+  const provenanceFilter = provenanceStatuses.includes(first(params.provenance) as (typeof provenanceStatuses)[number])
+    ? first(params.provenance)
+    : undefined;
+  const athletes = await repository.listAthletes({ provenanceStatus: provenanceFilter });
 
   return (
     <OperationsPage
@@ -84,6 +94,13 @@ export default async function AdminSupabaseAthletesPage() {
               ))}
             </SelectInput>
           </FieldShell>
+          <FieldShell id="provenanceStatus" label="Provenance status" required description="Never auto-classified; see docs/data-provenance.md.">
+            <SelectInput id="provenanceStatus" name="provenanceStatus" defaultValue="unknown">
+              {provenanceStatuses.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </SelectInput>
+          </FieldShell>
           <div className="sm:col-span-2">
             <PendingButton pendingLabel="Creating…" className="bg-accent text-canvas hover:bg-accent-strong">
               Create athlete
@@ -93,6 +110,24 @@ export default async function AdminSupabaseAthletesPage() {
       </OperationsPanel>
 
       <OperationsPanel title={`All athletes (${athletes.length})`} className="mt-6">
+        <form method="get" className="mb-4 flex flex-wrap items-end gap-3">
+          <FieldShell id="provenance" label="Filter by provenance status">
+            <SelectInput id="provenance" name="provenance" defaultValue={provenanceFilter ?? ""}>
+              <option value="">All</option>
+              {provenanceStatuses.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </SelectInput>
+          </FieldShell>
+          <button type="submit" className="inline-flex min-h-11 items-center border border-white/20 px-4 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink hover:border-accent">
+            Apply
+          </button>
+          {provenanceFilter ? (
+            <Link href="/admin/db/athletes" className="inline-flex min-h-11 items-center font-mono text-xs font-bold uppercase tracking-[0.1em] text-accent hover:underline">
+              Clear
+            </Link>
+          ) : null}
+        </form>
         {athletes.length === 0 ? (
           <p className="text-sm text-muted">No athletes visible yet (or none exist in this local database).</p>
         ) : (
@@ -104,7 +139,8 @@ export default async function AdminSupabaseAthletesPage() {
                     {athlete.name}
                   </Link>
                   <p className="text-xs text-muted">
-                    {athlete.permanent_id} &middot; {athlete.identity_state} &middot; {athlete.editorial_state}
+                    {athlete.permanent_id} &middot; {athlete.identity_state} &middot; {athlete.editorial_state} &middot;{" "}
+                    <span className="font-bold">{athlete.provenance_status}</span>
                   </p>
                 </div>
                 <Link

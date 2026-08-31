@@ -96,7 +96,7 @@ export async function createAthleteAction(_previousState: ActionResult, formData
     const parsed = createAthleteSchema.safeParse(
       formToObject(formData, [
         "permanentId", "slug", "name", "displayName", "biography", "country",
-        "administrativeArea", "city", "disciplines", "specialties", "identityState", "editorialState",
+        "administrativeArea", "city", "disciplines", "specialties", "identityState", "editorialState", "provenanceStatus",
       ]),
     );
     if (!parsed.success) return validationFailure(parsed.error);
@@ -116,7 +116,7 @@ export async function updateAthleteAction(_previousState: ActionResult, formData
     const parsed = updateAthleteSchema.safeParse(
       formToObject(formData, [
         "slug", "name", "displayName", "biography", "country",
-        "administrativeArea", "city", "disciplines", "specialties", "identityState", "editorialState",
+        "administrativeArea", "city", "disciplines", "specialties", "identityState", "editorialState", "provenanceStatus",
       ]),
     );
     if (!parsed.success) return validationFailure(parsed.error);
@@ -135,7 +135,7 @@ export async function createOrganizationAction(_previousState: ActionResult, for
   try {
     await requireAdminActor("editor");
     const parsed = createOrganizationSchema.safeParse(
-      formToObject(formData, ["slug", "name", "organizationType", "website", "country", "description", "reviewState"]),
+      formToObject(formData, ["slug", "name", "organizationType", "website", "country", "description", "reviewState", "provenanceStatus"]),
     );
     if (!parsed.success) return validationFailure(parsed.error);
     const id = await repository.createOrganization(parsed.data);
@@ -152,7 +152,7 @@ export async function updateOrganizationAction(_previousState: ActionResult, for
     const id = textField(formData, "id");
     if (!id) return { success: false, message: "Missing organization id.", formError: "Missing organization id." };
     const parsed = updateOrganizationSchema.safeParse(
-      formToObject(formData, ["slug", "name", "organizationType", "website", "country", "description", "reviewState"]),
+      formToObject(formData, ["slug", "name", "organizationType", "website", "country", "description", "reviewState", "provenanceStatus"]),
     );
     if (!parsed.success) return validationFailure(parsed.error);
     await repository.updateOrganization(id, parsed.data);
@@ -172,7 +172,7 @@ export async function createCompetitionAction(_previousState: ActionResult, form
     const parsed = createCompetitionSchema.safeParse(
       formToObject(formData, [
         "permanentId", "slug", "name", "shortName", "status", "organizationId", "rulesetId",
-        "startDate", "endDate", "country", "city", "summary", "disciplines", "publicState",
+        "startDate", "endDate", "country", "city", "summary", "disciplines", "publicState", "provenanceStatus",
       ]),
     );
     if (!parsed.success) return validationFailure(parsed.error);
@@ -192,7 +192,7 @@ export async function updateCompetitionAction(_previousState: ActionResult, form
     const parsed = updateCompetitionSchema.safeParse(
       formToObject(formData, [
         "slug", "name", "shortName", "status", "organizationId", "rulesetId",
-        "startDate", "endDate", "country", "city", "summary", "disciplines", "publicState",
+        "startDate", "endDate", "country", "city", "summary", "disciplines", "publicState", "provenanceStatus",
       ]),
     );
     if (!parsed.success) return validationFailure(parsed.error);

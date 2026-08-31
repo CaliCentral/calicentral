@@ -24,12 +24,14 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export class SupabaseAdminRepository {
   // ---------------------------------------------------------------- athletes
 
-  async listAthletes() {
+  async listAthletes(filter?: { readonly provenanceStatus?: string }) {
     const client = await createSupabaseServerClient();
-    const { data, error } = await client
+    let query = client
       .from("athletes")
-      .select("id, permanent_id, slug, name, display_name, country, identity_state, editorial_state, updated_at")
+      .select("id, permanent_id, slug, name, display_name, country, identity_state, editorial_state, provenance_status, updated_at")
       .order("updated_at", { ascending: false });
+    if (filter?.provenanceStatus) query = query.eq("provenance_status", filter.provenanceStatus);
+    const { data, error } = await query;
     return requireData(data, error);
   }
 
@@ -63,6 +65,7 @@ export class SupabaseAdminRepository {
     readonly specialties?: readonly string[];
     readonly identityState?: string;
     readonly editorialState?: string;
+    readonly provenanceStatus?: string;
   }) {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
@@ -80,6 +83,7 @@ export class SupabaseAdminRepository {
         specialties: input.specialties ?? [],
         identity_state: input.identityState ?? "unconfirmed",
         editorial_state: input.editorialState ?? "draft",
+        provenance_status: input.provenanceStatus ?? "unknown",
       })
       .select("id")
       .single();
@@ -100,6 +104,7 @@ export class SupabaseAdminRepository {
       specialties: readonly string[];
       identityState: string;
       editorialState: string;
+      provenanceStatus: string;
     }>,
   ) {
     const client = await createSupabaseServerClient();
@@ -117,6 +122,7 @@ export class SupabaseAdminRepository {
         ...(input.specialties !== undefined ? { specialties: input.specialties } : {}),
         ...(input.identityState !== undefined ? { identity_state: input.identityState } : {}),
         ...(input.editorialState !== undefined ? { editorial_state: input.editorialState } : {}),
+        ...(input.provenanceStatus !== undefined ? { provenance_status: input.provenanceStatus } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);
@@ -125,12 +131,14 @@ export class SupabaseAdminRepository {
 
   // ----------------------------------------------------------- organizations
 
-  async listOrganizations() {
+  async listOrganizations(filter?: { readonly provenanceStatus?: string }) {
     const client = await createSupabaseServerClient();
-    const { data, error } = await client
+    let query = client
       .from("organizations")
-      .select("id, slug, name, organization_type, country, review_state, updated_at")
+      .select("id, slug, name, organization_type, country, review_state, provenance_status, updated_at")
       .order("updated_at", { ascending: false });
+    if (filter?.provenanceStatus) query = query.eq("provenance_status", filter.provenanceStatus);
+    const { data, error } = await query;
     return requireData(data, error);
   }
 
@@ -149,6 +157,7 @@ export class SupabaseAdminRepository {
     readonly country?: string;
     readonly description?: string;
     readonly reviewState?: string;
+    readonly provenanceStatus?: string;
   }) {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
@@ -161,6 +170,7 @@ export class SupabaseAdminRepository {
         country: input.country ?? null,
         description: input.description ?? "",
         review_state: input.reviewState ?? "draft",
+        provenance_status: input.provenanceStatus ?? "unknown",
       })
       .select("id")
       .single();
@@ -177,6 +187,7 @@ export class SupabaseAdminRepository {
       country: string | null;
       description: string;
       reviewState: string;
+      provenanceStatus: string;
     }>,
   ) {
     const client = await createSupabaseServerClient();
@@ -190,6 +201,7 @@ export class SupabaseAdminRepository {
         ...(input.country !== undefined ? { country: input.country } : {}),
         ...(input.description !== undefined ? { description: input.description } : {}),
         ...(input.reviewState !== undefined ? { review_state: input.reviewState } : {}),
+        ...(input.provenanceStatus !== undefined ? { provenance_status: input.provenanceStatus } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);
@@ -198,12 +210,14 @@ export class SupabaseAdminRepository {
 
   // ------------------------------------------------------------ competitions
 
-  async listCompetitions() {
+  async listCompetitions(filter?: { readonly provenanceStatus?: string }) {
     const client = await createSupabaseServerClient();
-    const { data, error } = await client
+    let query = client
       .from("competitions")
-      .select("id, slug, name, status, public_state, start_date, end_date, country, updated_at")
+      .select("id, slug, name, status, public_state, start_date, end_date, country, provenance_status, updated_at")
       .order("updated_at", { ascending: false });
+    if (filter?.provenanceStatus) query = query.eq("provenance_status", filter.provenanceStatus);
+    const { data, error } = await query;
     return requireData(data, error);
   }
 
@@ -241,6 +255,7 @@ export class SupabaseAdminRepository {
     readonly summary?: string;
     readonly disciplines?: readonly string[];
     readonly publicState?: string;
+    readonly provenanceStatus?: string;
   }) {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
@@ -260,6 +275,7 @@ export class SupabaseAdminRepository {
         summary: input.summary ?? "",
         disciplines: input.disciplines ?? [],
         public_state: input.publicState ?? "draft",
+        provenance_status: input.provenanceStatus ?? "unknown",
       })
       .select("id")
       .single();
@@ -282,6 +298,7 @@ export class SupabaseAdminRepository {
       summary: string;
       disciplines: readonly string[];
       publicState: string;
+      provenanceStatus: string;
     }>,
   ) {
     const client = await createSupabaseServerClient();
@@ -301,6 +318,7 @@ export class SupabaseAdminRepository {
         ...(input.summary !== undefined ? { summary: input.summary } : {}),
         ...(input.disciplines !== undefined ? { disciplines: input.disciplines } : {}),
         ...(input.publicState !== undefined ? { public_state: input.publicState } : {}),
+        ...(input.provenanceStatus !== undefined ? { provenance_status: input.provenanceStatus } : {}),
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);

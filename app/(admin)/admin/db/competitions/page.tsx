@@ -7,7 +7,7 @@ import { OperationsPage, OperationsPanel } from "@/components/operations/page-sh
 import { PendingButton } from "@/components/operations/pending-button";
 import { requireEditor } from "@/lib/auth";
 import { createCompetitionAction } from "@/lib/supabase/admin-actions";
-import { competitionPublicStates } from "@/lib/supabase/admin-validation";
+import { competitionPublicStates, provenanceStatuses } from "@/lib/supabase/admin-validation";
 import { SupabaseAdminRepository } from "@/lib/supabase/admin-repository";
 
 export const metadata: Metadata = { title: "Admin — Competitions (Supabase)" };
@@ -15,10 +15,20 @@ export const dynamic = "force-dynamic";
 
 const repository = new SupabaseAdminRepository();
 
-export default async function AdminSupabaseCompetitionsPage() {
+type Props = { readonly searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
+}
+
+export default async function AdminSupabaseCompetitionsPage({ searchParams }: Props) {
   await requireEditor("/admin/db/competitions");
+  const params = await searchParams;
+  const provenanceFilter = provenanceStatuses.includes(first(params.provenance) as (typeof provenanceStatuses)[number])
+    ? first(params.provenance)
+    : undefined;
   const [competitions, organizationOptions, rulesetOptions] = await Promise.all([
-    repository.listCompetitions(),
+    repository.listCompetitions({ provenanceStatus: provenanceFilter }),
     repository.listOrganizationOptions(),
     repository.listRulesetOptions(),
   ]);
@@ -92,6 +102,13 @@ export default async function AdminSupabaseCompetitionsPage() {
               ))}
             </SelectInput>
           </FieldShell>
+          <FieldShell id="provenanceStatus" label="Provenance status" required description="Never auto-classified; see docs/data-provenance.md.">
+            <SelectInput id="provenanceStatus" name="provenanceStatus" defaultValue="unknown">
+              {provenanceStatuses.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </SelectInput>
+          </FieldShell>
           <div className="sm:col-span-2">
             <FieldShell id="summary" label="Summary">
               <TextArea id="summary" name="summary" rows={4} />
@@ -106,6 +123,24 @@ export default async function AdminSupabaseCompetitionsPage() {
       </OperationsPanel>
 
       <OperationsPanel title={`All competitions (${competitions.length})`} className="mt-6">
+        <form method="get" className="mb-4 flex flex-wrap items-end gap-3">
+          <FieldShell id="provenance" label="Filter by provenance status">
+            <SelectInput id="provenance" name="provenance" defaultValue={provenanceFilter ?? ""}>
+              <option value="">All</option>
+              {provenanceStatuses.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </SelectInput>
+          </FieldShell>
+          <button type="submit" className="inline-flex min-h-11 items-center border border-white/20 px-4 font-mono text-xs font-bold uppercase tracking-[0.1em] text-ink hover:border-accent">
+            Apply
+          </button>
+          {provenanceFilter ? (
+            <Link href="/admin/db/competitions" className="inline-flex min-h-11 items-center font-mono text-xs font-bold uppercase tracking-[0.1em] text-accent hover:underline">
+              Clear
+            </Link>
+          ) : null}
+        </form>
         {competitions.length === 0 ? (
           <p className="text-sm text-muted">No competitions visible yet (or none exist in this local database).</p>
         ) : (
@@ -117,7 +152,8 @@ export default async function AdminSupabaseCompetitionsPage() {
                     {competition.name}
                   </Link>
                   <p className="text-xs text-muted">
-                    {competition.status} &middot; {competition.public_state} &middot; {competition.country ?? "—"}
+                    {competition.status} &middot; {competition.public_state} &middot; {competition.country ?? "—"} &middot;{" "}
+                    <span className="font-bold">{competition.provenance_status}</span>
                   </p>
                 </div>
                 <Link

@@ -9,7 +9,7 @@ import { PendingButton } from "@/components/operations/pending-button";
 import { ProvenancePanel } from "@/components/admin-db/provenance-panel";
 import { requireEditor } from "@/lib/auth";
 import { updateOrganizationAction } from "@/lib/supabase/admin-actions";
-import { organizationReviewStates } from "@/lib/supabase/admin-validation";
+import { organizationReviewStates, provenanceStatuses } from "@/lib/supabase/admin-validation";
 import { SupabaseAdminRepository } from "@/lib/supabase/admin-repository";
 
 export const metadata: Metadata = { title: "Admin — Organization (Supabase)" };
@@ -60,6 +60,13 @@ export default async function AdminSupabaseOrganizationDetailPage({ params }: Pr
               <SelectInput id="reviewState" name="reviewState" defaultValue={organization.review_state}>
                 {organizationReviewStates.map((state) => (
                   <option key={state} value={state}>{state}</option>
+                ))}
+              </SelectInput>
+            </FieldShell>
+            <FieldShell id="provenanceStatus" label="Provenance status" required description="Whole-record real-vs-sample classification -- see docs/data-provenance.md. Never inferred from name.">
+              <SelectInput id="provenanceStatus" name="provenanceStatus" defaultValue={organization.provenance_status ?? "unknown"}>
+                {provenanceStatuses.map((status) => (
+                  <option key={status} value={status}>{status}</option>
                 ))}
               </SelectInput>
             </FieldShell>

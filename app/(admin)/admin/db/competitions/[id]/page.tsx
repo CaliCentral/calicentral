@@ -9,7 +9,7 @@ import { PendingButton } from "@/components/operations/pending-button";
 import { ProvenancePanel } from "@/components/admin-db/provenance-panel";
 import { requireEditor } from "@/lib/auth";
 import { updateCompetitionAction } from "@/lib/supabase/admin-actions";
-import { competitionPublicStates } from "@/lib/supabase/admin-validation";
+import { competitionPublicStates, provenanceStatuses } from "@/lib/supabase/admin-validation";
 import { SupabaseAdminRepository } from "@/lib/supabase/admin-repository";
 
 export const metadata: Metadata = { title: "Admin — Competition (Supabase)" };
@@ -95,6 +95,13 @@ export default async function AdminSupabaseCompetitionDetailPage({ params }: Pro
               <SelectInput id="publicState" name="publicState" defaultValue={competition.public_state}>
                 {competitionPublicStates.map((state) => (
                   <option key={state} value={state}>{state}</option>
+                ))}
+              </SelectInput>
+            </FieldShell>
+            <FieldShell id="provenanceStatus" label="Provenance status" required description="Whole-record real-vs-sample classification -- see docs/data-provenance.md. Never inferred from name.">
+              <SelectInput id="provenanceStatus" name="provenanceStatus" defaultValue={competition.provenance_status ?? "unknown"}>
+                {provenanceStatuses.map((status) => (
+                  <option key={status} value={status}>{status}</option>
                 ))}
               </SelectInput>
             </FieldShell>

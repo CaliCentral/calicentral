@@ -9,7 +9,7 @@ import { PendingButton } from "@/components/operations/pending-button";
 import { ProvenancePanel } from "@/components/admin-db/provenance-panel";
 import { requireEditor } from "@/lib/auth";
 import { updateAthleteAction } from "@/lib/supabase/admin-actions";
-import { athleteEditorialStates, athleteIdentityStates } from "@/lib/supabase/admin-validation";
+import { athleteEditorialStates, athleteIdentityStates, provenanceStatuses } from "@/lib/supabase/admin-validation";
 import { SupabaseAdminRepository } from "@/lib/supabase/admin-repository";
 
 export const metadata: Metadata = { title: "Admin — Athlete (Supabase)" };
@@ -84,6 +84,13 @@ export default async function AdminSupabaseAthleteDetailPage({ params }: Props) 
               <SelectInput id="editorialState" name="editorialState" defaultValue={athlete.editorial_state}>
                 {athleteEditorialStates.map((state) => (
                   <option key={state} value={state}>{state}</option>
+                ))}
+              </SelectInput>
+            </FieldShell>
+            <FieldShell id="provenanceStatus" label="Provenance status" required description="Whole-record real-vs-sample classification -- see docs/data-provenance.md. Never inferred from name.">
+              <SelectInput id="provenanceStatus" name="provenanceStatus" defaultValue={athlete.provenance_status ?? "unknown"}>
+                {provenanceStatuses.map((status) => (
+                  <option key={status} value={status}>{status}</option>
                 ))}
               </SelectInput>
             </FieldShell>

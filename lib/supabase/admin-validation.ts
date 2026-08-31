@@ -33,6 +33,11 @@ const optionalPositiveInt = () =>
 
 export const athleteEditorialStates = ["draft", "in-review", "approved", "archived"] as const;
 export const athleteIdentityStates = ["unconfirmed", "identity-confirmed", "disputed", "retired"] as const;
+// Matches the provenance_status enum added in
+// supabase/migrations/202608300008_provenance_classification.sql -- a
+// coarse "is this whole record real or dev/sample data" classification,
+// distinct from the per-field provenance/trust_class ledger below.
+export const provenanceStatuses = ["real_verified", "real_unverified", "fictional_sample", "unknown"] as const;
 
 export const createAthleteSchema = z.object({
   permanentId: requiredText(120),
@@ -47,6 +52,7 @@ export const createAthleteSchema = z.object({
   specialties: csvList,
   identityState: z.enum(athleteIdentityStates).default("unconfirmed"),
   editorialState: z.enum(athleteEditorialStates).default("draft"),
+  provenanceStatus: z.enum(provenanceStatuses).default("unknown"),
 });
 
 export const updateAthleteSchema = createAthleteSchema.omit({ permanentId: true }).partial();
@@ -61,6 +67,7 @@ export const createOrganizationSchema = z.object({
   country: optionalText(80),
   description: optionalText(4_000),
   reviewState: z.enum(organizationReviewStates).default("draft"),
+  provenanceStatus: z.enum(provenanceStatuses).default("unknown"),
 });
 
 export const updateOrganizationSchema = createOrganizationSchema.partial();
@@ -82,6 +89,7 @@ export const createCompetitionSchema = z.object({
   summary: optionalText(4_000),
   disciplines: csvList,
   publicState: z.enum(competitionPublicStates).default("draft"),
+  provenanceStatus: z.enum(provenanceStatuses).default("unknown"),
 });
 
 export const updateCompetitionSchema = createCompetitionSchema.omit({ permanentId: true }).partial();
