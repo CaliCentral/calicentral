@@ -1,11 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Deterministic, read-only provenance classification report. This never
-// writes provenance_status (that column exists only locally until the
-// 202608300008 migration is approved for hosted preview) and never mutates
-// any row -- it only issues SELECTs, against either a local loopback stack
-// or the one approved preview project, same host-lock discipline as
-// scripts/migration/snapshot-preview-counts.ts.
+// Deterministic provenance classification report, read-only by default.
+// This only issues SELECTs, against either a local loopback stack or the
+// one approved preview project, same host-lock discipline as
+// scripts/migration/snapshot-preview-counts.ts -- unless run with
+// --write --confirm-preview-write, in which case it backfills the stored
+// provenance_status column using this exact classification, and only for
+// rows currently stored as "unknown" (never overwrites or downgrades a
+// value already set by this or any other process).
 //
 // Classification never inspects a name field. It relies only on structural
 // evidence:
@@ -63,6 +65,9 @@ async function main() {
       `Refusing to classify any host other than loopback or the approved preview project. Got: ${hostname}.`,
     );
   }
+  if (has("write") && !has("confirm-preview-write")) {
+    throw new Error("Backfill writes require --write --confirm-preview-write.");
+  }
 
   const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
@@ -91,9 +96,9 @@ async function main() {
       .map((row) => `${row.provider} ${row.external_record_id}`),
   );
 
-  const athletes = await client.from("athletes").select("id, legacy_sanity_id");
+  const athletes = await client.from("athletes").select("id, legacy_sanity_id, provenance_status");
   if (athletes.error) throw new Error(athletes.error.message);
-  const competitions = await client.from("competitions").select("id, legacy_sanity_id");
+  const competitions = await client.from("competitions").select("id, legacy_sanity_id, provenance_status");
   if (competitions.error) throw new Error(competitions.error.message);
   const organizations = await client.from("organizations").select("id, legacy_sanity_id");
   if (organizations.error) throw new Error(organizations.error.message);
@@ -146,10 +151,11 @@ async function main() {
   }
 
   const results: Record<string, { counts: Record<ProvenanceStatus, number>; manualReview: string[] }> = {};
+  const backfillTargets: { table: string; id: string; status: ProvenanceStatus }[] = [];
 
   function classifyTable(
     name: string,
-    rows: readonly { id: string; legacy_sanity_id: string | null }[],
+    rows: readonly { id: string; legacy_sanity_id: string | null; provenance_status?: string }[],
     fictionalIds: ReadonlySet<string>,
     verifiedIds: ReadonlySet<string>,
   ) {
@@ -171,6 +177,13 @@ async function main() {
         hasLegacySanityId: Boolean(row.legacy_sanity_id),
       });
       counts[status] += 1;
+      // Only ever backfills a row currently stored as "unknown" -- a row
+      // already carrying any other stored value was set deliberately by
+      // some other process and is never overwritten here, even if this
+      // classification would compute something different.
+      if (status !== "unknown" && row.provenance_status === "unknown") {
+        backfillTargets.push({ table: name, id: row.id, status });
+      }
     }
     results[name] = { counts, manualReview };
   }
@@ -184,18 +197,38 @@ async function main() {
   classifyTable("teams", teams.data ?? [], new Set(), new Set());
   classifyTable("products", products.data ?? [], new Set(), new Set());
 
+  let backfilled: Record<string, number> | undefined;
+  if (has("write")) {
+    backfilled = { athletes: 0, competitions: 0 };
+    for (const target of backfillTargets) {
+      const response = await client
+        .from(target.table)
+        .update({ provenance_status: target.status })
+        .eq("id", target.id)
+        .eq("provenance_status", "unknown");
+      if (response.error) throw new Error(`Backfill failed for ${target.table} ${target.id}: ${response.error.message}`);
+      backfilled[target.table] = (backfilled[target.table] ?? 0) + 1;
+    }
+  }
+
   process.stdout.write(
     `${JSON.stringify(
       {
         target: hostname,
         generatedAt: new Date().toISOString(),
+        mode: has("write") ? "write" : "read-only",
         statuses: PROVENANCE_STATUSES,
         results,
+        ...(backfilled ? { backfilled } : { backfillCandidates: backfillTargets.length }),
       },
       null,
       2,
     )}\n`,
   );
+}
+
+function has(name: string): boolean {
+  return process.argv.includes(`--${name}`);
 }
 
 main().catch((error: unknown) => {
