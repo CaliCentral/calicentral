@@ -20,9 +20,9 @@ insert into public.ranking_systems (id, provider_id, slug, name, ranking_kind, d
   ('00000000-0000-0000-0000-000000001406', '00000000-0000-0000-0000-000000001405', 'rls-test-system', 'RLS Test Rankings', 'ordinal-position', 'streetlifting', 'world', 'active');
 insert into public.source_records (id, provider, source_type, external_record_id) values
   ('00000000-0000-0000-0000-000000001407', 'rls-test-provider', 'ranking-table', 'rls-test-1');
-insert into public.ranking_snapshots (id, ranking_system_id, ranking_date, source_record_id, checked_at, publication_status) values
-  ('00000000-0000-0000-0000-000000001408', '00000000-0000-0000-0000-000000001406', current_date, '00000000-0000-0000-0000-000000001407', now(), 'published'),
-  ('00000000-0000-0000-0000-000000001409', '00000000-0000-0000-0000-000000001406', current_date - interval '1 day', '00000000-0000-0000-0000-000000001407', now(), 'draft');
+insert into public.ranking_snapshots (id, ranking_system_id, ranking_date, source_record_id, checked_at, publication_status, source_url, source_verification_state) values
+  ('00000000-0000-0000-0000-000000001408', '00000000-0000-0000-0000-000000001406', current_date, '00000000-0000-0000-0000-000000001407', now(), 'published', 'https://provider.example/rankings', 'source-confirmed'),
+  ('00000000-0000-0000-0000-000000001409', '00000000-0000-0000-0000-000000001406', current_date - interval '1 day', '00000000-0000-0000-0000-000000001407', now(), 'draft', 'https://provider.example/rankings', 'source-confirmed');
 insert into public.ranking_entries (ranking_snapshot_id, athlete_id, rank, entry_status) values
   ('00000000-0000-0000-0000-000000001408', '00000000-0000-0000-0000-000000001401', 1, 'ranked'),
   ('00000000-0000-0000-0000-000000001409', '00000000-0000-0000-0000-000000001401', 1, 'ranked');

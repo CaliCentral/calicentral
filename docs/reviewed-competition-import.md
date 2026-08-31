@@ -164,3 +164,23 @@ Use the weekly competition checklist in
 validation, rights review, explicit confirmation, and post-write inventory.
 Competition refreshes remain local-manifest driven and never infer missing
 events from rankings or provider pages.
+
+## Provider-neutral discovery foundation
+
+`lib/data-ops/competition-discovery.ts` defines the provider contract for
+configured discovery surfaces, pagination, stable external identity, parsing,
+diffs, missing-record review, coverage, and source health. The first registry
+entry is Official Streetlifting and remains `paused`. It walks `/competitions`
+and every `/competitions/past` page sequentially with bounded fetches.
+
+Exact identity is `provider + external_competition_id`; duplicate names are
+irrelevant. Field changes become update candidates with historical source
+observations. A record absent from a complete crawl becomes
+`review-missing`—never cancelled. A partial fetch cannot even make that claim.
+Cancelled, postponed, delayed, registered, confirmed, result-participant, and
+withdrawn states require positive source evidence.
+
+The hourly job definitions in `lib/data-ops/hourly-scheduler-design.ts` are
+configuration only: every job has `enabled: false` and `writesEnabled: false`.
+No cron route, Vercel schedule, GitHub Action schedule, or recurring write has
+been enabled.

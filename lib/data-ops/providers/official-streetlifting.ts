@@ -5,12 +5,13 @@ import type {
   OfficialStreetliftingRanking,
   OfficialStreetliftingResult,
   RawSourceSnapshot,
+  SourceRankingCategory,
   SourceEntityType,
 } from "@/lib/data-ops/providers/types";
 
 export const OFFICIAL_STREETLIFTING_PROVIDER = "official-streetlifting";
 export const OFFICIAL_STREETLIFTING_ORIGIN = "https://rankings.officialstreetlifting.com";
-export const OFFICIAL_STREETLIFTING_PARSER_VERSION = "osl-html-v1";
+export const OFFICIAL_STREETLIFTING_PARSER_VERSION = "osl-html-v2";
 
 const MAX_RESPONSE_BYTES = 5_000_000;
 const ALLOWED_PATH = /^\/(?:$|athletes(?:\/[^/?#]+)?|competitions(?:\/(?:past|[^/?#]+))?|results(?:\/\d+)?\/?|rankings(?:\/classic)?|records(?:\/[^?#]+)?|competition_styles(?:\/[^/?#]+)?)$/;
@@ -43,6 +44,89 @@ function numeric(value: string | undefined): number | undefined {
 
 function absolute(path: string): string {
   return new URL(path, OFFICIAL_STREETLIFTING_ORIGIN).toString();
+}
+
+function canonicalSourceUrl(value: string): string {
+  const url = new URL(value, OFFICIAL_STREETLIFTING_ORIGIN);
+  url.hash = "";
+  url.searchParams.delete("page");
+  url.searchParams.sort();
+  return url.toString();
+}
+
+export function officialStreetliftingStableRankingKey(sourceUrl: string): string {
+  const url = new URL(canonicalSourceUrl(sourceUrl));
+  return `${url.pathname}${url.search}`;
+}
+
+export function parseOfficialStreetliftingPagination(html: string, currentUrl: string): readonly string[] {
+  const current = new URL(currentUrl, OFFICIAL_STREETLIFTING_ORIGIN);
+  const links = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)].flatMap((match) => {
+    if (!/^\s*(next|previous)\s*$/i.test(text(match[2]))) return [];
+    const target = new URL(decodeHtml(match[1]), current);
+    if (target.origin !== OFFICIAL_STREETLIFTING_ORIGIN || target.pathname !== current.pathname) return [];
+    return [target.toString()];
+  });
+  return [...new Set(links)].sort();
+}
+
+export function parseOfficialStreetliftingRankingTaxonomy(html: string): readonly SourceRankingCategory[] {
+  const links = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)];
+  const categories = links.flatMap((match): SourceRankingCategory[] => {
+    const url = new URL(decodeHtml(match[1]), OFFICIAL_STREETLIFTING_ORIGIN);
+    if (url.origin !== OFFICIAL_STREETLIFTING_ORIGIN) return [];
+    const title = text(match[2]);
+    const gender = /\b(male|female)\b/i.exec(`${title} ${url.pathname}`)?.[1]?.toLowerCase();
+    const weightClass = /([+-]\d+kg)/i.exec(`${title} ${url.pathname}`)?.[1];
+    const division = /(division[ -]?[123]|premier)/i.exec(`${title} ${url.pathname}`)?.[1]?.replace(/-/g, " ").toLowerCase();
+    let taxonomyKind: SourceRankingCategory["taxonomyKind"];
+    let liftFormat: string | undefined;
+    let category: string;
+    let importSupport: SourceRankingCategory["importSupport"];
+    if (url.pathname === "/rankings" || url.pathname === "/rankings/classic") {
+      taxonomyKind = "absolute-ranking";
+      liftFormat = url.pathname.endsWith("/classic") ? "2-lift-pull-dip" : "all4";
+      category = "absolute-total";
+      importSupport = "supported";
+    } else if (/^\/records\/(male|female)\/classes\//.test(url.pathname)) {
+      taxonomyKind = "weight-class-records";
+      liftFormat = "all4";
+      category = "weight-class-records";
+      importSupport = "unsupported";
+    } else if (/^\/records\/(male|female)\/divisions\//.test(url.pathname)) {
+      taxonomyKind = "division-records";
+      category = "division-records";
+      importSupport = "unsupported";
+    } else if (/^\/records\/(male|female)$/.test(url.pathname)) {
+      taxonomyKind = "world-records";
+      category = "all-time-world-records";
+      importSupport = "unsupported";
+    } else {
+      return [];
+    }
+    if (!gender) return [];
+    const sourceUrl = canonicalSourceUrl(url.toString());
+    return [{
+      provider: OFFICIAL_STREETLIFTING_PROVIDER,
+      stableKey: officialStreetliftingStableRankingKey(sourceUrl),
+      sourceUrl,
+      title,
+      taxonomyKind,
+      importSupport,
+      dimensions: {
+        gender,
+        ...(liftFormat ? { liftFormat } : {}),
+        ...(division ? { division } : {}),
+        ...(weightClass ? { weightClass } : {}),
+        methodology: taxonomyKind === "absolute-ranking" ? "source-total-descending" : "source-record-table",
+        category,
+        equipment: "source-defined",
+        geographicScope: "world",
+      },
+    }];
+  });
+  return [...new Map(categories.map((item) => [item.stableKey, item])).values()]
+    .sort((left, right) => left.stableKey.localeCompare(right.stableKey));
 }
 
 function table(html: string): { headers: string[]; rows: string[][]; rawRows: string[] } {
@@ -118,15 +202,33 @@ export function parseOfficialStreetliftingRanking(html: string, sourceUrl: strin
   const gender = /\b(male|female)\b/i.exec(normalizedTitle)?.[1];
   const weightClass = /(?:^|\s)([+-]\d+kg)(?:\s|$)/i.exec(normalizedTitle)?.[1];
   const division = /\b(division\s*\d+|premier)\b/i.exec(normalizedTitle)?.[1];
+  const canonicalUrl = canonicalSourceUrl(sourceUrl);
+  const url = new URL(canonicalUrl);
+  const liftFormat = url.pathname.endsWith("/classic") || /\b(2\s*lift|classic)\b/i.test(normalizedTitle)
+    ? "2-lift-pull-dip"
+    : /\ball4\b/i.test(normalizedTitle) ? "all4" : undefined;
+  const sourceGender = url.searchParams.get("gender")?.toLowerCase();
   return {
-    sourceUrl,
+    stableKey: officialStreetliftingStableRankingKey(canonicalUrl),
+    sourceUrl: canonicalUrl,
     title: normalizedTitle,
-    category: normalizedTitle.replace(/\s+rankings?$/i, ""),
-    ...(gender ? { gender: gender.toLowerCase() } : {}),
+    category: "absolute-total",
+    ...((sourceGender || gender) ? { gender: sourceGender ?? gender!.toLowerCase() } : {}),
+    ...(liftFormat ? { liftFormat } : {}),
+    equipment: "source-defined",
+    methodology: "source-total-descending",
     ...(weightClass ? { weightClass } : {}),
     ...(division ? { division } : {}),
     entries,
   };
+}
+
+export function isOfficialStreetliftingRankingPageReset(
+  requestedUrl: string,
+  ranking: OfficialStreetliftingRanking,
+): boolean {
+  const requestedPage = Number(new URL(requestedUrl, OFFICIAL_STREETLIFTING_ORIGIN).searchParams.get("page") ?? 1);
+  return requestedPage > 1 && (ranking.entries[0]?.position ?? Number.MAX_SAFE_INTEGER) <= 20;
 }
 
 const COMPETITION_BLOCK_MARKER = '<div class="group relative flex flex-col';
@@ -165,7 +267,7 @@ export function parseOfficialStreetliftingCompetitions(html: string): readonly O
     if (!path || !name) return [];
     const externalId = path.split("/").filter(Boolean).at(-1);
     if (!externalId) return [];
-    const badgeStatus = capture(block, /<span\b[^>]*>(Upcoming|Completed|Cancelled|Postponed)<\/span>/i);
+    const badgeStatus = capture(block, /<span\b[^>]*>(Upcoming|Completed|Cancelled|Postponed|Delayed)<\/span>/i);
     const isInUpcomingSection = Boolean(upcomingBounds) && blockStart >= upcomingBounds!.start && blockStart < upcomingBounds!.end;
     const sourceStatus = badgeStatus ?? (isInUpcomingSection ? "Upcoming" : "Unknown");
     const startDate = capture(block, /<time\b[^>]*datetime="(\d{4}-\d{2}-\d{2})/i);

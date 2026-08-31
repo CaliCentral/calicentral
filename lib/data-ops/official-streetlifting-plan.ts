@@ -2,6 +2,11 @@ import { createHash } from "node:crypto";
 
 import { resolveExternalIdentity, stableDataOpsUuid, type ExistingExternalIdentity } from "@/lib/data-ops/identity";
 import { OFFICIAL_STREETLIFTING_PROVIDER } from "@/lib/data-ops/providers/official-streetlifting";
+import {
+  matchRankingSystem,
+  type ExistingRankingSystem,
+  type RankingSystemMatchOutcome,
+} from "@/lib/data-ops/ranking-system-matcher";
 import type {
   OfficialStreetliftingCompetition,
   OfficialStreetliftingRanking,
@@ -13,7 +18,7 @@ export type ExistingCompetitionIdentity = ExistingExternalIdentity & {
   readonly status?: string;
 };
 
-export type NormalizedCompetitionStatus = "upcoming" | "completed" | "cancelled" | "postponed" | "unknown";
+export type NormalizedCompetitionStatus = "upcoming" | "completed" | "cancelled" | "postponed" | "delayed" | "unknown";
 
 /**
  * Maps the source's own explicit status text to a normalized value. Every
@@ -29,6 +34,7 @@ export function normalizeCompetitionSourceStatus(sourceStatus: string): Normaliz
     case "Completed": return "completed";
     case "Cancelled": return "cancelled";
     case "Postponed": return "postponed";
+    case "Delayed": return "delayed";
     default: return "unknown";
   }
 }
@@ -40,6 +46,7 @@ export type OfficialStreetliftingImportPlan = {
     readonly state: "new" | "matched" | "ambiguous";
     readonly sourceUrl: string;
     readonly sourceName: string;
+    readonly sourceAliases: readonly string[];
   }[];
   readonly competitions: readonly {
     readonly externalId: string;
@@ -66,7 +73,22 @@ export type OfficialStreetliftingImportPlan = {
     readonly sourceUrl: string;
     readonly observedOn: string;
     readonly contentHash: string;
-    readonly entries: readonly { readonly athleteCanonicalId?: string; readonly rank?: number; readonly blocked: boolean }[];
+    readonly entries: readonly {
+      readonly athleteCanonicalId?: string;
+      readonly athleteExternalId: string;
+      readonly externalEntryId: string;
+      readonly sourceDisplayName: string;
+      readonly rank?: number;
+      readonly unresolved: boolean;
+    }[];
+  }[];
+  readonly rankingSystems: readonly {
+    readonly stableKey: string;
+    readonly systemId?: string;
+    readonly outcome: RankingSystemMatchOutcome;
+    readonly candidateIds: readonly string[];
+    readonly reason: string;
+    readonly source: OfficialStreetliftingRanking;
   }[];
   readonly warnings: readonly string[];
   readonly errors: readonly string[];
@@ -96,6 +118,7 @@ export function planOfficialStreetliftingImport(input: {
   readonly observedOn: string;
   readonly existingAthleteIdentities?: readonly ExistingExternalIdentity[];
   readonly existingCompetitionIdentities?: readonly ExistingCompetitionIdentity[];
+  readonly existingRankingSystems?: readonly ExistingRankingSystem[];
 }): OfficialStreetliftingImportPlan {
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -103,16 +126,24 @@ export function planOfficialStreetliftingImport(input: {
     ...input.results,
     ...input.rankings.flatMap((ranking) => ranking.entries),
   ], errors);
-  const athleteFacts = new Map<string, { name: string; sourceUrl: string }>();
+  const athleteFacts = new Map<string, { names: Set<string>; sourceUrls: Set<string> }>();
   for (const result of allResults) {
     const existing = athleteFacts.get(result.athleteExternalId);
-    if (existing && (existing.name !== result.athleteName || existing.sourceUrl !== result.athleteSourceUrl)) {
-      errors.push(`Conflicting athlete facts share external athlete ID ${result.athleteExternalId}.`);
-      continue;
+    if (existing) {
+      existing.names.add(result.athleteName);
+      existing.sourceUrls.add(result.athleteSourceUrl);
+    } else {
+      athleteFacts.set(result.athleteExternalId, {
+        names: new Set([result.athleteName]),
+        sourceUrls: new Set([result.athleteSourceUrl]),
+      });
     }
-    athleteFacts.set(result.athleteExternalId, { name: result.athleteName, sourceUrl: result.athleteSourceUrl });
   }
   const athletes = [...athleteFacts].map(([externalId, fact]) => {
+    const names = [...fact.names].sort((left, right) => left.localeCompare(right));
+    const sourceUrls = [...fact.sourceUrls].sort();
+    if (names.length > 1) warnings.push(`Athlete ${externalId} has source display-name variants retained for review: ${names.join(" | ")}.`);
+    if (sourceUrls.length > 1) warnings.push(`Athlete ${externalId} has multiple source URLs retained for review: ${sourceUrls.join(" | ")}.`);
     const resolution = resolveExternalIdentity({
       provider: OFFICIAL_STREETLIFTING_PROVIDER,
       externalId,
@@ -124,8 +155,9 @@ export function planOfficialStreetliftingImport(input: {
       externalId,
       ...(resolution.state !== "ambiguous" ? { canonicalId: resolution.canonicalId } : {}),
       state: resolution.state,
-      sourceUrl: fact.sourceUrl,
-      sourceName: fact.name,
+      sourceUrl: sourceUrls[0],
+      sourceName: names[0],
+      sourceAliases: names,
     };
   }).sort((left, right) => left.externalId.localeCompare(right.externalId));
   const athleteByExternalId = new Map(athletes.map((athlete) => [athlete.externalId, athlete]));
@@ -172,9 +204,57 @@ export function planOfficialStreetliftingImport(input: {
     };
   });
 
-  const rankingSnapshots = input.rankings.map((ranking) => {
-    const systemKey = [ranking.category, ranking.gender, ranking.weightClass, ranking.division].filter(Boolean).join("|").toLowerCase();
-    const systemId = stableDataOpsUuid("calicentral:official-streetlifting:ranking-system", systemKey);
+  const rankingsByStableKey = new Map<string, OfficialStreetliftingRanking>();
+  for (const ranking of input.rankings) {
+    const existing = rankingsByStableKey.get(ranking.stableKey);
+    if (!existing) {
+      rankingsByStableKey.set(ranking.stableKey, ranking);
+      continue;
+    }
+    if (contentIdentity({ ...existing, entries: [] }) !== contentIdentity({ ...ranking, entries: [] })) {
+      errors.push(`Ranking pages for ${ranking.stableKey} disagree on system metadata.`);
+      continue;
+    }
+    const entries = uniqueResults([...existing.entries, ...ranking.entries], errors)
+      .sort((left, right) => (left.position ?? Number.MAX_SAFE_INTEGER) - (right.position ?? Number.MAX_SAFE_INTEGER));
+    rankingsByStableKey.set(ranking.stableKey, { ...existing, entries });
+  }
+
+  const rankingSystems = [...rankingsByStableKey.values()].map((ranking) => {
+    const match = matchRankingSystem({
+      providerSlug: OFFICIAL_STREETLIFTING_PROVIDER,
+      externalSystemKey: ranking.stableKey,
+      sourceUrl: ranking.sourceUrl,
+      title: ranking.title,
+      supported: Boolean(ranking.liftFormat && ranking.gender),
+      dimensions: {
+        ...(ranking.gender ? { gender: ranking.gender } : {}),
+        ...(ranking.liftFormat ? { liftFormat: ranking.liftFormat } : {}),
+        ...(ranking.division ? { division: ranking.division } : {}),
+        ...(ranking.weightClass ? { weightClass: ranking.weightClass } : {}),
+        ...(ranking.methodology ? { methodology: ranking.methodology } : {}),
+        category: ranking.category,
+        ...(ranking.equipment ? { equipment: ranking.equipment } : {}),
+        geographicScope: "world",
+      },
+    }, input.existingRankingSystems ?? []);
+    const proposedId = stableDataOpsUuid("calicentral:official-streetlifting:ranking-system", ranking.stableKey);
+    return {
+      stableKey: ranking.stableKey,
+      ...(match.outcome === "EXACT_MATCH" ? { systemId: match.systemId } : {}),
+      ...(match.outcome === "EXTERNAL_ONLY_NEW_SYSTEM" ? { systemId: proposedId } : {}),
+      outcome: match.outcome,
+      candidateIds: match.candidateIds,
+      reason: match.reason,
+      source: ranking,
+    };
+  });
+
+  const rankingSnapshots = rankingSystems.flatMap((system) => {
+    const ranking = system.source;
+    if (!system.systemId || !["EXACT_MATCH", "EXTERNAL_ONLY_NEW_SYSTEM"].includes(system.outcome)) return [];
+    const systemKey = ranking.stableKey;
+    const systemId = system.systemId;
     const contentHash = contentIdentity(ranking.entries.map((entry) => ({
       externalResultId: entry.externalResultId,
       athleteExternalId: entry.athleteExternalId,
@@ -182,7 +262,7 @@ export function planOfficialStreetliftingImport(input: {
       totalKg: entry.totalKg,
       score: entry.score,
     })));
-    return {
+    return [{
       id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-snapshot", `${systemKey}:${contentHash}`),
       systemId,
       sourceUrl: ranking.sourceUrl,
@@ -192,12 +272,20 @@ export function planOfficialStreetliftingImport(input: {
         const athlete = athleteByExternalId.get(entry.athleteExternalId);
         return {
           ...(athlete?.canonicalId ? { athleteCanonicalId: athlete.canonicalId } : {}),
+          athleteExternalId: entry.athleteExternalId,
+          externalEntryId: entry.externalResultId,
+          sourceDisplayName: entry.athleteName,
           ...(entry.position !== undefined ? { rank: entry.position } : {}),
-          blocked: !athlete?.canonicalId,
+          unresolved: !athlete?.canonicalId,
         };
       }),
-    };
+    }];
   });
 
-  return { athletes, competitions, results, rankingSnapshots, warnings, errors };
+  for (const system of rankingSystems) {
+    if (system.outcome === "AMBIGUOUS_REVIEW") warnings.push(`Ranking system ${system.stableKey} requires review: ${system.reason}`);
+    if (system.outcome === "UNKNOWN" || system.outcome === "UNSUPPORTED") warnings.push(`Ranking system ${system.stableKey} was not imported: ${system.reason}`);
+  }
+
+  return { athletes, competitions, results, rankingSystems, rankingSnapshots, warnings, errors };
 }

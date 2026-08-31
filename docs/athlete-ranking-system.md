@@ -13,6 +13,21 @@ scope, methodology version, and ranking kind. A snapshot freezes its effective
 date, source publication/check dates, entries, and provenance. Historical
 snapshots are new documents; they are not silently overwritten.
 
+The Supabase model additionally stores `external_system_key`, `source_url`,
+`lift_format`, `equipment`, and `methodology_category` on each external
+system. Matching is provider plus those structured dimensions; a title is
+never an identity key. Outcomes are `EXACT_MATCH`,
+`EXTERNAL_ONLY_NEW_SYSTEM`, `AMBIGUOUS_REVIEW`, `UNSUPPORTED`, or `UNKNOWN`.
+Ambiguity is retained in `ranking_system_match_reviews` rather than guessed.
+
+External entries use the provider result/row ID as their stable identity. An
+athlete may legitimately have more than one source row in a ranking. When a
+canonical athlete link is unresolved, `provider_athlete_id` and
+`source_display_name` remain on the entry and the public UI labels the row as
+pending identity review. Repeated unchanged source content reuses one snapshot;
+a changed source hash creates a new historical snapshot. Public history derives
+previous position by canonical athlete ID or stable external athlete ID.
+
 Every normalized provider, snapshot, and entry exposes a stable canonical ID.
 Names and slugs remain presentation. External identities retain provider IDs,
 URLs, display names, aliases, matching state, and private review notes. Never

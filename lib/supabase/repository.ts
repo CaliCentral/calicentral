@@ -101,10 +101,10 @@ export class SupabaseContentRepository {
     const { data, error } = await client
       .from("ranking_snapshots")
       .select(
-        "id, ranking_date, season, methodology_version, checked_at, " +
-          "ranking_systems(id, slug, name, ranking_kind, discipline, division, weight_class, sex_division, age_group, geographic_scope, " +
+        "id, ranking_date, season, methodology_version, checked_at, source_url, " +
+          "ranking_systems(id, slug, name, ranking_kind, discipline, category, division, weight_class, sex_division, age_group, geographic_scope, lift_format, equipment, " +
           "ranking_providers(id, slug, name, website, status, integration_method, attribution_requirement, last_reviewed_at)), " +
-          "ranking_entries(rank, points, rating, entry_status, source_value, athletes(id, permanent_id, name, slug))",
+          "ranking_entries(rank, points, rating, entry_status, source_value, provider_entry_id, provider_athlete_id, source_display_name, athletes(id, permanent_id, name, slug))",
       )
       .eq("publication_status", "published")
       .order("ranking_date", { ascending: false });

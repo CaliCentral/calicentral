@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import {
   buildOfficialStreetliftingSnapshot,
   fetchOfficialStreetliftingPage,
+  isOfficialStreetliftingRankingPageReset,
   parseOfficialStreetliftingCompetitions,
   parseOfficialStreetliftingRanking,
+  parseOfficialStreetliftingRankingTaxonomy,
+  parseOfficialStreetliftingPagination,
   parseOfficialStreetliftingResults,
 } from "../lib/data-ops/providers/official-streetlifting";
 
@@ -35,7 +38,28 @@ assert.equal(results[0].liftsKg.dip, 100);
 const ranking = parseOfficialStreetliftingRanking(table, "https://rankings.officialstreetlifting.com/rankings/classic?gender=male");
 assert.equal(ranking.gender, "male");
 assert.equal(ranking.weightClass, "-80kg");
+assert.equal(ranking.liftFormat, "2-lift-pull-dip");
+assert.equal(ranking.stableKey, "/rankings/classic?gender=male");
 assert.equal(ranking.entries[0].position, 1);
+assert.equal(isOfficialStreetliftingRankingPageReset("https://rankings.officialstreetlifting.com/rankings/classic?gender=male&page=2", ranking), true, "an out-of-range page that wraps to rank 1 is rejected as a pagination reset");
+assert.equal(isOfficialStreetliftingRankingPageReset("https://rankings.officialstreetlifting.com/rankings/classic?gender=male", ranking), false);
+
+const taxonomy = parseOfficialStreetliftingRankingTaxonomy(`
+  <a href="/rankings?gender=male">Male All4 Absolute Rankings</a>
+  <a href="/rankings/classic?gender=female">Female Classic Absolute Rankings</a>
+  <a href="/records/male/classes/-66kg">Male -66kg Weight Class</a>
+  <a href="/records/female/divisions/division3-female">Division 3 | Female</a>
+  <a href="/records/male">Male All-Time Absolute WR</a>
+`);
+assert.equal(taxonomy.length, 5);
+assert.equal(taxonomy.filter((item) => item.importSupport === "supported").length, 2);
+assert.equal(taxonomy.find((item) => item.stableKey.includes("classic"))?.dimensions.liftFormat, "2-lift-pull-dip");
+
+const pagination = parseOfficialStreetliftingPagination(
+  `<a href="/rankings?gender=male&page=2">Next</a><a href="https://example.com/rankings?page=2">Next</a>`,
+  "https://rankings.officialstreetlifting.com/rankings?gender=male",
+);
+assert.deepEqual(pagination, ["https://rankings.officialstreetlifting.com/rankings?gender=male&page=2"]);
 
 const competitionHtml = `<div class="group relative flex flex-col"><span>Upcoming</span><h3><a href="/competitions/stable-event-id">Example Event</a></h3><time datetime="2026-09-01T00:00:00Z">Sep 1</time></div>`;
 assert.deepEqual(parseOfficialStreetliftingCompetitions(competitionHtml), [{
@@ -59,6 +83,8 @@ const sectionedDirectoryHtml = `
 const sectioned = parseOfficialStreetliftingCompetitions(sectionedDirectoryHtml);
 assert.equal(sectioned.find((item) => item.externalId === "no-badge-upcoming")?.sourceStatus, "Upcoming", "a badge-less card inside the Upcoming Competitions section must resolve to Upcoming, not Unknown");
 assert.equal(sectioned.find((item) => item.externalId === "no-badge-elsewhere")?.sourceStatus, "Unknown", "a badge-less card outside any recognized section still falls back to Unknown, never a guessed status");
+const cancelled = parseOfficialStreetliftingCompetitions(`<div class="group relative flex flex-col"><span>Cancelled</span><h3><a href="/competitions/cancelled-event">Cancelled Event</a></h3></div>`);
+assert.equal(cancelled[0].sourceStatus, "Cancelled", "cancellation is represented only from an explicit source badge");
 
 const first = buildOfficialStreetliftingSnapshot({ sourceUrl: "https://rankings.officialstreetlifting.com/results/", fetchedAt: "2026-08-30T00:00:00.000Z", httpStatus: 200, contentType: "text/html", body: table, sourceEntityType: "results-directory" });
 const second = buildOfficialStreetliftingSnapshot({ sourceUrl: first.sourceUrl, fetchedAt: "2026-08-30T01:00:00.000Z", httpStatus: 200, contentType: "text/html", body: table, sourceEntityType: "results-directory" });

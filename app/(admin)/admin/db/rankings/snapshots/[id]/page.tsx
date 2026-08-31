@@ -40,11 +40,15 @@ export default async function AdminSupabaseRankingSnapshotDetailPage({ params }:
   const system = firstOf(snapshot.ranking_systems);
   const entries = (snapshot.ranking_entries ?? []) as readonly {
     readonly id: string;
-    readonly athlete_id: string;
+    readonly athlete_id: string | null;
+    readonly provider_athlete_id: string | null;
+    readonly provider_entry_id: string | null;
+    readonly source_display_name: string | null;
     readonly rank: number | null;
     readonly points: number | null;
     readonly rating: number | null;
     readonly entry_status: string;
+    readonly source_value: unknown;
     readonly athletes: unknown;
   }[];
 
@@ -137,12 +141,13 @@ export default async function AdminSupabaseRankingSnapshotDetailPage({ params }:
                       return (
                         <tr key={entry.id}>
                           <td className="py-2 pr-4 text-ink">
-                            {athlete ? athlete.name : entry.athlete_id}
+                            {athlete ? athlete.name : entry.source_display_name ?? entry.provider_athlete_id ?? "Unresolved external athlete"}
                             {athlete?.permanent_id ? (
                               <span className="ml-2 font-mono text-[0.65rem] uppercase tracking-[0.08em] text-muted">
                                 {athlete.permanent_id}
                               </span>
                             ) : null}
+                            {!athlete ? <span className="ml-2 font-mono text-[0.65rem] uppercase tracking-[0.08em] text-accent">Mapping review required</span> : null}
                           </td>
                           <td className="py-2 pr-4 text-ink">{entry.rank ?? "—"}</td>
                           <td className="py-2 pr-4 text-ink">{entry.points ?? "—"}</td>

@@ -13,6 +13,7 @@ import { SupabaseContentRepository } from "@/lib/supabase/repository";
 import type { Athlete } from "@/types/athlete";
 import type { Competition } from "@/types/competition";
 import type { AthleteRankingSnapshot } from "@/types/ranking-source";
+import { addPreviousRankingPositions } from "@/lib/rankings/history";
 
 const repository = new SupabaseContentRepository();
 
@@ -65,8 +66,9 @@ export async function getSupabaseCompetitionPage(slug: string): Promise<Competit
 
 export async function getSupabaseAthleteRankingSnapshots(): Promise<readonly AthleteRankingSnapshot[]> {
   const rows = await repository.listPublishedRankingSnapshots();
-  return rows.flatMap((row) => {
+  const snapshots = rows.flatMap((row) => {
     const normalized = normalizeSupabaseRankingSnapshot(row as unknown as Parameters<typeof normalizeSupabaseRankingSnapshot>[0]);
     return normalized ? [normalized] : [];
   });
+  return addPreviousRankingPositions(snapshots);
 }

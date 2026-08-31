@@ -204,3 +204,45 @@ versioned-manifest workflow. The complete operating checklist, confirmation
 boundaries, post-write verification, and rollback stop conditions are in
 [`production-data-refresh.md`](production-data-refresh.md). A refresh never
 changes profile approval merely because a ranking source was confirmed.
+
+## Supabase ranking and discovery rehearsal
+
+The Supabase-native workflow inventories the live public taxonomy and walks
+pagination without writing:
+
+```bash
+npm run rehearse:official-streetlifting
+```
+
+For the host-locked, read-only preview matching plan and a local ignored cache:
+
+```bash
+npm run rehearse:official-streetlifting:preview -- --cache-dir=.tmp/osl-live
+```
+
+The generated `input-manifest.json` can be imported only into the loopback
+Supabase stack with both local write flags:
+
+```bash
+npm run import:official-streetlifting:supabase -- \
+  --input-manifest=.tmp/osl-live/input-manifest.json \
+  --observed-on=YYYY-MM-DD \
+  --write \
+  --confirm-local-import
+```
+
+The live inventory observed on 2026-08-30 exposed 26 stable categories: four
+supported absolute tables (Female/Male × All4/2-lift), 12 weight-class record
+tables, eight division record tables, and two all-time world-record pages. The
+22 record surfaces remain `UNSUPPORTED` until dedicated deterministic parsers
+exist; they are not forced through the ranking-table parser. The four absolute
+tables traversed 148 HTTP pages but normalized to four content-addressed
+snapshots. The source returns page 1 for an out-of-range ranking page, so the
+rehearsal explicitly detects and discards that pagination reset.
+
+Display-name accents vary for a small number of stable athlete IDs. Those
+variants remain row-level evidence and review warnings; the external ID alone
+anchors identity. Ranking rows use source result IDs because the same athlete
+can legitimately appear more than once in a source table. Repeated imports page
+all existing identities instead of relying on Supabase's default 1,000-row
+response cap.

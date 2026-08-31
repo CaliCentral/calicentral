@@ -34,9 +34,11 @@ export type RankingProvider = {
 export type AthleteRankingSnapshotEntry = {
   readonly canonicalId: string;
   readonly athleteId?: string;
+  readonly externalAthleteId?: string;
   readonly athleteSlug?: string;
   readonly athleteName: string;
   readonly sourceDisplayName?: string;
+  readonly sourceValue?: string;
   readonly position?: number;
   readonly points?: number;
   readonly rating?: number;
@@ -60,6 +62,8 @@ export type AthleteRankingSnapshot = {
   readonly geographicScope: string;
   readonly season?: string;
   readonly methodologyVersion?: string;
+  readonly liftFormat?: string;
+  readonly equipment?: string;
   readonly rankingDate: string;
   readonly sourcePublishedAt?: string;
   readonly checkedAt: string;

@@ -385,7 +385,7 @@ export class SupabaseAdminRepository {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
       .from("ranking_systems")
-      .select("id, slug, name, ranking_kind, discipline, status, ranking_providers(name)")
+      .select("id, slug, name, ranking_kind, discipline, status, external_system_key, source_url, lift_format, equipment, methodology_category, category, division, weight_class, sex_division, geographic_scope, system_authority, ranking_providers(name)")
       .order("name");
     return requireData(data, error);
   }
@@ -440,6 +440,15 @@ export class SupabaseAdminRepository {
     return requireData(data, error);
   }
 
+  async listRankingSystemMatchReviews() {
+    const client = await createSupabaseServerClient();
+    const { data, error } = await client
+      .from("ranking_system_match_reviews")
+      .select("id, external_system_key, source_url, source_dimensions, candidate_system_ids, match_outcome, review_state, created_at, ranking_providers(name)")
+      .order("created_at", { ascending: false });
+    return requireData(data, error);
+  }
+
   async listRankingSnapshots() {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
@@ -453,7 +462,7 @@ export class SupabaseAdminRepository {
     const client = await createSupabaseServerClient();
     const { data, error } = await client
       .from("ranking_snapshots")
-      .select("*, ranking_systems(name), ranking_entries(id, athlete_id, rank, points, rating, entry_status, athletes(name, permanent_id))")
+      .select("*, ranking_systems(name), ranking_entries(id, athlete_id, provider_entry_id, provider_athlete_id, source_display_name, rank, points, rating, source_value, entry_status, athletes(name, permanent_id))")
       .eq("id", id)
       .maybeSingle();
     if (error) throw new SupabaseRepositoryError(error.message);

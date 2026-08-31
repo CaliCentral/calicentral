@@ -43,12 +43,13 @@ function firstOf<T>(value: T | readonly T[] | null | undefined): T | null {
 export default async function AdminSupabaseRankingsPage() {
   await requireEditor("/admin/db/rankings");
 
-  const [providers, systems, snapshots, systemOptions, sourceRecords] = await Promise.all([
+  const [providers, systems, snapshots, systemOptions, sourceRecords, matchReviews] = await Promise.all([
     repository.listRankingProviders(),
     repository.listRankingSystems(),
     repository.listRankingSnapshots(),
     repository.listRankingSystemOptions(),
     repository.listSourceRecords(),
+    repository.listRankingSystemMatchReviews(),
   ]);
 
   return (
@@ -190,6 +191,9 @@ export default async function AdminSupabaseRankingsPage() {
                         {system.slug} &middot; {system.ranking_kind} &middot; {system.discipline} &middot; {system.status}
                         {provider ? <> &middot; {provider.name}</> : null}
                       </p>
+                      <p className="mt-1 font-mono text-[0.65rem] text-muted">
+                        {[system.external_system_key, system.sex_division, system.lift_format, system.division, system.weight_class, system.methodology_category, system.equipment, system.system_authority].filter(Boolean).join(" · ") || "No structured external dimensions recorded"}
+                      </p>
                     </div>
                   </div>
                   <ActionForm
@@ -294,6 +298,26 @@ export default async function AdminSupabaseRankingsPage() {
             </div>
           </ActionForm>
         </details>
+      </OperationsPanel>
+
+      <OperationsPanel title={`System mapping review (${matchReviews.length})`} eyebrow="Explicit ambiguity queue" className="mt-6">
+        {matchReviews.length === 0 ? (
+          <p className="text-sm text-muted">No ranking-system mappings require review.</p>
+        ) : (
+          <ul className="divide-y divide-white/10">
+            {matchReviews.map((review) => {
+              const provider = firstOf(review.ranking_providers);
+              return (
+                <li key={review.id} className="py-4">
+                  <p className="font-bold text-ink">{provider?.name ?? "Unknown provider"} — {review.external_system_key}</p>
+                  <p className="mt-1 text-xs text-muted">{review.match_outcome} · {review.review_state} · candidates: {review.candidate_system_ids.length || 0}</p>
+                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify(review.source_dimensions, null, 2)}</pre>
+                  <a href={review.source_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs font-bold uppercase tracking-[0.1em] text-accent hover:underline">Open source ↗</a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </OperationsPanel>
 
       <OperationsPanel title={`Ranking snapshots (${snapshots.length})`} eyebrow="Step 3 — dated pulls with entries" className="mt-6">

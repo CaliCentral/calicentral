@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -6,8 +7,10 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { stableDataOpsUuid, type ExistingExternalIdentity } from "../lib/data-ops/identity";
 import { planOfficialStreetliftingImport, type ExistingCompetitionIdentity } from "../lib/data-ops/official-streetlifting-plan";
+import type { ExistingRankingSystem } from "../lib/data-ops/ranking-system-matcher";
 import {
   buildOfficialStreetliftingSnapshot,
+  isOfficialStreetliftingRankingPageReset,
   OFFICIAL_STREETLIFTING_PROVIDER,
   parseOfficialStreetliftingCompetitions,
   parseOfficialStreetliftingRanking,
@@ -34,6 +37,7 @@ const TABLES = [
   "external_athlete_identities", "competitions", "external_competition_identities",
   "sporting_results", "sporting_result_performances", "ranking_providers",
   "ranking_systems", "ranking_snapshots", "ranking_entries", "provenance",
+  "ranking_system_match_reviews",
 ] as const;
 
 function argumentsFor(name: string): string[] {
@@ -46,7 +50,12 @@ function has(name: string): boolean {
 }
 
 function inputSpecs(): InputSpec[] {
-  return argumentsFor("input").map((value) => {
+  const manifestSpecs = argumentsFor("input-manifest").flatMap((file) => {
+    const parsed = JSON.parse(readFileSync(path.resolve(file), "utf8")) as { inputs?: InputSpec[] };
+    if (!Array.isArray(parsed.inputs)) throw new Error("--input-manifest must contain an inputs array.");
+    return parsed.inputs.map((item) => `${item.entityType},${item.file},${item.sourceUrl}`);
+  });
+  return [...argumentsFor("input"), ...manifestSpecs].map((value) => {
     const first = value.indexOf(",");
     const second = value.indexOf(",", first + 1);
     if (first < 1 || second < first + 2) throw new Error("Each --input must be entity-type,file,source-url.");
@@ -76,7 +85,8 @@ async function parseInput(spec: InputSpec, observedAt: string): Promise<ParsedIn
     return { snapshot, competitions: parseOfficialStreetliftingCompetitions(body), results: [], rankings: [] };
   }
   if (spec.entityType === "ranking-table") {
-    return { snapshot, competitions: [], results: [], rankings: [parseOfficialStreetliftingRanking(body, spec.sourceUrl)] };
+    const ranking = parseOfficialStreetliftingRanking(body, spec.sourceUrl);
+    return { snapshot, competitions: [], results: [], rankings: isOfficialStreetliftingRankingPageReset(spec.sourceUrl, ranking) ? [] : [ranking] };
   }
   return { snapshot, competitions: [], results: parseOfficialStreetliftingResults(body), rankings: [] };
 }
@@ -148,6 +158,18 @@ async function counts(client: SupabaseClient): Promise<Record<string, number>> {
     result[table] = response.count ?? 0;
   }
   return result;
+}
+
+async function readAllRows(client: SupabaseClient, table: string, columns: string): Promise<Record<string, unknown>[]> {
+  const rows: Record<string, unknown>[] = [];
+  const pageSize = 1_000;
+  for (let offset = 0; ; offset += pageSize) {
+    const response = await client.from(table).select(columns).range(offset, offset + pageSize - 1);
+    if (response.error) throw new Error(`Preview read failed for ${table}: ${response.error.message}`);
+    const page = (response.data ?? []) as unknown as Record<string, unknown>[];
+    rows.push(...page);
+    if (page.length < pageSize) return rows;
+  }
 }
 
 async function insertIgnore(client: SupabaseClient, table: string, rows: readonly Record<string, unknown>[]) {
@@ -267,40 +289,64 @@ async function writeLocal(input: {
   });
   await insertIgnore(input.client, "sporting_result_performances", performanceRows);
 
-  // ranking_systems has no reliable natural-key match against pre-existing,
-  // manually-curated rows yet (category/gender/weight-class matching would
-  // require guessing rather than an exact key) -- skippable so a hosted
-  // write can proceed with the unambiguous athlete/competition/result data
-  // while this stays deferred rather than risking a duplicate ranking
-  // system for the same real-world ranking table.
   if (input.skipRankingWrites) return;
-  for (const [index, snapshot] of input.plan.rankingSnapshots.entries()) {
-    const ranking = input.parsed.flatMap((item) => item.rankings)[index];
-    if (!ranking) continue;
+  await insertIgnore(input.client, "ranking_system_match_reviews", input.plan.rankingSystems.flatMap((decision) => {
+    if (!["AMBIGUOUS_REVIEW", "UNSUPPORTED", "UNKNOWN"].includes(decision.outcome)) return [];
+    return [{
+      id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-system-review", `${decision.stableKey}:${decision.outcome}`),
+      provider_id: providerId,
+      external_system_key: decision.stableKey,
+      source_url: decision.source.sourceUrl,
+      source_dimensions: {
+        gender: decision.source.gender,
+        liftFormat: decision.source.liftFormat,
+        division: decision.source.division,
+        weightClass: decision.source.weightClass,
+        methodology: decision.source.methodology,
+        category: decision.source.category,
+        equipment: decision.source.equipment,
+        geographicScope: "world",
+      },
+      candidate_system_ids: decision.candidateIds,
+      match_outcome: decision.outcome,
+      review_state: "pending",
+    }];
+  }));
+  for (const decision of input.plan.rankingSystems) {
+    if (decision.outcome !== "EXTERNAL_ONLY_NEW_SYSTEM" || !decision.systemId) continue;
+    const ranking = decision.source;
     await insertIgnore(input.client, "ranking_systems", [{
-      id: snapshot.systemId, provider_id: providerId,
-      slug: slug("osl-ranking", [ranking.category, ranking.gender, ranking.weightClass, ranking.division].filter(Boolean).join("-")),
-      name: ranking.title, ranking_kind: "external-source-order", discipline: "streetlifting",
+      id: decision.systemId, provider_id: providerId,
+      slug: slug("osl-ranking", ranking.stableKey), external_system_key: ranking.stableKey,
+      source_url: ranking.sourceUrl, name: ranking.title, ranking_kind: "ordinal-position", discipline: "streetlifting",
       category: ranking.category, division: ranking.division ?? null, weight_class: ranking.weightClass ?? null,
-      sex_division: ranking.gender ?? null, geographic_scope: "world", methodology_version: "source-order-v1",
+      sex_division: ranking.gender ?? null, lift_format: ranking.liftFormat ?? null,
+      equipment: ranking.equipment ?? null, methodology_category: ranking.methodology ?? null,
+      geographic_scope: "world", methodology_version: "source-order-v1", system_authority: "external-provider",
       methodology_notes: "External Official Streetlifting source order; not a Cali Central ranking.", status: "draft",
     }]);
+  }
+  for (const snapshot of input.plan.rankingSnapshots) {
+    const ranking = input.plan.rankingSystems.find((item) => item.systemId === snapshot.systemId)?.source;
+    if (!ranking) continue;
     const sourceRecordId = sourceIds.get(snapshot.sourceUrl) ?? fallbackSourceId;
     await insertIgnore(input.client, "ranking_snapshots", [{
       id: snapshot.id, ranking_system_id: snapshot.systemId, ranking_date: input.observedOn,
-      checked_at: `${input.observedOn}T00:00:00.000Z`, source_record_id: sourceRecordId,
-      methodology_version: "source-order-v1", publication_status: "draft",
+      checked_at: `${input.observedOn}T00:00:00.000Z`, observed_at: `${input.observedOn}T00:00:00.000Z`,
+      source_url: snapshot.sourceUrl, source_content_hash: snapshot.contentHash, source_record_id: sourceRecordId,
+      source_verification_state: "source-confirmed", methodology_version: "source-order-v1", publication_status: "draft",
     }]);
-    await insertIgnore(input.client, "ranking_entries", snapshot.entries.flatMap((entry, entryIndex) => {
-      if (entry.blocked || !entry.athleteCanonicalId) return [];
-      const source = ranking.entries[entryIndex];
+    await insertIgnore(input.client, "ranking_entries", snapshot.entries.map((entry) => {
+      const source = ranking.entries.find((item) => item.athleteExternalId === entry.athleteExternalId);
       return [{
-        id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-entry", `${snapshot.id}:${entry.athleteCanonicalId}`),
-        ranking_snapshot_id: snapshot.id, athlete_id: entry.athleteCanonicalId,
-        rank: entry.rank ?? null, source_value: { totalKg: source?.totalKg, score: source?.score, externalResultId: source?.externalResultId },
+        id: stableDataOpsUuid("calicentral:official-streetlifting:ranking-entry", `${snapshot.id}:${entry.externalEntryId}`),
+        ranking_snapshot_id: snapshot.id, athlete_id: entry.athleteCanonicalId ?? null,
+        provider_entry_id: entry.externalEntryId, provider_athlete_id: entry.athleteExternalId, source_display_name: entry.sourceDisplayName,
+        rank: entry.rank ?? null, points: source?.score ?? null,
+        source_value: { totalKg: source?.totalKg, score: source?.score, externalResultId: source?.externalResultId },
         entry_status: "ranked",
       }];
-    }));
+    }).flat());
   }
 }
 
@@ -320,6 +366,7 @@ async function main() {
   let before: Record<string, number> | undefined;
   let existingAthletes: ExistingExternalIdentity[] = [];
   let existingCompetitions: ExistingCompetitionIdentity[] = [];
+  let existingRankingSystems: ExistingRankingSystem[] = [];
   if (wantsWrite) {
     const wantsLocal = has("confirm-local-import");
     const wantsPreview = has("confirm-preview-import");
@@ -335,24 +382,46 @@ async function main() {
     readClient = createClient(config.url, config.serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
   }
   if (readClient) {
-    const [athleteResult, competitionResult] = await Promise.all([
-      readClient.from("external_athlete_identities").select("athlete_id, provider, external_id"),
-      readClient.from("external_competition_identities").select("competition_id, provider, external_id, competitions(start_date, status)"),
+    const [athleteRows, competitionRows, rankingSystemRows] = await Promise.all([
+      readAllRows(readClient, "external_athlete_identities", "athlete_id, provider, external_id"),
+      readAllRows(readClient, "external_competition_identities", "competition_id, provider, external_id, competitions(start_date, status)"),
+      readAllRows(readClient, "ranking_systems", "id, name, external_system_key, source_url, sex_division, lift_format, division, weight_class, methodology_category, category, equipment, geographic_scope, ranking_providers(slug)"),
     ]);
-    if (athleteResult.error || competitionResult.error) throw new Error(athleteResult.error?.message ?? competitionResult.error?.message);
-    existingAthletes = (athleteResult.data ?? []).map((row) => ({ canonicalId: row.athlete_id, provider: row.provider, externalId: row.external_id }));
-    existingCompetitions = (competitionResult.data ?? []).map((row) => {
+    existingAthletes = athleteRows.map((row) => ({ canonicalId: String(row.athlete_id), provider: String(row.provider), externalId: String(row.external_id) }));
+    existingCompetitions = competitionRows.map((row) => {
       const competition = row.competitions as unknown as { start_date?: string | null; status?: string | null } | null;
       return {
-        canonicalId: row.competition_id, provider: row.provider, externalId: row.external_id,
+        canonicalId: String(row.competition_id), provider: String(row.provider), externalId: String(row.external_id),
         ...(competition?.start_date ? { startDate: competition.start_date } : {}),
         ...(competition?.status ? { status: competition.status } : {}),
+      };
+    });
+    existingRankingSystems = rankingSystemRows.map((row) => {
+      const joined = row.ranking_providers as unknown as { slug?: string } | readonly { slug?: string }[] | null;
+      const provider = Array.isArray(joined) ? joined[0] : joined;
+      return {
+        id: String(row.id),
+        providerSlug: provider?.slug ?? "",
+        title: String(row.name),
+        ...(row.external_system_key ? { externalSystemKey: String(row.external_system_key) } : {}),
+        ...(row.source_url ? { sourceUrl: String(row.source_url) } : {}),
+        dimensions: {
+          ...(row.sex_division ? { gender: String(row.sex_division) } : {}),
+          ...(row.lift_format ? { liftFormat: String(row.lift_format) } : {}),
+          ...(row.division ? { division: String(row.division) } : {}),
+          ...(row.weight_class ? { weightClass: String(row.weight_class) } : {}),
+          ...(row.methodology_category ? { methodology: String(row.methodology_category) } : {}),
+          ...(row.category ? { category: String(row.category) } : {}),
+          ...(row.equipment ? { equipment: String(row.equipment) } : {}),
+          geographicScope: String(row.geographic_scope),
+        },
       };
     });
   }
   const plan = planOfficialStreetliftingImport({
     competitions, results: parsed.flatMap((item) => item.results), rankings: parsed.flatMap((item) => item.rankings),
     observedOn, existingAthleteIdentities: existingAthletes, existingCompetitionIdentities: existingCompetitions,
+    existingRankingSystems,
   });
   if (plan.errors.length) throw new Error(`Import planning failed: ${plan.errors.join(" ")}`);
   if (client) await writeLocal({ parsed, observedOn, plan, client, skipRankingWrites: has("skip-ranking-writes") });
@@ -371,6 +440,14 @@ async function main() {
     newCompetitions: plan.competitions.filter((item) => item.state === "new").length,
     matchedCompetitions: plan.competitions.filter((item) => item.state === "matched").length,
     blockedResults: plan.results.filter((item) => item.blocked).length,
+    rankingSystemMatches: Object.fromEntries(
+      ["EXACT_MATCH", "EXTERNAL_ONLY_NEW_SYSTEM", "AMBIGUOUS_REVIEW", "UNSUPPORTED", "UNKNOWN"]
+        .map((outcome) => [outcome, plan.rankingSystems.filter((item) => item.outcome === outcome).length]),
+    ),
+    unresolvedRankingEntries: plan.rankingSnapshots.reduce(
+      (sum, snapshot) => sum + snapshot.entries.filter((entry) => entry.unresolved).length,
+      0,
+    ),
     warnings: plan.warnings, errors: plan.errors, ...(created ? { created } : {}),
   }, null, 2)}\n`);
 }

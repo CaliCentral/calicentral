@@ -293,6 +293,7 @@ type SupabaseRankingSnapshotRow = {
   readonly season: string | null;
   readonly methodology_version: string | null;
   readonly checked_at: string;
+  readonly source_url: string | null;
   readonly ranking_systems: unknown;
   readonly ranking_entries: readonly {
     readonly rank: number | null;
@@ -300,6 +301,9 @@ type SupabaseRankingSnapshotRow = {
     readonly rating: number | null;
     readonly entry_status: string;
     readonly source_value: unknown;
+    readonly provider_entry_id: string | null;
+    readonly provider_athlete_id: string | null;
+    readonly source_display_name: string | null;
     readonly athletes: unknown;
   }[] | null;
 };
@@ -318,19 +322,22 @@ export function normalizeSupabaseRankingSnapshot(row: SupabaseRankingSnapshotRow
 
   const entries: AthleteRankingSnapshotEntry[] = (row.ranking_entries ?? []).flatMap((entry) => {
     const athlete = firstOf(entry.athletes as { id?: string; name?: string; slug?: string } | readonly { id?: string; name?: string; slug?: string }[] | null);
-    if (!athlete?.name) return [];
+    const athleteName = athlete?.name ?? entry.source_display_name;
+    if (!athleteName) return [];
     const sourceValue = isRecord(entry.source_value) ? entry.source_value : {};
     const totalKg = typeof sourceValue.totalKg === "number" ? sourceValue.totalKg : undefined;
     return [{
-      canonicalId: `${row.id}:${athlete.id ?? athlete.name}`,
-      ...(athlete.id ? { athleteId: athlete.id } : {}),
-      ...(athlete.slug ? { athleteSlug: athlete.slug } : {}),
-      athleteName: athlete.name,
-      ...(totalKg !== undefined ? { sourceDisplayName: `${totalKg}kg` } : {}),
+      canonicalId: `${row.id}:${entry.provider_entry_id ?? athlete?.id ?? entry.provider_athlete_id ?? athleteName}`,
+      ...(athlete?.id ? { athleteId: athlete.id } : {}),
+      ...(entry.provider_athlete_id ? { externalAthleteId: entry.provider_athlete_id } : {}),
+      ...(athlete?.slug ? { athleteSlug: athlete.slug } : {}),
+      athleteName,
+      ...(entry.source_display_name ? { sourceDisplayName: entry.source_display_name } : {}),
+      ...(totalKg !== undefined ? { sourceValue: `${totalKg} kg total` } : {}),
       ...(entry.rank !== null ? { position: entry.rank } : {}),
       ...(entry.points !== null ? { points: entry.points } : {}),
       ...(entry.rating !== null ? { rating: entry.rating } : {}),
-      status: entry.entry_status === "ranked" ? "ranked" : entry.entry_status === "provisional" ? "provisional" : entry.entry_status === "withdrawn" || entry.entry_status === "disqualified" ? "inactive" : "unmatched",
+      status: !athlete ? "unmatched" : entry.entry_status === "ranked" ? "ranked" : entry.entry_status === "provisional" ? "provisional" : entry.entry_status === "withdrawn" || entry.entry_status === "disqualified" ? "inactive" : "unmatched",
     } satisfies AthleteRankingSnapshotEntry];
   });
 
@@ -357,10 +364,13 @@ export function normalizeSupabaseRankingSnapshot(row: SupabaseRankingSnapshotRow
       ? (system.ranking_kind as AthleteRankingSnapshot["rankingKind"])
       : "ordinal-position",
     discipline: String(system.discipline ?? ""),
+    ...(system.category ? { category: String(system.category) } : {}),
     ...(system.division ? { division: String(system.division) } : {}),
     ...(system.weight_class ? { weightClass: String(system.weight_class) } : {}),
     ...(system.sex_division ? { sexDivision: String(system.sex_division) } : {}),
     ...(system.age_group ? { ageGroup: String(system.age_group) } : {}),
+    ...(system.lift_format ? { liftFormat: String(system.lift_format) } : {}),
+    ...(system.equipment ? { equipment: String(system.equipment) } : {}),
     geographicScope: String(system.geographic_scope ?? "world"),
     ...(row.season ? { season: row.season } : {}),
     ...(row.methodology_version ? { methodologyVersion: row.methodology_version } : {}),
@@ -369,7 +379,7 @@ export function normalizeSupabaseRankingSnapshot(row: SupabaseRankingSnapshotRow
     entries,
     provenance: {
       providerName: String(provider.name ?? ""),
-      ...(provider.website ? { url: String(provider.website) } : {}),
+      ...((row.source_url ?? provider.website) ? { url: String(row.source_url ?? provider.website) } : {}),
       title: `${String(provider.name ?? "External provider")} ranking snapshot`,
       type: "organization-ranking-page",
       checkedAt: row.checked_at,

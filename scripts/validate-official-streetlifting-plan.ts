@@ -19,10 +19,14 @@ function result(id: string, athleteId: string, athleteName: string, rank: number
 }
 
 const ranking = (entries: readonly OfficialStreetliftingResult[]): OfficialStreetliftingRanking => ({
+  stableKey: "/rankings/classic?gender=male",
   sourceUrl: "https://rankings.officialstreetlifting.com/rankings/classic?gender=male",
   title: "Male Classic Rankings",
-  category: "Male Classic",
+  category: "absolute-total",
   gender: "male",
+  liftFormat: "2-lift-pull-dip",
+  equipment: "source-defined",
+  methodology: "source-total-descending",
   entries,
 });
 const competition = { externalId: "event-1", sourceUrl: "https://rankings.officialstreetlifting.com/competitions/event-1", name: "Event One", sourceStatus: "Completed", startDate: "2026-08-01" };
@@ -36,6 +40,7 @@ const first = planOfficialStreetliftingImport({
 assert.equal(first.athletes.length, 2, "duplicate names must remain distinct when stable external IDs differ");
 assert.equal(new Set(first.athletes.map((athlete) => athlete.canonicalId)).size, 2);
 assert.equal(first.results.filter((item) => item.blocked).length, 0);
+assert.equal(first.rankingSystems[0].outcome, "EXTERNAL_ONLY_NEW_SYSTEM");
 
 const repeated = planOfficialStreetliftingImport({
   competitions: [competition], results: [], rankings: [ranking([result("1", "athlete-a", "Same Name", 1), result("2", "athlete-b", "Same Name", 2)])], observedOn: "2026-08-30",
@@ -72,6 +77,15 @@ assert.equal(ambiguous.results[0].blocked, true);
 
 const moved = planOfficialStreetliftingImport({ competitions: [competition], results: [], rankings: [ranking([result("1", "athlete-a", "Same Name", 2)])], observedOn: "2026-08-31" });
 assert.notEqual(moved.rankingSnapshots[0].id, first.rankingSnapshots[0].id, "a later changed ranking must retain a distinct historical snapshot identity");
+assert.equal(moved.rankingSnapshots[0].entries[0].unresolved, false);
+
+const repeatedAthlete = planOfficialStreetliftingImport({
+  competitions: [competition], results: [],
+  rankings: [ranking([result("101", "athlete-a", "Same Athlete", 1), result("102", "athlete-a", "Same Athlete", 2)])],
+  observedOn: "2026-08-30",
+});
+assert.equal(repeatedAthlete.rankingSnapshots[0].entries.length, 2, "provider result rows remain distinct even when they reference the same athlete");
+assert.notEqual(repeatedAthlete.rankingSnapshots[0].entries[0].externalEntryId, repeatedAthlete.rankingSnapshots[0].entries[1].externalEntryId);
 
 // Status propagation: the parser's source status must survive planning
 // (this session's fix -- previously the importer hardcoded "unknown"
@@ -80,6 +94,7 @@ assert.equal(normalizeCompetitionSourceStatus("Upcoming"), "upcoming");
 assert.equal(normalizeCompetitionSourceStatus("Completed"), "completed");
 assert.equal(normalizeCompetitionSourceStatus("Cancelled"), "cancelled");
 assert.equal(normalizeCompetitionSourceStatus("Postponed"), "postponed");
+assert.equal(normalizeCompetitionSourceStatus("Delayed"), "delayed");
 assert.equal(normalizeCompetitionSourceStatus("Unknown"), "unknown");
 assert.equal(normalizeCompetitionSourceStatus("anything-unrecognized"), "unknown", "an unrecognized source status must never be guessed into something specific");
 

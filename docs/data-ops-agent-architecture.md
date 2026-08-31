@@ -1,10 +1,12 @@
 # Cali Central Data Operations Agent — architecture proposal
 
-Status: **design proposal only.** Nothing in this document is implemented.
-No autonomous external fetching, scraping, or AI extraction exists in this
-codebase today. This is deliberately scoped as architecture, per the brief
-that requested it: real automated writes require a separate, explicitly
-approved build-out after this design is reviewed.
+Status: **local deterministic foundation implemented; recurring execution is
+disabled.** The immutable snapshot/extraction/review schema, provider registry,
+Official Streetlifting parsers, ranking matcher, provider-neutral competition
+discovery, diff planning, source-health reporting, and local rehearsal exist.
+No scheduler is enabled, no autonomous hosted writes exist, and every
+auto-apply policy remains disabled. Real automated writes still require a
+separate explicit approval.
 
 ## Why this needs its own trust boundary
 
@@ -60,6 +62,13 @@ tables that are explicitly separate (`editorial_content`, `posts`,
 pipeline, not a parallel system with its own truth model.
 
 ## Proposed schema additions
+
+The initial proposal is now implemented by migrations
+`202608300006_data_ops_review_pipeline.sql` and
+`202608300012_rankings_and_competition_discovery.sql`. The second migration
+adds provider capabilities and fetch limits, discovery-run coverage, immutable
+competition/roster observations, and explicit ranking-system match review.
+The SQL sketches below remain explanatory, not a separate schema to apply.
 
 All new, additive tables — no changes to existing tables except where noted.
 Table/column names follow this repo's existing conventions (`snake_case`,

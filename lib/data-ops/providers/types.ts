@@ -5,6 +5,33 @@ export type SourceEntityType =
   | "results-directory"
   | "ranking-table";
 
+export type RankingTaxonomyKind =
+  | "absolute-ranking"
+  | "weight-class-records"
+  | "division-records"
+  | "world-records";
+
+export type RankingDimensions = {
+  readonly gender?: string;
+  readonly liftFormat?: string;
+  readonly division?: string;
+  readonly weightClass?: string;
+  readonly methodology?: string;
+  readonly category?: string;
+  readonly equipment?: string;
+  readonly geographicScope: string;
+};
+
+export type SourceRankingCategory = {
+  readonly provider: string;
+  readonly stableKey: string;
+  readonly sourceUrl: string;
+  readonly title: string;
+  readonly taxonomyKind: RankingTaxonomyKind;
+  readonly importSupport: "supported" | "unsupported" | "unknown";
+  readonly dimensions: RankingDimensions;
+};
+
 export type RawSourceSnapshot = {
   readonly provider: string;
   readonly sourceUrl: string;
@@ -50,10 +77,14 @@ export type OfficialStreetliftingResult = {
 };
 
 export type OfficialStreetliftingRanking = {
+  readonly stableKey: string;
   readonly sourceUrl: string;
   readonly title: string;
   readonly category: string;
   readonly gender?: string;
+  readonly liftFormat?: string;
+  readonly equipment?: string;
+  readonly methodology?: string;
   readonly weightClass?: string;
   readonly division?: string;
   readonly entries: readonly OfficialStreetliftingResult[];
