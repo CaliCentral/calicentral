@@ -18,7 +18,22 @@ import type {
   RegistrationStatus,
 } from "@/types/competition";
 
-type SortOption = "date-asc" | "date-desc" | "name";
+type SortOption = "relevance" | "date-asc" | "date-desc" | "name";
+
+// Upcoming/postponed/preview events are still ahead of us, so the default
+// view surfaces the nearest one first; everything else (completed,
+// cancelled, unknown) is settled history, so the most recent comes first.
+// This keeps 2021-era archive events from leading the default "every event
+// record" view ahead of what is actually next or just happened.
+const FORWARD_LOOKING_STATUSES: readonly CompetitionStatus[] = ["upcoming", "postponed", "delayed", "preview"];
+
+function relevanceCompare(a: Competition, b: Competition): number {
+  const aForward = FORWARD_LOOKING_STATUSES.includes(a.status);
+  const bForward = FORWARD_LOOKING_STATUSES.includes(b.status);
+  if (aForward !== bForward) return aForward ? -1 : 1;
+  const dateDifference = a.startDate.localeCompare(b.startDate);
+  return aForward ? dateDifference : -dateDifference;
+}
 
 type CompetitionDirectoryProps = {
   readonly competitions: readonly Competition[];
@@ -42,9 +57,10 @@ export function CompetitionDirectory({
   >("all");
   const [country, setCountry] = useState("all");
   const [administrativeArea, setAdministrativeArea] = useState("all");
+  const [year, setYear] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [sort, setSort] = useState<SortOption>("date-asc");
+  const [sort, setSort] = useState<SortOption>("relevance");
 
   const statuses = useMemo(
     () => [...new Set(competitions.map((item) => item.status))].sort(),
@@ -62,6 +78,10 @@ export function CompetitionDirectory({
   const countries = useMemo(
     () =>
       [...new Set(competitions.map((item) => item.country).filter(Boolean))].sort(),
+    [competitions],
+  );
+  const years = useMemo(
+    () => [...new Set(competitions.map((item) => item.year).filter(Boolean))].sort().reverse(),
     [competitions],
   );
   const administrativeAreas = useMemo(
@@ -109,15 +129,14 @@ export function CompetitionDirectory({
             competition.disciplines.includes(discipline)) &&
           (country === "all" || competition.country === country) &&
           (administrativeArea === "all" || area === administrativeArea) &&
+          (year === "all" || competition.year === year) &&
           (!dateFrom || competition.startDate >= dateFrom) &&
           (!dateTo || competition.startDate <= dateTo)
         );
       })
       .sort((a, b) => {
-        if (sort === "name") {
-          return a.name.localeCompare(b.name);
-        }
-
+        if (sort === "name") return a.name.localeCompare(b.name);
+        if (sort === "relevance") return relevanceCompare(a, b);
         const dateDifference = a.startDate.localeCompare(b.startDate);
         return sort === "date-asc" ? dateDifference : -dateDifference;
       });
@@ -132,6 +151,7 @@ export function CompetitionDirectory({
     registration,
     sort,
     status,
+    year,
   ]);
 
   const hasActiveFilters =
@@ -141,9 +161,10 @@ export function CompetitionDirectory({
     discipline !== "all" ||
     country !== "all" ||
     administrativeArea !== "all" ||
+    year !== "all" ||
     dateFrom !== "" ||
     dateTo !== "" ||
-    sort !== "date-asc";
+    sort !== "relevance";
 
   function resetFilters() {
     setQuery("");
@@ -152,9 +173,10 @@ export function CompetitionDirectory({
     setDiscipline("all");
     setCountry("all");
     setAdministrativeArea("all");
+    setYear("all");
     setDateFrom("");
     setDateTo("");
-    setSort("date-asc");
+    setSort("relevance");
   }
 
   if (competitions.length === 0) {
@@ -197,6 +219,13 @@ export function CompetitionDirectory({
             onChange={setAdministrativeArea}
             options={administrativeAreas}
             allLabel="All areas"
+          />
+          <SelectField
+            label="Year"
+            value={year}
+            onChange={setYear}
+            options={years}
+            allLabel="All years"
           />
           <label>
             <FilterLabel>Event status</FilterLabel>
@@ -260,6 +289,7 @@ export function CompetitionDirectory({
               onChange={(event) => setSort(event.target.value as SortOption)}
               className={fieldClassName}
             >
+              <option value="relevance">Upcoming first (recommended)</option>
               <option value="date-asc">Date / Earliest</option>
               <option value="date-desc">Date / Latest</option>
               <option value="name">Name / A–Z</option>

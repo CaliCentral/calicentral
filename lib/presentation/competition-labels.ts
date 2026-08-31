@@ -10,6 +10,7 @@ export const competitionStatusLabels = {
   upcoming: "Upcoming",
   completed: "Completed",
   postponed: "Postponed",
+  delayed: "Delayed",
   cancelled: "Cancelled",
   preview: "Preview",
   unknown: "Status unknown",

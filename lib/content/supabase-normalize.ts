@@ -141,6 +141,7 @@ function normalizeCompetitionStatus(status: string): CompetitionStatus {
     case "completed": return "completed";
     case "cancelled": return "cancelled";
     case "postponed": return "postponed";
+    case "delayed": return "delayed";
     default: return "unknown";
   }
 }

@@ -92,7 +92,9 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
           </ul>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/12 pt-4 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted">
             <span>
-              {competitionScheduleStatusLabels[competition.scheduleStatus]} / {competitionResultsStatusLabels[competition.resultsStatus]}
+              {competition.status === "completed"
+                ? `Results: ${competitionResultsStatusLabels[competition.resultsStatus]}`
+                : `${competitionScheduleStatusLabels[competition.scheduleStatus]} / Results: ${competitionResultsStatusLabels[competition.resultsStatus]}`}
             </span>
             <span className="text-ink transition-transform group-hover:translate-x-1">
               View record →

@@ -4,6 +4,7 @@ export type CompetitionStatus =
   | "upcoming"
   | "completed"
   | "postponed"
+  | "delayed"
   | "cancelled"
   | "preview"
   | "unknown";

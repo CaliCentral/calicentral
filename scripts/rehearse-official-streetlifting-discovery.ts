@@ -197,6 +197,13 @@ async function main() {
       updated: competitionReport.decisions.filter((item) => item.state === "updated").length,
       unchanged: competitionReport.decisions.filter((item) => item.state === "unchanged").length,
       ambiguous: competitionReport.decisions.filter((item) => item.state === "ambiguous").length,
+      // Present in a prior existing set but absent from this run's complete
+      // discovery. This is never treated as "cancelled" -- disappearance is
+      // only a review candidate, since the source may have reorganized or
+      // temporarily removed a page. Only non-empty when every surface was
+      // fully paginated (failedPages === 0), so a partial crawl never
+      // manufactures false disappearances.
+      missingFromCompleteDiscovery: competitionReport.missingFromCompleteDiscovery.length,
       failedPages: competitionReport.surfaces.reduce((sum, surface) => sum + surface.failedPages.length, 0),
       sourceHealth: competitionReport.sourceHealth,
       runKey: competitionReport.runKey,
