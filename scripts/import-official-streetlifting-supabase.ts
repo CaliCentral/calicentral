@@ -226,7 +226,7 @@ async function writeLocal(input: {
   await insertIgnore(input.client, "athletes", input.plan.athletes.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: item.canonicalId, permanent_id: `official-streetlifting:${item.externalId}`,
     slug: slug("osl-athlete", item.externalId), name: item.sourceName, biography: "",
-    identity_state: "unconfirmed", editorial_state: "draft",
+    identity_state: "unconfirmed", editorial_state: "draft", provenance_status: "real_unverified",
   })));
   await insertIgnore(input.client, "external_athlete_identities", input.plan.athletes.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: stableDataOpsUuid("calicentral:official-streetlifting:athlete-identity", item.externalId),
@@ -238,7 +238,7 @@ async function writeLocal(input: {
   await insertIgnore(input.client, "competitions", input.plan.competitions.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: item.canonicalId, permanent_id: `official-streetlifting:${item.externalId}`,
     slug: slug("osl-competition", item.externalId), name: item.name,
-    status: item.status, start_date: item.startDate ?? null, summary: "", public_state: "draft",
+    status: item.status, start_date: item.startDate ?? null, summary: "", public_state: "draft", provenance_status: "real_unverified",
   })));
   await insertIgnore(input.client, "external_competition_identities", input.plan.competitions.filter((item) => item.state === "new" && item.canonicalId).map((item) => ({
     id: stableDataOpsUuid("calicentral:official-streetlifting:competition-identity", item.externalId),

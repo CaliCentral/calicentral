@@ -9,6 +9,7 @@ import { athleteCategoryLabel } from "@/lib/athlete-taxonomy";
 import { getAthletes } from "@/lib/content";
 import { countryNameFor } from "@/lib/geography";
 import { createPublicMetadata } from "@/lib/site/metadata";
+import { useSupabaseAuth } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 
@@ -128,12 +129,14 @@ export default async function AthletesPage() {
               </div>
             </div>
 
-            <p className="mt-12 border-l-2 border-accent-dark pl-4 text-xs leading-5 text-muted-dark">
-              All names, profiles, quotes, training bases, achievements,
-              rankings, and performance statistics in this directory are
-              fictional prototype content. They do not document or verify real
-              people, teams, or competition results.
-            </p>
+            {useSupabaseAuth ? null : (
+              <p className="mt-12 border-l-2 border-accent-dark pl-4 text-xs leading-5 text-muted-dark">
+                All names, profiles, quotes, training bases, achievements,
+                rankings, and performance statistics in this directory are
+                fictional prototype content. They do not document or verify
+                real people, teams, or competition results.
+              </p>
+            )}
           </Container>
         </section>
       ) : null}

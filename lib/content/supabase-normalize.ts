@@ -131,7 +131,7 @@ export function normalizeSupabaseAthlete(row: SupabaseAthleteRow): Athlete {
     relatedStorySlugs: [],
     relatedAthleteSlugs: [],
     visualVariant: "signal",
-    disciplineCode: row.provenance_status,
+    disciplineCode: "",
   };
 }
 
