@@ -5,7 +5,8 @@ export type CompetitionStatus =
   | "completed"
   | "postponed"
   | "cancelled"
-  | "preview";
+  | "preview"
+  | "unknown";
 
 export type CompetitionContentStatus =
   | "published-record"

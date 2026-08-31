@@ -13,6 +13,7 @@ export const competitionStatusLabels = {
   postponed: "Postponed",
   cancelled: "Cancelled",
   preview: "Preview",
+  unknown: "Status unknown",
 } as const satisfies Record<CompetitionStatus, string>;
 
 export const registrationStatusLabels = {

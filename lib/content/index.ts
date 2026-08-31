@@ -63,6 +63,16 @@ import type {
   VideoPageData,
   VideosPageData,
 } from "@/lib/content/types";
+import {
+  getSupabaseAthletePage,
+  getSupabaseAthletes,
+  getSupabaseAthleteSlugs,
+  getSupabaseAthleteRankingSnapshots,
+  getSupabaseCompetitionPage,
+  getSupabaseCompetitions,
+  getSupabaseCompetitionSlugs,
+} from "@/lib/content/supabase-source";
+import { useSupabaseAuth } from "@/lib/supabase/config";
 import { isSanityConfigured } from "@/sanity/env";
 import type { Article } from "@/types/article";
 import type { Athlete } from "@/types/athlete";
@@ -95,6 +105,33 @@ export async function getSiteSettings(
 }
 
 export async function getHomepageContent(): Promise<HomepageContent> {
+  if (useSupabaseAuth) {
+    // Editorial homepage modules (hero/stories/videos) have no Supabase
+    // source yet -- out of this session's scope, and using the same
+    // fallback content the legacy path already uses is honest (it's
+    // explicitly labeled fictional prototype content there), not a new
+    // fabrication. Sport modules (competitions/athlete) use real published
+    // Supabase data; rankingCategory stays null -- no Cali Central-authored
+    // ranking (a distinct concept from the external, provider-attributed
+    // rankings on /rankings) exists in Postgres yet, a documented gap
+    // rather than a faked category.
+    const [fallback, competitions, athletes] = await Promise.all([
+      getFallbackHomepageContent(),
+      getSupabaseCompetitions(),
+      getSupabaseAthletes(),
+    ]);
+    const upcoming = competitions
+      .filter((competition) => competition.status === "upcoming")
+      .slice()
+      .sort((first, second) => first.startDate.localeCompare(second.startDate))
+      .slice(0, 3);
+    return {
+      ...fallback,
+      competitions: upcoming,
+      athlete: athletes[0] ?? null,
+      rankingCategory: null,
+    };
+  }
   return isSanityConfigured
     ? getSanityHomepageContent()
     : getFallbackHomepageContent();
@@ -126,6 +163,7 @@ export async function getStorySlugs(): Promise<readonly string[]> {
 export async function getAthletes(
   options?: ContentFetchOptions,
 ): Promise<readonly Athlete[]> {
+  if (useSupabaseAuth) return getSupabaseAthletes();
   return isSanityConfigured
     ? getSanityAthletes(options)
     : getFallbackAthletes();
@@ -135,12 +173,14 @@ export async function getAthletePage(
   slug: string,
   options?: ContentFetchOptions,
 ): Promise<AthletePageData | null> {
+  if (useSupabaseAuth) return getSupabaseAthletePage(slug);
   return isSanityConfigured
     ? getSanityAthletePage(slug, options)
     : getFallbackAthletePage(slug);
 }
 
 export async function getAthleteSlugs(): Promise<readonly string[]> {
+  if (useSupabaseAuth) return getSupabaseAthleteSlugs();
   return isSanityConfigured
     ? getSanityAthleteSlugs()
     : getFallbackAthleteSlugs();
@@ -191,7 +231,9 @@ export async function getTeamSlugs(): Promise<readonly string[]> {
 export async function getAthleteRankingSnapshots(
   options?: ContentFetchOptions,
 ): Promise<readonly AthleteRankingSnapshot[]> {
-  if (!featureConfig.externalRankings || !isSanityConfigured) return [];
+  if (!featureConfig.externalRankings) return [];
+  if (useSupabaseAuth) return getSupabaseAthleteRankingSnapshots();
+  if (!isSanityConfigured) return [];
   return getSanityAthleteRankingSnapshots(options);
 }
 
@@ -247,6 +289,7 @@ export async function getProductSlugs(): Promise<readonly string[]> {
 export async function getCompetitions(
   options?: ContentFetchOptions,
 ): Promise<readonly Competition[]> {
+  if (useSupabaseAuth) return getSupabaseCompetitions();
   return isSanityConfigured
     ? getSanityCompetitions(options)
     : getFallbackCompetitions();
@@ -256,12 +299,14 @@ export async function getCompetitionPage(
   slug: string,
   options?: ContentFetchOptions,
 ): Promise<CompetitionPageData | null> {
+  if (useSupabaseAuth) return getSupabaseCompetitionPage(slug);
   return isSanityConfigured
     ? getSanityCompetitionPage(slug, options)
     : getFallbackCompetitionPage(slug);
 }
 
 export async function getCompetitionSlugs(): Promise<readonly string[]> {
+  if (useSupabaseAuth) return getSupabaseCompetitionSlugs();
   return isSanityConfigured
     ? getSanityCompetitionSlugs()
     : getFallbackCompetitionSlugs();
