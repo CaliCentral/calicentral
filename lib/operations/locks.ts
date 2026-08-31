@@ -2,6 +2,7 @@ import "server-only";
 
 import { requireOperationsClient } from "@/lib/operations/client";
 import { OperationalError } from "@/lib/operations/errors";
+import { useSupabaseAuth } from "@/lib/supabase/config";
 
 const ADMINISTRATOR_MUTATION_LOCK_ID =
   "operational-lock.administrator-mutations";
@@ -15,8 +16,17 @@ export type OperationalLockGuard = {
  * Return a shared revision guard used to serialize administrator removals.
  * The lock contains no identity or content data; its `_rev` is included in
  * the same transaction as the guarded contributor mutation.
+ *
+ * In Supabase mode this returns undefined -- there is no equivalent lock
+ * document, and none is needed: the last-active-administrator invariant is
+ * enforced transactionally by the database trigger from
+ * supabase/migrations/202608300009_administrator_removal_safeguard.sql,
+ * which is authoritative regardless of application-layer state.
  */
-export async function getAdministratorMutationGuard(): Promise<OperationalLockGuard> {
+export async function getAdministratorMutationGuard(): Promise<OperationalLockGuard | undefined> {
+  if (useSupabaseAuth) {
+    return undefined;
+  }
   const client = requireOperationsClient();
   const now = new Date().toISOString();
 

@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 const contributors = readFileSync("lib/operations/contributors.ts", "utf8");
 const submissions = readFileSync("lib/operations/submissions.ts", "utf8");
 const supabaseReads = readFileSync("lib/operations/supabase-read.ts", "utf8");
+const supabaseWrites = readFileSync("lib/operations/supabase-write.ts", "utf8");
+const locks = readFileSync("lib/operations/locks.ts", "utf8");
 
 function functionBody(source: string, name: string): string {
   const start = source.indexOf(`export async function ${name}`);
@@ -27,6 +29,19 @@ for (const [source, name, supabaseFunction] of [
   [contributors, "getContributorForAdmin", "getSupabaseContributorForAdmin"],
   [contributors, "getContributorForEditor", "getSupabaseContributorForEditor"],
   [contributors, "getAssignableReviewers", "getSupabaseAssignableReviewers"],
+  [submissions, "getSubmissionMutationTarget", "getSupabaseSubmissionMutationTarget"],
+  [submissions, "createSubmissionRecord", "createSupabaseSubmissionRecord"],
+  [submissions, "updateSubmissionRecord", "updateSupabaseSubmissionRecord"],
+  [submissions, "transitionSubmissionRecord", "transitionSupabaseSubmissionRecord"],
+  [submissions, "assignSubmissionReviewerRecord", "assignSupabaseSubmissionReviewer"],
+  [submissions, "addPrivateEditorialNoteRecord", "addSupabasePrivateEditorialNote"],
+  [submissions, "updateVisibleFeedbackRecord", "updateSupabaseVisibleFeedback"],
+  [submissions, "updateSubmissionPriorityRecord", "updateSupabaseSubmissionPriority"],
+  [contributors, "updateContributorProfileRecord", "updateSupabaseContributorProfileRecord"],
+  [contributors, "updateContributorRoleRecord", "updateSupabaseContributorRoleRecord"],
+  [contributors, "updateContributorAccessRecord", "updateSupabaseContributorAccessRecord"],
+  [contributors, "updateContributorInternalNotesRecord", "updateSupabaseContributorInternalNotesRecord"],
+  [contributors, "countOtherEffectiveAdministrators", "countSupabaseOtherEffectiveAdministrators"],
 ] as const) {
   const body = functionBody(source, name);
   const providerBranch = body.indexOf("if (useSupabaseAuth)");
@@ -40,6 +55,12 @@ for (const [source, name, supabaseFunction] of [
   );
 }
 
+assert(
+  locks.indexOf("if (useSupabaseAuth)") >= 0 &&
+    locks.indexOf("if (useSupabaseAuth)") < locks.indexOf("requireOperationsClient()"),
+  "getAdministratorMutationGuard must skip the Sanity-only lock document in Supabase mode, relying on the 202608300009 database trigger instead",
+);
+
 assert.match(
   supabaseReads,
   /createSupabaseServerClient/,
@@ -50,7 +71,17 @@ assert.doesNotMatch(
   /serviceRoleKey|createClient\s*\(/,
   "protected Supabase reads must not bypass RLS with a service-role client",
 );
+assert.match(
+  supabaseWrites,
+  /createSupabaseServerClient/,
+  "protected Supabase writes must use the cookie-bound server client",
+);
+assert.doesNotMatch(
+  supabaseWrites,
+  /serviceRoleKey|createClient\s*\(/,
+  "protected Supabase writes must not bypass RLS with a service-role client",
+);
 
 console.log(
-  "Protected loader isolation validation passed: Supabase mode uses cookie-bound reads and legacy Sanity dispatch remains available.",
+  "Protected loader isolation validation passed: Supabase mode uses cookie-bound reads/writes and legacy Sanity dispatch remains available.",
 );

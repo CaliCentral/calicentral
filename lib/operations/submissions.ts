@@ -56,6 +56,16 @@ import {
   getSupabaseSubmissionForContributor,
   getSupabaseSubmissionForReview,
 } from "@/lib/operations/supabase-read";
+import {
+  addSupabasePrivateEditorialNote,
+  assignSupabaseSubmissionReviewer,
+  createSupabaseSubmissionRecord,
+  getSupabaseSubmissionMutationTarget,
+  transitionSupabaseSubmissionRecord,
+  updateSupabaseSubmissionPriority,
+  updateSupabaseSubmissionRecord,
+  updateSupabaseVisibleFeedback,
+} from "@/lib/operations/supabase-write";
 
 const SUPPORTING_LINK_PROJECTION = `{
   "key": _key,
@@ -382,7 +392,7 @@ function compactRecord(values: Record<string, unknown>) {
   );
 }
 
-function submissionContentPatch(input: SubmissionWriteInput) {
+export function submissionContentPatch(input: SubmissionWriteInput) {
   const common = {
     submissionType: input.submissionType,
     title: input.title,
@@ -505,7 +515,7 @@ function auditReference(auditId: string) {
   };
 }
 
-function assertSubmissionHistoryCapacity(
+export function assertSubmissionHistoryCapacity(
   target: SubmissionMutationTarget,
 ): void {
   if (target.auditEventCount >= 500) {
@@ -516,7 +526,7 @@ function assertSubmissionHistoryCapacity(
   }
 }
 
-function transitionEvent(
+export function transitionEvent(
   currentStatus: SubmissionStatus,
   nextStatus: SubmissionStatus,
 ) {
@@ -951,6 +961,9 @@ export async function getSubmissionMutationTarget(
   submissionId: string,
 ): Promise<SubmissionMutationTarget | null> {
   const id = operationalDocumentIdSchema.parse(submissionId);
+  if (useSupabaseAuth) {
+    return getSupabaseSubmissionMutationTarget(id);
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<Record<string, unknown> | null>(
     `*[_type == "submission" && _id == $id][0] ${SUBMISSION_MUTATION_TARGET_PROJECTION}`,
@@ -1198,6 +1211,9 @@ export async function createSubmissionRecord(input: {
   readonly submitImmediately: boolean;
   readonly idempotencyKey: string;
 }): Promise<CreatedSubmissionResult> {
+  if (useSupabaseAuth) {
+    return createSupabaseSubmissionRecord(input);
+  }
   const client = requireOperationsClient();
   const now = new Date();
   const timestamp = now.toISOString();
@@ -1378,6 +1394,9 @@ export async function updateSubmissionRecord(input: {
   readonly content: SubmissionDraftInput;
   readonly operationKey: string;
 }): Promise<"updated" | "replayed"> {
+  if (useSupabaseAuth) {
+    return updateSupabaseSubmissionRecord(input);
+  }
   const client = requireOperationsClient();
   const identifiers = createSubmissionUpdateIdentifiers({
     contributorId: input.actor.id,
@@ -1461,6 +1480,14 @@ export async function transitionSubmissionRecord(input: {
   readonly visibleFeedback?: string;
   readonly acceptTerms?: boolean;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    // Documented parity gap: Supabase has no terms_accepted_at column
+    // anywhere (see docs/supabase-migration.md), so acceptTerms has no
+    // persistence target here -- silently accepted rather than faked, not
+    // silently dropped without a trace.
+    await transitionSupabaseSubmissionRecord(input);
+    return;
+  }
   assertSubmissionHistoryCapacity(input.target);
   assertSubmissionTransition(
     input.workflowActor,
@@ -1530,8 +1557,11 @@ export async function assignSubmissionReviewerRecord(input: {
   readonly target: SubmissionMutationTarget;
   readonly reviewerId: string;
 }): Promise<void> {
-  assertSubmissionHistoryCapacity(input.target);
   const reviewerId = operationalDocumentIdSchema.parse(input.reviewerId);
+  if (useSupabaseAuth) {
+    return assignSupabaseSubmissionReviewer({ actor: input.actor, target: input.target, reviewerId });
+  }
+  assertSubmissionHistoryCapacity(input.target);
   const client = requireOperationsClient();
   const audit = createAuditEventDocument({
     eventType: "reviewerAssigned",
@@ -1573,6 +1603,9 @@ export async function addPrivateEditorialNoteRecord(input: {
   readonly note: string;
   readonly operationKey: string;
 }): Promise<"created" | "replayed"> {
+  if (useSupabaseAuth) {
+    return addSupabasePrivateEditorialNote(input);
+  }
   const client = requireOperationsClient();
   const identifiers = createPrivateNoteIdentifiers({
     actorId: input.actor.id,
@@ -1655,6 +1688,9 @@ export async function updateVisibleFeedbackRecord(input: {
   readonly target: SubmissionMutationTarget;
   readonly feedback: string;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    return updateSupabaseVisibleFeedback(input);
+  }
   assertSubmissionHistoryCapacity(input.target);
   const client = requireOperationsClient();
   const audit = createAuditEventDocument({
@@ -1688,6 +1724,9 @@ export async function updateSubmissionPriorityRecord(input: {
   readonly target: SubmissionMutationTarget;
   readonly priority: SubmissionPriority;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    return updateSupabaseSubmissionPriority(input);
+  }
   assertSubmissionHistoryCapacity(input.target);
   const client = requireOperationsClient();
   const audit = createAuditEventDocument({

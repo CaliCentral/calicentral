@@ -42,6 +42,13 @@ import {
   getSupabaseContributorForEditor,
   getSupabaseOwnContributorProfile,
 } from "@/lib/operations/supabase-read";
+import {
+  countSupabaseOtherEffectiveAdministrators,
+  updateSupabaseContributorAccessRecord,
+  updateSupabaseContributorInternalNotesRecord,
+  updateSupabaseContributorProfileRecord,
+  updateSupabaseContributorRoleRecord,
+} from "@/lib/operations/supabase-write";
 
 const OWN_PROFILE_PROJECTION = `{
   "id": _id,
@@ -716,6 +723,17 @@ export async function countOtherEffectiveAdministrators(input: {
       ),
     ),
   ];
+  if (useSupabaseAuth) {
+    const supabaseCount = await countSupabaseOtherEffectiveAdministrators({
+      contributorId: id,
+      bootstrapAdminEmails,
+    });
+    return countEffectiveAdministratorCandidates({
+      activeProfileAdministratorCount: supabaseCount.activeProfileAdministratorCount,
+      bootstrapAdminEmails,
+      provisionedBootstrapEmails: supabaseCount.provisionedBootstrapEmails,
+    });
+  }
   const client = requireOperationsClient();
   const result = await client.fetch<{
     activeProfileAdministratorCount?: unknown;
@@ -777,6 +795,9 @@ export async function updateContributorProfileRecord(
   actor: OperationalActor,
   input: ContributorProfileUpdateInput,
 ): Promise<"updated" | "unchanged"> {
+  if (useSupabaseAuth) {
+    return updateSupabaseContributorProfileRecord(actor, input);
+  }
   const client = requireOperationsClient();
   const current = await client.fetch<{
     revisionId?: unknown;
@@ -861,6 +882,14 @@ export async function updateContributorRoleRecord(input: {
   readonly role: ContributorRole;
   readonly administratorGuard?: OperationalLockGuard;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    // The Sanity-only administratorGuard app-level lock has no Supabase
+    // equivalent and none is needed: the last-active-administrator
+    // invariant is enforced transactionally by the database trigger from
+    // supabase/migrations/202608300009_administrator_removal_safeguard.sql,
+    // which is authoritative regardless of application-layer state.
+    return updateSupabaseContributorRoleRecord({ actor: input.actor, contributor: input.contributor, role: input.role });
+  }
   const client = requireOperationsClient();
   const audit = createAuditEventDocument({
     eventType: "contributorRoleChanged",
@@ -902,6 +931,9 @@ export async function updateContributorAccessRecord(input: {
   readonly accessStatus: "active" | "pending" | "suspended" | "archived";
   readonly administratorGuard?: OperationalLockGuard;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    return updateSupabaseContributorAccessRecord({ actor: input.actor, contributor: input.contributor, accessStatus: input.accessStatus });
+  }
   const client = requireOperationsClient();
   const eventType =
     input.accessStatus === "suspended"
@@ -951,6 +983,9 @@ export async function updateContributorInternalNotesRecord(input: {
   readonly contributor: AdminContributorDetail;
   readonly internalNotes: string;
 }): Promise<void> {
+  if (useSupabaseAuth) {
+    return updateSupabaseContributorInternalNotesRecord(input);
+  }
   const client = requireOperationsClient();
   const audit = createAuditEventDocument({
     eventType: "contributorInternalNotesUpdated",
