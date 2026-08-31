@@ -46,6 +46,20 @@ assert.deepEqual(parseOfficialStreetliftingCompetitions(competitionHtml), [{
   startDate: "2026-09-01",
 }]);
 
+// The live directory page carries no per-card badge at all for upcoming
+// competitions (confirmed against a real fetch) -- a card with no badge but
+// structurally listed under the page's own "Upcoming Competitions" heading
+// must resolve to "Upcoming" from that section evidence, never a guess.
+const sectionedDirectoryHtml = `
+  <h3>Upcoming Competitions</h3>
+  <div class="group relative flex flex-col"><h3><a href="/competitions/no-badge-upcoming">No Badge Upcoming</a></h3><time datetime="2026-09-01T00:00:00Z">Sep 1</time></div>
+  <a href="/competitions/past">View All Past Competitions</a>
+  <div class="group relative flex flex-col"><h3><a href="/competitions/no-badge-elsewhere">No Badge Outside Section</a></h3><time datetime="2026-01-01T00:00:00Z">Jan 1</time></div>
+`;
+const sectioned = parseOfficialStreetliftingCompetitions(sectionedDirectoryHtml);
+assert.equal(sectioned.find((item) => item.externalId === "no-badge-upcoming")?.sourceStatus, "Upcoming", "a badge-less card inside the Upcoming Competitions section must resolve to Upcoming, not Unknown");
+assert.equal(sectioned.find((item) => item.externalId === "no-badge-elsewhere")?.sourceStatus, "Unknown", "a badge-less card outside any recognized section still falls back to Unknown, never a guessed status");
+
 const first = buildOfficialStreetliftingSnapshot({ sourceUrl: "https://rankings.officialstreetlifting.com/results/", fetchedAt: "2026-08-30T00:00:00.000Z", httpStatus: 200, contentType: "text/html", body: table, sourceEntityType: "results-directory" });
 const second = buildOfficialStreetliftingSnapshot({ sourceUrl: first.sourceUrl, fetchedAt: "2026-08-30T01:00:00.000Z", httpStatus: 200, contentType: "text/html", body: table, sourceEntityType: "results-directory" });
 assert.equal(first.contentHash, second.contentHash, "unchanged source bytes must retain one content identity");

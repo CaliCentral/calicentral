@@ -129,15 +129,45 @@ export function parseOfficialStreetliftingRanking(html: string, sourceUrl: strin
   };
 }
 
+const COMPETITION_BLOCK_MARKER = '<div class="group relative flex flex-col';
+
+/**
+ * The live directory page renders no per-card status badge at all for
+ * upcoming competitions (only "Completed" cards carry one) -- confirmed
+ * against a real fetch, not assumed. Rather than leaving those as
+ * "Unknown" (a missing-data guess masquerading as evidence) or inferring a
+ * status from absence, this uses the page's own explicit section
+ * boundaries: everything between the literal "Upcoming Competitions"
+ * heading and the next section is structurally, deterministically upcoming
+ * -- the same kind of positive page evidence a "Completed" badge is, not
+ * an inference from what's missing. A card outside any recognized section
+ * with no badge still falls back to "Unknown".
+ */
+function upcomingSectionBounds(html: string): { readonly start: number; readonly end: number } | null {
+  const start = html.search(/upcoming\s+competitions/i);
+  if (start === -1) return null;
+  const afterHeading = html.slice(start);
+  const nextSection = afterHeading.search(/past\s+competitions/i);
+  const end = nextSection === -1 ? html.length : start + nextSection;
+  return { start, end };
+}
+
 export function parseOfficialStreetliftingCompetitions(html: string): readonly OfficialStreetliftingCompetition[] {
-  const blocks = html.split(/<div class="group relative flex flex-col/i).slice(1);
-  const records = blocks.flatMap((block) => {
+  const upcomingBounds = upcomingSectionBounds(html);
+  const blockStarts: number[] = [];
+  for (let cursor = html.indexOf(COMPETITION_BLOCK_MARKER); cursor !== -1; cursor = html.indexOf(COMPETITION_BLOCK_MARKER, cursor + 1)) {
+    blockStarts.push(cursor);
+  }
+  const records = blockStarts.flatMap((blockStart, index) => {
+    const block = html.slice(blockStart, blockStarts[index + 1] ?? html.length);
     const path = capture(block, /href="(\/competitions\/[^"?#]+)"/i);
     const name = capture(block, /href="\/competitions\/[^"?#]+"[^>]*>([^<]+)<\/a>/i);
     if (!path || !name) return [];
     const externalId = path.split("/").filter(Boolean).at(-1);
     if (!externalId) return [];
-    const sourceStatus = capture(block, /<span\b[^>]*>(Upcoming|Completed|Cancelled|Postponed)<\/span>/i) ?? "Unknown";
+    const badgeStatus = capture(block, /<span\b[^>]*>(Upcoming|Completed|Cancelled|Postponed)<\/span>/i);
+    const isInUpcomingSection = Boolean(upcomingBounds) && blockStart >= upcomingBounds!.start && blockStart < upcomingBounds!.end;
+    const sourceStatus = badgeStatus ?? (isInUpcomingSection ? "Upcoming" : "Unknown");
     const startDate = capture(block, /<time\b[^>]*datetime="(\d{4}-\d{2}-\d{2})/i);
     const location = capture(block, /<time\b[^>]*>[\s\S]*?<\/time>[\s\S]*?<\/div>[\s\S]*?<div\b[^>]*>[\s\S]*?<span>([^<]+)<\/span>/i);
     const style = capture(block, /<span\b[^>]*>(OSL|All4|Classic|Endurance)<\/span>/i);
